@@ -344,7 +344,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
               <input type="number" name="price" value={formData.price} onChange={handleChange} className="w-full border rounded p-2" required min="0" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Giá gốc (Bỏ trống nếu không giảm)</label>
+              <label className="block text-sm font-medium mb-1">Giá gốc </label>
               <input type="number" name="originalPrice" value={formData.originalPrice || ''} onChange={handleChange} className="w-full border rounded p-2" min="0" />
             </div>
             <div>

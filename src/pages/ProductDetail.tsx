@@ -229,7 +229,7 @@ export default function ProductDetail() {
             )} */}
 
             {/* Coupon Input */}
-            <CouponInput productCategory={product.category} productPrice={selectedVariant?.price || product.price} />
+            <CouponInput productCategory={product.category} productPrice={selectedVariant?.price || product.price} showAllPromotions={false} />
 
             {/* Contact Buttons */}
             <div className="grid grid-cols-2 gap-3 mb-6">
