@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Represents a product in the inventory",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "price": { "type": "number" },
+        "originalPrice": { "type": "number" },
+        "discountPercentage": { "type": "number" },
+        "image": { "type": "string" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "category": { "type": "string" },
+        "brand": { "type": "string" },
+        "specs": { "type": "object" },
+        "variants": { "type": "array" },
+        "inStock": { "type": "boolean" },
+        "isUsed": { "type": "boolean" },
+        "description": { "type": "string" },
+        "inventoryQuantity": { "type": "number" },
+        "offers": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "name", "slug", "price", "image", "category", "brand", "inStock"]
+    },
+    "ImportSlip": {
+      "title": "ImportSlip",
+      "description": "Represents an import slip",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "productId": { "type": "string" },
+        "quantity": { "type": "number" },
+        "importPrice": { "type": "number" },
+        "totalPrice": { "type": "number" },
+        "importDate": { "type": "string", "format": "date" }
+      },
+      "required": ["id", "productId", "quantity", "importPrice", "totalPrice", "importDate"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "Represents an operating expense",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "amount": { "type": "number" },
+        "expenseDate": { "type": "string", "format": "date" }
+      },
+      "required": ["id", "name", "amount", "expenseDate"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": { "$ref": "Product" },
+      "description": "Products collection"
+    },
+    "/import_slips/{slipId}": {
+      "schema": { "$ref": "ImportSlip" },
+      "description": "Import slips collection"
+    },
+    "/expenses/{expenseId}": {
+      "schema": { "$ref": "Expense" },
+      "description": "Expenses collection"
+    }
+  }
+}
