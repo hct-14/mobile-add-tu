@@ -12,7 +12,6 @@ interface CouponInputProps {
 
 export default function CouponInput({ productCategory, productPrice, showAllPromotions = true }: CouponInputProps) {
   const [inputCode, setInputCode] = useState('');
-  const [isExpanded, setIsExpanded] = useState(false);
   
   const promotions = usePromotionStore(state => state.promotions);
   const { appliedCoupon, setCoupon, clearCoupon } = useCouponStore();
@@ -76,24 +75,15 @@ export default function CouponInput({ productCategory, productPrice, showAllProm
 
     setCoupon(promo.code, discount);
     toast.success(`Áp dụng mã ${promo.code}! Giảm ${formatPrice(discount)}đ`);
-    setIsExpanded(false);
   };
 
   return (
     <div className="border border-orange-200 rounded-lg overflow-hidden mb-6 bg-gradient-to-r from-orange-50 to-yellow-50">
-      <div className="bg-orange-100 text-orange-800 font-medium px-4 py-2 flex items-center justify-between">
+      <div className="bg-orange-100 text-orange-800 font-medium px-4 py-2 flex items-center">
         <div className="flex items-center gap-2">
           <Tag size={18} />
           Mã giảm giá
         </div>
-        {showAllPromotions && (
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="text-xs bg-orange-200 hover:bg-orange-300 px-2 py-1 rounded transition-colors"
-          >
-            {isExpanded ? 'Thu gọn' : 'Xem tất cả'}
-          </button>
-        )}
       </div>
       
       <div className="p-4 bg-white">
@@ -131,8 +121,7 @@ export default function CouponInput({ productCategory, productPrice, showAllProm
           </button>
         </div>
 
-        {/* All promotions list */}
-        {isExpanded && validPromotions.length > 0 && (
+        {showAllPromotions && validPromotions.length > 0 && (
           <div className="mt-4 pt-4 border-t space-y-2">
             <p className="text-xs text-gray-500 font-medium">Mã giảm giá có sẵn:</p>
             <div className="space-y-2 max-h-40 overflow-y-auto">
