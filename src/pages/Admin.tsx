@@ -9,11 +9,12 @@ import { useCategoryStore } from '../store/useCategoryStore';
 import { useCampaignStore } from '../store/useCampaignStore';
 import { useWarrantyStore } from '../store/useWarrantyStore';
 import { Link } from 'react-router-dom';
-import { Package, ShoppingBag, Image as ImageIcon, Tag, Edit, Trash2, CheckCircle, XCircle, BarChart3, ListTree, Zap, ShieldCheck, Clock, Settings as SettingsIcon } from 'lucide-react';
+import { Package, ShoppingBag, Image as ImageIcon, Tag, Edit, Trash2, CheckCircle, XCircle, BarChart3, ListTree, Zap, ShieldCheck, Clock, Settings as SettingsIcon, Upload } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import BannerModal from '../components/admin/BannerModal';
 import PromotionModal from '../components/admin/PromotionModal';
 import ProductModal from '../components/admin/ProductModal';
+import BatchProductModal from '../components/admin/BatchProductModal';
 import CategoryModal from '../components/admin/CategoryModal';
 import CampaignModal from '../components/admin/CampaignModal';
 import WarrantyModal from '../components/admin/WarrantyModal';
@@ -81,6 +82,7 @@ export default function Admin() {
 
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isBatchProductModalOpen, setIsBatchProductModalOpen] = useState(false);
 
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -303,12 +305,21 @@ export default function Admin() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold">Quản lý sản phẩm</h1>
-              <button 
-                onClick={() => { setEditingProduct(null); setIsProductModalOpen(true); }}
-                className="bg-[#00483d] text-white px-4 py-2 rounded-md hover:bg-[#00382f] transition-colors"
-              >
-                + Thêm sản phẩm
-              </button>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setIsBatchProductModalOpen(true)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+                >
+                  <Upload size={18} />
+                  Thêm nhiều sản phẩm
+                </button>
+                <button 
+                  onClick={() => { setEditingProduct(null); setIsProductModalOpen(true); }}
+                  className="bg-[#00483d] text-white px-4 py-2 rounded-md hover:bg-[#00382f] transition-colors"
+                >
+                  + Thêm sản phẩm
+                </button>
+              </div>
             </div>
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
@@ -1332,6 +1343,15 @@ export default function Admin() {
         onSave={(product) => {
           if (editingProduct) updateProduct(product.id, product);
           else addProduct(product);
+        }}
+      />
+
+      <BatchProductModal
+        isOpen={isBatchProductModalOpen}
+        onClose={() => setIsBatchProductModalOpen(false)}
+        categories={categories.map(c => c.name)}
+        onSave={(newProducts) => {
+          newProducts.forEach(product => addProduct(product));
         }}
       />
 
