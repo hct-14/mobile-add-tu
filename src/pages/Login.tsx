@@ -6,8 +6,8 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@gmail.com');
+  const [password, setPassword] = useState('123456');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -44,7 +44,7 @@ export default function Login() {
           id: userCredential.user.uid,
           name: userCredential.user.displayName || 'Google User',
           email: userCredential.user.email || '',
-          role: (userCredential.user.email === 'admin@hoangha.com' || userCredential.user.email === 'hoangthanhgolle@gmail.com' || userCredential.user.email === 'alostore6688@gmail.com') ? 'admin' : 'user'
+          role: (userCredential.user.email === 'admin@hoangha.com' || userCredential.user.email === 'hoangthanhgolle@gmail.com' || userCredential.user.email === 'alostore6688@gmail.com' || userCredential.user.email === 'admin@gmail.com') ? 'admin' : 'user'
         });
       }
       toast.success('Đăng nhập với Google thành công!');
