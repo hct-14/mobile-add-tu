@@ -57,6 +57,7 @@ export interface ProductVariant {
   condition?: string;
   price: number;
   inStock: boolean;
+  stock: number; // So luong ton kho
   image?: string;
 }
 
@@ -85,6 +86,7 @@ export interface OrderItem {
   variantCondition?: string;
   priceAtOrder: number;
   quantity: number;
+  stockAtOrder: number; // Stock luc dat hang
   productImage: string;
   variantImage?: string;
 }
@@ -146,6 +148,8 @@ export interface Promotion {
   usageLimit?: number;
   usedCount?: number;
   applicableCategories?: string[];
+  applicableTo?: 'all' | 'cart' | 'products'; // 'all' = ap dung moi noi, 'cart' = chi gio hang, 'products' = chi san pham
+  applicableToAll?: boolean; // true = ap dung tat ca noi (gio hang + san pham)
 }
 
 export interface Category {

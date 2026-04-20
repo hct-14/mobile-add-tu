@@ -41,6 +41,27 @@ export default function Admin() {
   const { importSlips, expenses, fetchWarehouseData, addImportSlip, addExpense } = useWarehouseStore();
   const { settings, updateSettings } = useSettingsStore();
 
+  // Helper to update product variant stock
+  const updateProductStock = (productId: string, variantId: string, quantityToSubtract: number) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    
+    const variantIndex = product.variants.findIndex(v => v.id === variantId);
+    if (variantIndex === -1) return;
+    
+    const currentStock = product.variants[variantIndex].stock || 0;
+    const newStock = Math.max(0, currentStock - quantityToSubtract);
+    
+    const updatedVariants = [...product.variants];
+    updatedVariants[variantIndex] = { 
+      ...updatedVariants[variantIndex], 
+      stock: newStock,
+      inStock: newStock > 0 
+    };
+    
+    updateProduct(productId, { variants: updatedVariants });
+  };
+
   const [settingsForm, setSettingsForm] = useState(settings);
 
   useEffect(() => {
@@ -314,7 +335,7 @@ export default function Admin() {
                         </td>
                         <td className="p-4 font-medium text-gray-900">{product.name}</td>
                         <td className="p-4 text-sm text-gray-500">{product.category}</td>
-                        <td className="p-4 font-medium text-red-600">{formatPrice(product.price)}</td>
+                        <td className="p-4 font-medium text-red-600">{formatPrice(product.variants[0]?.price || product.price)}</td>
                         <td className="p-4">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.inStock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                             {product.inStock ? 'Còn hàng' : 'Hết hàng'}
@@ -454,9 +475,18 @@ export default function Admin() {
                             </td>
                             <td className="p-4">
                               <div className="flex flex-col gap-2">
-                                <select 
+                                <select
                                   value={order.status}
-                                  onChange={(e) => updateOrderStatus(order.id, e.target.value as any)}
+                                  onChange={(e) => {
+                                    const newStatus = e.target.value as any;
+                                    updateOrderStatus(order.id, newStatus);
+                                    // Subtract stock when order is completed
+                                    if (newStatus === 'completed') {
+                                      order.items.forEach(item => {
+                                        updateProductStock(item.productId, item.variantId, item.quantity);
+                                      });
+                                    }
+                                  }}
                                   className="text-sm border rounded p-1 w-full"
                                 >
                                   <option value="pending">Chờ xử lý</option>
@@ -466,7 +496,9 @@ export default function Admin() {
                                 </select>
                                 {order.status === 'pending' && (
                                   <button
-                                    onClick={() => updateOrderStatus(order.id, 'processing')}
+                                    onClick={() => {
+                                      updateOrderStatus(order.id, 'processing');
+                                    }}
                                     className="bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5 px-2 rounded font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1"
                                   >
                                     <CheckCircle size={14} /> Xác nhận đơn hàng
@@ -1296,6 +1328,7 @@ export default function Admin() {
         isOpen={isProductModalOpen} 
         onClose={() => setIsProductModalOpen(false)} 
         initialData={editingProduct}
+        existingProducts={products}
         onSave={(product) => {
           if (editingProduct) updateProduct(product.id, product);
           else addProduct(product);

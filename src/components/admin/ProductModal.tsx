@@ -1,21 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Product, ProductVariant } from '../../types';
-import { Plus, Trash2, Upload } from 'lucide-react';
+import { Plus, Trash2, Upload, Loader2 } from 'lucide-react';
 import { useCategoryStore } from '../../store/useCategoryStore';
+import { uploadImage } from '../../lib/uploadImage';
+import { toast } from 'react-hot-toast';
 
 interface ProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (product: Product) => void;
   initialData?: Product | null;
+  existingProducts?: Product[];
 }
 
-export default function ProductModal({ isOpen, onClose, onSave, initialData }: ProductModalProps) {
+export default function ProductModal({ isOpen, onClose, onSave, initialData, existingProducts = [] }: ProductModalProps) {
   const { categories } = useCategoryStore();
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
     slug: '',
     price: 0,
+    originalPrice: 0,
     image: '',
     category: 'Điện thoại',
     brand: '',
@@ -25,17 +29,55 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
     specs: {},
     variants: []
   });
+  const [slugWarning, setSlugWarning] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadingVariantIndex, setUploadingVariantIndex] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Function to generate unique slug
+  const generateUniqueSlug = useCallback((baseSlug: string, excludeId?: string): string => {
+    let slug = baseSlug;
+    let counter = 1;
+    
+    // Check if slug exists (excluding current product if editing)
+    while (existingProducts.some(p => p.slug === slug && p.id !== excludeId)) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+    
+    return slug;
+  }, [existingProducts]);
+
+  // Auto-generate slug from name
+  const autoGenerateSlug = useCallback((name: string, currentSlug: string, excludeId?: string): string => {
+    // Only auto-generate if user hasn't manually entered a custom slug
+    const baseSlug = name.toLowerCase()
+      .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
+      .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
+      .replace(/[ìíịỉĩ]/g, 'i')
+      .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
+      .replace(/[ùúụủũưừứựửữ]/g, 'u')
+      .replace(/[ỳýỵỷỹ]/g, 'y')
+      .replace(/[đ]/g, 'd')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    
+    if (!baseSlug) return currentSlug || Date.now().toString();
+    
+    return generateUniqueSlug(baseSlug, excludeId);
+  }, [generateUniqueSlug]);
 
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
+      setSlugWarning('');
     } else {
       setFormData({
         name: '',
         slug: '',
         price: 0,
+        originalPrice: 0,
         image: '',
         category: 'Điện thoại',
         brand: '',
@@ -44,9 +86,10 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
         images: [],
         specs: {},
         variants: [
-          { id: Date.now().toString(), color: 'Mặc định', price: 0, inStock: true }
+          { id: Date.now().toString(), color: 'Mặc định', price: 0, inStock: true, stock: 10 }
         ]
       });
+      setSlugWarning('');
     }
   }, [initialData, isOpen]);
 
@@ -55,11 +98,56 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
-      setFormData({ ...formData, [name]: (e.target as HTMLInputElement).checked });
+      setFormData(prev => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
     } else if (type === 'number') {
-      setFormData({ ...formData, [name]: Number(value) });
+      const numValue = Number(value);
+      setFormData(prev => {
+        const newData = { ...prev, [name]: numValue };
+        
+        // Auto compute discount
+        if ((name === 'price' || name === 'originalPrice') && newData.originalPrice && newData.price && newData.originalPrice > newData.price) {
+          newData.discountPercentage = Math.round(((newData.originalPrice - newData.price) / newData.originalPrice) * 100);
+        } else if ((name === 'price' || name === 'originalPrice')) {
+           newData.discountPercentage = undefined;
+        }
+
+        // Sync variants
+        if (name === 'price') {
+          newData.variants = prev.variants?.map(v => {
+            if (prev.variants?.length === 1 || v.price === prev.price || v.price === 0) {
+              return { ...v, price: numValue };
+            }
+            return v;
+          });
+        }
+        return newData;
+      });
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData(prev => {
+        const newData = { ...prev, [name]: value };
+        
+        // Auto-generate slug when name changes (only if slug is empty or same as old auto-generated)
+        if (name === 'name' && !initialData) {
+          const oldAutoSlug = autoGenerateSlug(prev.name || '', prev.slug, prev.id);
+          // Only auto-update if user hasn't manually changed the slug
+          if (!prev.slug || prev.slug === oldAutoSlug || prev.slug === '') {
+            newData.slug = autoGenerateSlug(value, prev.id);
+          }
+        }
+        
+        // Check slug uniqueness when slug field changes manually
+        if (name === 'slug') {
+          const isDuplicate = existingProducts.some(p => p.slug === value && p.id !== initialData?.id);
+          if (isDuplicate) {
+            setSlugWarning(`Slug "${value}" đã tồn tại! Sẽ tự động thêm hậu tố khi lưu.`);
+            newData.slug = generateUniqueSlug(value, initialData?.id);
+          } else {
+            setSlugWarning('');
+          }
+        }
+        
+        return newData;
+      });
     }
   };
 
@@ -69,14 +157,20 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
     setFormData({ ...formData, variants: newVariants });
   };
 
-  const handleVariantImageUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVariantImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        handleVariantChange(index, 'image', reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setUploadingVariantIndex(index);
+      try {
+        const result = await uploadImage(file, 'products/variants');
+        handleVariantChange(index, 'image', result.url);
+        toast.success('Tải ảnh lên thành công!');
+      } catch (error) {
+        console.error('Upload error:', error);
+        toast.error('Lỗi khi tải ảnh lên!');
+      } finally {
+        setUploadingVariantIndex(null);
+      }
     }
   };
 
@@ -85,7 +179,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
       ...formData,
       variants: [
         ...(formData.variants || []),
-        { id: Date.now().toString(), color: '', price: formData.price || 0, inStock: true }
+        { id: Date.now().toString(), color: '', price: formData.price || 0, inStock: true, stock: 0 }
       ]
     });
   };
@@ -96,15 +190,72 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
     setFormData({ ...formData, variants: newVariants });
   };
 
-  const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMainImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      setIsUploading(true);
+      try {
+        const result = await uploadImage(file, 'products');
+        setFormData(prev => ({ ...prev, image: result.url }));
+        // Also add to images array
+        setFormData(prev => ({
+          ...prev,
+          images: [...(prev.images || []), result.url].filter(Boolean)
+        }));
+        toast.success('Tải ảnh lên thành công!');
+      } catch (error) {
+        console.error('Upload error:', error);
+        toast.error('Lỗi khi tải ảnh lên!');
+      } finally {
+        setIsUploading(false);
+      }
     }
+  };
+
+  const handleMultipleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setIsUploading(true);
+    try {
+      const uploadedUrls: string[] = [];
+      for (const file of files) {
+        const result = await uploadImage(file, 'products');
+        uploadedUrls.push(result.url);
+      }
+      
+      // Set first image as main image if empty
+      setFormData(prev => ({
+        ...prev,
+        image: prev.image || uploadedUrls[0],
+        images: [...(prev.images || []), ...uploadedUrls].filter(Boolean)
+      }));
+      toast.success(`Đã tải lên ${files.length} ảnh!`);
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Lỗi khi tải ảnh lên!');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => {
+      const newImages = [...(prev.images || [])];
+      newImages.splice(index, 1);
+      return {
+        ...prev,
+        image: index === 0 ? (newImages[0] || '') : prev.image,
+        images: newImages
+      };
+    });
+  };
+
+  const setMainImage = (url: string) => {
+    setFormData(prev => ({
+      ...prev,
+      image: url
+    }));
   };
 
   const handleOfferChange = (index: number, value: string) => {
@@ -135,11 +286,18 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
     // Filter empty offers
     const cleanOffers = (formData.offers || []).filter(o => o.trim() !== '');
     
+    let finalDiscount = undefined;
+    if (formData.originalPrice && formData.price && formData.originalPrice > formData.price) {
+      finalDiscount = Math.round(((formData.originalPrice - formData.price) / formData.originalPrice) * 100);
+    }
+
     onSave({
       id: initialData?.id || Date.now().toString(),
       name: formData.name || '',
       slug: slug,
       price: formData.price || 0,
+      originalPrice: formData.originalPrice || undefined,
+      discountPercentage: finalDiscount,
       image: formData.image || '',
       images: formData.images || [formData.image || ''],
       category: formData.category || 'Điện thoại',
@@ -147,8 +305,10 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
       description: formData.description || '',
       inStock: formData.inStock ?? true,
       specs: formData.specs || {},
-      variants: formData.variants && formData.variants.length > 0 ? formData.variants : [{ id: Date.now().toString(), color: 'Mặc định', price: formData.price || 0, inStock: true }],
-      offers: cleanOffers.length > 0 ? cleanOffers : undefined
+      variants: formData.variants && formData.variants.length > 0 
+        ? formData.variants.map(v => ({ ...v, stock: v.stock ?? 0 }))
+        : [{ id: Date.now().toString(), color: 'Mặc định', price: formData.price || 0, inStock: true, stock: 10 }],
+      ...(cleanOffers.length > 0 ? { offers: cleanOffers } : {})
     });
     onClose();
   };
@@ -165,11 +325,21 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Slug (URL)</label>
-              <input type="text" name="slug" value={formData.slug} onChange={handleChange} className="w-full border rounded p-2" placeholder="De-trong-de-tu-tao" />
+              <input type="text" name="slug" value={formData.slug} onChange={handleChange} className="w-full border rounded p-2" placeholder="Tu-dong-tao-neu-trong" />
+              {slugWarning && (
+                <p className="text-xs text-orange-600 mt-1">{slugWarning}</p>
+              )}
+              {!formData.slug && formData.name && (
+                <p className="text-xs text-gray-500 mt-1">Slug se tu dong tao: {autoGenerateSlug(formData.name, '', undefined).substring(0, 40)}...</p>
+              )}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Giá bán cơ bản (VNĐ)</label>
+              <label className="block text-sm font-medium mb-1">Giá bán cơ bản (Giá KM)</label>
               <input type="number" name="price" value={formData.price} onChange={handleChange} className="w-full border rounded p-2" required min="0" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Giá gốc (Bỏ trống nếu không giảm)</label>
+              <input type="number" name="originalPrice" value={formData.originalPrice || ''} onChange={handleChange} className="w-full border rounded p-2" min="0" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Danh mục</label>
@@ -194,28 +364,123 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
                 placeholder="Nhập mô tả chi tiết về sản phẩm, tính năng, ưu điểm..."
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Hình ảnh chính</label>
-              <div className="flex gap-2">
-                <input type="text" name="image" value={formData.image} onChange={handleChange} className="flex-1 border rounded p-2" placeholder="URL hoặc tải ảnh lên" required />
-                <button 
-                  type="button" 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-3 py-2 bg-gray-100 border rounded hover:bg-gray-200 flex items-center"
-                >
-                  <Upload size={18} />
-                </button>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-1">Hình ảnh sản phẩm</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {/* Image input for URL or single upload */}
                 <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleMainImageUpload} 
-                  className="hidden" 
-                  accept="image/*"
+                  type="text" 
+                  name="image" 
+                  value={formData.image} 
+                  onChange={handleChange} 
+                  className="flex-1 min-w-[200px] border rounded p-2 text-sm" 
+                  placeholder="URL ảnh chính (hoặc tải ảnh bên dưới)"
                 />
               </div>
-              {formData.image && (
-                <div className="mt-2 w-20 h-20 border rounded overflow-hidden">
-                  <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+              
+              {/* Upload buttons */}
+              <div className="flex gap-2 mb-3">
+                <label className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-[#00483d] text-white rounded hover:bg-[#00382f] transition-colors">
+                  <Upload size={18} />
+                  {isUploading ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" /> Đang tải...
+                    </>
+                  ) : (
+                    'Tải 1 ảnh lên'
+                  )}
+                  <input 
+                    type="file" 
+                    ref={fileInputRef}
+                    onChange={handleMainImageUpload} 
+                    className="hidden" 
+                    accept="image/*"
+                    disabled={isUploading}
+                  />
+                </label>
+                
+                <label className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                  <Upload size={18} />
+                  {isUploading ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" /> Đang tải...
+                    </>
+                  ) : (
+                    'Tải nhiều ảnh'
+                  )}
+                  <input 
+                    type="file" 
+                    onChange={handleMultipleImageUpload} 
+                    className="hidden" 
+                    accept="image/*"
+                    multiple
+                    disabled={isUploading}
+                  />
+                </label>
+              </div>
+              
+              {/* Multiple images display */}
+              {formData.images && formData.images.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-700">
+                    Đã tải {formData.images.length} ảnh:
+                  </p>
+                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                    {formData.images.map((img, index) => (
+                      <div 
+                        key={index} 
+                        className={`relative group border-2 rounded overflow-hidden ${
+                          img === formData.image ? 'border-[#00483d] ring-2 ring-[#00483d] ring-offset-1' : 'border-gray-200'
+                        }`}
+                      >
+                        <img 
+                          src={img} 
+                          alt={`Ảnh ${index + 1}`} 
+                          className="w-full aspect-square object-cover"
+                        />
+                        
+                        {/* Overlay on hover */}
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                          {/* Set as main */}
+                          {img !== formData.image && (
+                            <button
+                              type="button"
+                              onClick={() => setMainImage(img)}
+                              className="p-1.5 bg-white rounded text-xs font-medium hover:bg-gray-100"
+                              title="Đặt làm ảnh chính"
+                            >
+                              ⭐
+                            </button>
+                          )}
+                          {/* Delete */}
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="p-1.5 bg-red-500 text-white rounded hover:bg-red-600"
+                            title="Xóa ảnh"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        
+                        {/* Main image badge */}
+                        {img === formData.image && (
+                          <div className="absolute top-1 left-1 bg-[#00483d] text-white text-xs px-1.5 py-0.5 rounded">
+                            ⭐ Chính
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Nhấn ⭐ để đặt làm ảnh chính. Nhấn ✕ để xóa.
+                  </p>
+                </div>
+              )}
+              
+              {(!formData.images || formData.images.length === 0) && (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-500 text-sm">
+                  Chưa có ảnh nào. Nhấn "Tải 1 ảnh lên" hoặc "Tải nhiều ảnh" để thêm hình ảnh sản phẩm.
                 </div>
               )}
             </div>
@@ -342,6 +607,17 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
                       />
                     </div>
                     <div>
+                      <label className="block text-xs font-medium mb-1">Số lượng tồn kho</label>
+                      <input 
+                        type="number" 
+                        value={variant.stock || 0} 
+                        onChange={(e) => handleVariantChange(index, 'stock', Number(e.target.value))} 
+                        className="w-full border rounded p-2 text-sm" 
+                        min="0"
+                        placeholder="VD: 10"
+                      />
+                    </div>
+                    <div>
                       <label className="block text-xs font-medium mb-1">Hình ảnh phiên bản</label>
                       <div className="flex items-center gap-2">
                         <label className="cursor-pointer flex-1 flex items-center justify-center border border-dashed rounded p-2 text-sm hover:bg-gray-100">
@@ -360,15 +636,23 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center lg:col-span-3">
-                      <input 
-                        type="checkbox" 
-                        id={`variant-stock-${index}`} 
-                        checked={variant.inStock} 
-                        onChange={(e) => handleVariantChange(index, 'inStock', e.target.checked)} 
-                        className="mr-2" 
-                      />
-                      <label htmlFor={`variant-stock-${index}`} className="text-sm font-medium">Còn hàng</label>
+                    <div className="flex items-center lg:col-span-3 gap-4">
+                      <div className="flex items-center">
+                        <input 
+                          type="checkbox" 
+                          id={`variant-stock-${index}`} 
+                          checked={variant.inStock} 
+                          onChange={(e) => handleVariantChange(index, 'inStock', e.target.checked)} 
+                          className="mr-2" 
+                        />
+                        <label htmlFor={`variant-stock-${index}`} className="text-sm font-medium">Còn hàng</label>
+                      </div>
+                      <div className="flex items-center">
+                        <label className="text-xs text-gray-500 mr-2">Tồn kho:</label>
+                        <span className={`text-sm font-medium ${variant.stock > 0 ? 'text-green-600' : variant.inStock ? 'text-orange-500' : 'text-red-500'}`}>
+                          {variant.stock || 0} sản phẩm
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>

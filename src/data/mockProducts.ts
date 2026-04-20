@@ -23,9 +23,9 @@ export const mockProducts: Product[] = [
       'Pin, Sạc': '4422 mAh, 20 W',
     },
     variants: [
-      { id: 'v1', color: 'Titan Tự nhiên', storage: '256GB', price: 29990000, inStock: true },
-      { id: 'v2', color: 'Titan Đen', storage: '256GB', price: 29990000, inStock: true },
-      { id: 'v3', color: 'Titan Tự nhiên', storage: '512GB', price: 35990000, inStock: true },
+      { id: 'v1', color: 'Titan Tự nhiên', storage: '256GB', price: 29990000, inStock: true, stock: 10 },
+      { id: 'v2', color: 'Titan Đen', storage: '256GB', price: 29990000, inStock: true, stock: 8 },
+      { id: 'v3', color: 'Titan Tự nhiên', storage: '512GB', price: 35990000, inStock: true, stock: 5 },
     ],
     inStock: true,
   },
@@ -51,8 +51,8 @@ export const mockProducts: Product[] = [
       'Pin, Sạc': '5000 mAh, 45 W',
     },
     variants: [
-      { id: 'v4', color: 'Xám Titan', storage: '256GB', price: 26990000, inStock: true },
-      { id: 'v5', color: 'Đen Titan', storage: '256GB', price: 26990000, inStock: true },
+      { id: 'v4', color: 'Xám Titan', storage: '256GB', price: 26990000, inStock: true, stock: 12 },
+      { id: 'v5', color: 'Đen Titan', storage: '256GB', price: 26990000, inStock: true, stock: 10 },
     ],
     inStock: true,
   },
@@ -77,8 +77,8 @@ export const mockProducts: Product[] = [
       'Card màn hình': 'Card tích hợp - 8 nhân GPU',
     },
     variants: [
-      { id: 'v6', color: 'Midnight', ram: '8GB', storage: '256GB', price: 23990000, inStock: true },
-      { id: 'v7', color: 'Starlight', ram: '8GB', storage: '256GB', price: 23990000, inStock: true },
+      { id: 'v6', color: 'Midnight', ram: '8GB', storage: '256GB', price: 23990000, inStock: true, stock: 6 },
+      { id: 'v7', color: 'Starlight', ram: '8GB', storage: '256GB', price: 23990000, inStock: true, stock: 5 },
     ],
     inStock: true,
   },
@@ -103,8 +103,8 @@ export const mockProducts: Product[] = [
       'Chip': 'Apple A15 Bionic',
     },
     variants: [
-      { id: 'v8', color: 'Hồng', storage: '128GB', price: 11990000, inStock: true },
-      { id: 'v9', color: 'Xanh dương', storage: '128GB', price: 11990000, inStock: true },
+      { id: 'v8', color: 'Hồng', storage: '128GB', price: 11990000, inStock: true, stock: 4 },
+      { id: 'v9', color: 'Xanh dương', storage: '128GB', price: 11990000, inStock: true, stock: 3 },
     ],
     inStock: true,
     isUsed: true,
@@ -131,8 +131,8 @@ export const mockProducts: Product[] = [
       'Pin, Sạc': '5000 mAh, 90 W',
     },
     variants: [
-      { id: 'v10', color: 'Đen', storage: '512GB', price: 28990000, inStock: true },
-      { id: 'v11', color: 'Trắng', storage: '512GB', price: 28990000, inStock: true },
+      { id: 'v10', color: 'Đen', storage: '512GB', price: 28990000, inStock: true, stock: 7 },
+      { id: 'v11', color: 'Trắng', storage: '512GB', price: 28990000, inStock: true, stock: 8 },
     ],
     inStock: true,
   },
@@ -158,8 +158,8 @@ export const mockProducts: Product[] = [
       'Pin, Sạc': '5000 mAh, 67 W',
     },
     variants: [
-      { id: 'v12', color: 'Xanh sóng biển', storage: '256GB', price: 9990000, inStock: true },
-      { id: 'v13', color: 'Xám san hô', storage: '256GB', price: 9990000, inStock: true },
+      { id: 'v12', color: 'Xanh sóng biển', storage: '256GB', price: 9990000, inStock: true, stock: 15 },
+      { id: 'v13', color: 'Xám san hô', storage: '256GB', price: 9990000, inStock: true, stock: 12 },
     ],
     inStock: true,
   },
@@ -184,8 +184,8 @@ export const mockProducts: Product[] = [
       'Bộ nhớ trong': '128 GB',
     },
     variants: [
-      { id: 'v14', color: 'Xám không gian', storage: '128GB', price: 19990000, inStock: true },
-      { id: 'v15', color: 'Bạc', storage: '128GB', price: 19990000, inStock: true },
+      { id: 'v14', color: 'Xám không gian', storage: '128GB', price: 19990000, inStock: true, stock: 8 },
+      { id: 'v15', color: 'Bạc', storage: '128GB', price: 19990000, inStock: true, stock: 6 },
     ],
     inStock: true,
   },
@@ -209,7 +209,7 @@ export const mockProducts: Product[] = [
       'Cổng sạc': 'MagSafe (USB-C)',
     },
     variants: [
-      { id: 'v16', color: 'Trắng', price: 5490000, inStock: true },
+      { id: 'v16', color: 'Trắng', price: 5490000, inStock: true, stock: 20 },
     ],
     inStock: true,
   }

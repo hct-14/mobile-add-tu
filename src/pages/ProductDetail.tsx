@@ -8,6 +8,7 @@ import { useCompareStore } from '../store/useCompareStore';
 import { useUserStore } from '../store/useUserStore';
 import { useAnalyticsStore } from '../store/useAnalyticsStore';
 import { useSettingsStore } from '../store/useSettingsStore';
+import CouponInput from '../components/CouponInput';
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -50,11 +51,21 @@ export default function ProductDetail() {
   };
 
   const handleAddToCart = () => {
+    // Check stock before adding
+    if (selectedVariant.stock === 0 || !selectedVariant.inStock) {
+      toast.error('Sản phẩm này đã hết hàng!');
+      return;
+    }
     addItem(product, selectedVariant);
     toast.success('Đã thêm sản phẩm vào giỏ hàng!');
   };
 
   const handleBuyNow = () => {
+    // Check stock before adding
+    if (selectedVariant.stock === 0 || !selectedVariant.inStock) {
+      toast.error('Sản phẩm này đã hết hàng!');
+      return;
+    }
     addItem(product, selectedVariant);
     navigate('/cart');
   };
@@ -184,6 +195,11 @@ export default function ProductDetail() {
                         <div className="text-xs text-gray-500 mt-0.5">Tình trạng: {variant.condition}</div>
                       )}
                       <div className="text-red-600 font-bold mt-1">{formatPrice(variant.price)}</div>
+                      {variant.stock > 0 ? (
+                        <div className="text-xs text-green-600 mt-1">Còn {variant.stock} sản phẩm</div>
+                      ) : (
+                        <div className="text-xs text-red-500 mt-1">Hết hàng</div>
+                      )}
                     </div>
                     {selectedVariant.id === variant.id && (
                       <div className="absolute top-0 right-0 bg-[#00483d] text-white rounded-bl-lg rounded-tr-lg p-1">
@@ -212,6 +228,9 @@ export default function ProductDetail() {
               </div>
             )}
 
+            {/* Coupon Input */}
+            <CouponInput productCategory={product.category} productPrice={selectedVariant?.price || product.price} />
+
             {/* Contact Buttons */}
             <div className="grid grid-cols-2 gap-3 mb-6">
               <a 
@@ -236,19 +255,31 @@ export default function ProductDetail() {
 
             {/* Actions */}
             <div className="flex gap-4 mt-auto">
-              <button 
-                onClick={handleBuyNow}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg flex flex-col items-center justify-center transition-colors"
-              >
-                <span>MUA NGAY</span>
-                <span className="text-xs font-normal">Giao hàng tận nơi hoặc nhận tại cửa hàng</span>
-              </button>
-              <button 
-                onClick={handleAddToCart}
-                className="w-16 flex items-center justify-center border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
-              >
-                <ShoppingCart size={24} />
-              </button>
+              {selectedVariant.stock > 0 && selectedVariant.inStock ? (
+                <>
+                  <button 
+                    onClick={handleBuyNow}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg flex flex-col items-center justify-center transition-colors"
+                  >
+                    <span>MUA NGAY</span>
+                    <span className="text-xs font-normal">Giao hàng tận nơi hoặc nhận tại cửa hàng</span>
+                  </button>
+                  <button 
+                    onClick={handleAddToCart}
+                    className="w-16 flex items-center justify-center border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    <ShoppingCart size={24} />
+                  </button>
+                </>
+              ) : (
+                <button 
+                  disabled
+                  className="w-full bg-gray-400 text-white font-bold py-3 px-6 rounded-lg flex flex-col items-center justify-center cursor-not-allowed"
+                >
+                  <span>HẾT HÀNG</span>
+                  <span className="text-xs font-normal">Vui lòng chọn sản phẩm khác</span>
+                </button>
+              )}
             </div>
           </div>
 

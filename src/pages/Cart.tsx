@@ -2,14 +2,21 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Minus, Plus, ChevronLeft } from 'lucide-react';
 import { useCartStore } from '../store/useCartStore';
 import { toast } from 'react-hot-toast';
+import CouponInput from '../components/CouponInput';
+import { useCouponStore } from '../store/useCouponStore';
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, getTotal } = useCartStore();
   const navigate = useNavigate();
+  const { appliedCoupon } = useCouponStore();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
+
+  const subtotal = getTotal();
+  const discount = appliedCoupon?.discount || 0;
+  const total = Math.max(0, subtotal - discount);
 
   const handleRemove = (productId: string, variantId: string) => {
     removeItem(productId, variantId);
@@ -105,18 +112,32 @@ export default function Cart() {
           ))}
         </div>
         
+        {/* Coupon Input Section */}
+        <CouponInput showAllPromotions={true} />
+        
         <div className="bg-gray-50 p-4 md:p-6 border-t">
           <div className="flex justify-between items-center mb-4">
             <span className="text-gray-600">Tạm tính ({items.reduce((acc, item) => acc + item.quantity, 0)} sản phẩm):</span>
-            <span className="font-bold text-xl">{formatPrice(getTotal())}</span>
+            <span className="font-bold text-xl">{formatPrice(subtotal)}</span>
           </div>
+          
+          {appliedCoupon && (
+            <div className="flex justify-between items-center mb-4 text-green-600">
+              <span className="flex items-center gap-2">
+                <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-medium">{appliedCoupon.code}</span>
+                Giảm giá:
+              </span>
+              <span className="font-bold">-{formatPrice(discount)}</span>
+            </div>
+          )}
+          
           <div className="flex justify-between items-center mb-6">
             <span className="text-gray-600">Phí vận chuyển:</span>
             <span className="font-medium text-green-600">Miễn phí</span>
           </div>
           <div className="flex justify-between items-center mb-6 pt-4 border-t border-gray-200">
             <span className="font-bold text-lg">Tổng tiền:</span>
-            <span className="font-bold text-2xl text-red-600">{formatPrice(getTotal())}</span>
+            <span className="font-bold text-2xl text-red-600">{formatPrice(total)}</span>
           </div>
           
           <button 

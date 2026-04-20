@@ -1,5 +1,7 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { db } from '../lib/firebase';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { toast } from 'react-hot-toast';
 
 export interface ObjectColors {
   bg: string;
@@ -26,8 +28,9 @@ export interface StoreSettings {
 
 interface SettingsState {
   settings: StoreSettings;
-  updateSettings: (newSettings: Partial<StoreSettings>) => void;
-  updateTheme: (newTheme: Partial<StoreTheme>) => void;
+  updateSettings: (newSettings: Partial<StoreSettings>) => Promise<void>;
+  updateTheme: (newTheme: Partial<StoreTheme>) => Promise<void>;
+  subscribeSettings: () => () => void;
 }
 
 const defaultTheme: StoreTheme = {
@@ -37,10 +40,10 @@ const defaultTheme: StoreTheme = {
 };
 
 const defaultSettings: StoreSettings = {
-  storeName: 'HoangHaMobile',
+  storeName: 'AloStore',
   phone: '1900 2091',
   address: 'Số 89 Tam Trinh, Phường Mai Động, Quận Hoàng Mai, Thành Phố Hà Nội, Việt Nam.',
-  email: 'cskh@hoanghamobile.com',
+  email: 'cskh@AloStore.com',
   facebookUrl: 'https://facebook.com',
   zaloUrl: 'https://zalo.me',
   footerText: '© 2026 Công ty Cổ phần Xây dựng và Đầu tư Thương mại Hoàng Hà.',
@@ -76,32 +79,37 @@ const defaultSettings: StoreSettings = {
 </ol>`,
 };
 
-export const useSettingsStore = create<SettingsState>()(
-  persist(
-    (set) => ({
-      settings: defaultSettings,
-      updateSettings: (newSettings) => set((state) => ({
-        settings: { ...state.settings, ...newSettings }
-      })),
-      updateTheme: (newTheme) => set((state) => ({
-        settings: { 
-          ...state.settings, 
-          theme: { ...(state.settings.theme || defaultTheme), ...newTheme } 
-        }
-      })),
-    }),
-    {
-      name: 'store-settings-storage',
-      version: 2,
-      migrate: (persistedState: any, version: number) => {
-        if (version === 0) {
-          persistedState.settings.warrantyPolicy = defaultSettings.warrantyPolicy;
-        }
-        if (version <= 1) {
-          persistedState.settings.theme = defaultTheme;
-        }
-        return persistedState as SettingsState;
-      }
+export const useSettingsStore = create<SettingsState>()((set, get) => ({
+  settings: defaultSettings,
+  updateSettings: async (newSettings) => {
+    try {
+      const merged = { ...get().settings, ...newSettings };
+      await setDoc(doc(db, 'settings', 'global'), merged);
+    } catch (error) {
+      console.error(error);
+      toast.error('Lỗi khi lưu cài đặt');
     }
-  )
-);
+  },
+  updateTheme: async (newTheme) => {
+    try {
+      const current = get().settings;
+      const merged = { 
+        ...current, 
+        theme: { ...(current.theme || defaultTheme), ...newTheme } 
+      };
+      await setDoc(doc(db, 'settings', 'global'), merged);
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  subscribeSettings: () => {
+    const unsub = onSnapshot(doc(db, 'settings', 'global'), (docSnap) => {
+      if (docSnap.exists()) {
+        set({ settings: { ...defaultSettings, ...(docSnap.data() as StoreSettings) } });
+      } else {
+        setDoc(doc(db, 'settings', 'global'), defaultSettings).catch(console.error);
+      }
+    });
+    return unsub;
+  }
+}));

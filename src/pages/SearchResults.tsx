@@ -66,8 +66,8 @@ export default function SearchResults() {
                   </div>
                   <h3 className="font-medium text-sm text-gray-800 line-clamp-2 mb-2 h-10">{product.name}</h3>
                   <div className="flex flex-col">
-                    <span className="text-red-600 font-bold text-lg">{formatPrice(product.price)}</span>
-                    {product.originalPrice && (
+                    <span className="text-red-600 font-bold text-lg">{formatPrice(product.variants[0]?.price || product.price)}</span>
+                    {product.variants[0]?.price !== product.price && product.originalPrice && (
                       <span className="text-gray-400 text-sm line-through">{formatPrice(product.originalPrice)}</span>
                     )}
                   </div>

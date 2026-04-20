@@ -53,18 +53,19 @@ export default function Category() {
   // Apply Price Filter
   if (priceFilter !== 'all') {
     products = products.filter(p => {
-      if (priceFilter === 'under-10') return p.price < 10000000;
-      if (priceFilter === '10-20') return p.price >= 10000000 && p.price <= 20000000;
-      if (priceFilter === 'over-20') return p.price > 20000000;
+      const price = p.variants[0]?.price || p.price;
+      if (priceFilter === 'under-10') return price < 10000000;
+      if (priceFilter === '10-20') return price >= 10000000 && price <= 20000000;
+      if (priceFilter === 'over-20') return price > 20000000;
       return true;
     });
   }
 
   // Apply Sorting
   if (sortFilter === 'price-asc') {
-    products.sort((a, b) => a.price - b.price);
+    products.sort((a, b) => (a.variants[0]?.price || a.price) - (b.variants[0]?.price || b.price));
   } else if (sortFilter === 'price-desc') {
-    products.sort((a, b) => b.price - a.price);
+    products.sort((a, b) => (b.variants[0]?.price || b.price) - (a.variants[0]?.price || a.price));
   }
 
   // Extract unique brands for filter dropdown
@@ -186,8 +187,8 @@ export default function Category() {
                   </div>
                   <h3 className="font-medium text-sm text-gray-800 line-clamp-2 mb-2 h-10">{product.name}</h3>
                   <div className="flex flex-col">
-                    <span className="text-red-600 font-bold text-lg">{formatPrice(product.price)}</span>
-                    {product.originalPrice && (
+                    <span className="text-red-600 font-bold text-lg">{formatPrice(product.variants[0]?.price || product.price)}</span>
+                    {product.variants[0]?.price !== product.price && product.originalPrice && (
                       <span className="text-gray-400 text-sm line-through">{formatPrice(product.originalPrice)}</span>
                     )}
                   </div>
