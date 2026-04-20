@@ -25,6 +25,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
     brand: '',
     description: '',
     inStock: true,
+    stock: 0,
     images: [],
     specs: {},
     variants: []
@@ -83,6 +84,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
         brand: '',
         description: '',
         inStock: true,
+        stock: 0,
         images: [],
         specs: {},
         variants: [
@@ -358,6 +360,33 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
             <div>
               <label className="block text-sm font-medium mb-1">Thương hiệu</label>
               <input type="text" name="brand" value={formData.brand} onChange={handleChange} className="w-full border rounded p-2" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Số lượng tồn kho</label>
+              <div className="flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, stock: Math.max(0, (formData.stock || 0) - 1) })}
+                  className="w-10 h-10 border rounded-l bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-lg"
+                >
+                  -
+                </button>
+                <input 
+                  type="number" 
+                  name="stock"
+                  value={formData.stock || 0} 
+                  onChange={(e) => setFormData({ ...formData, stock: Math.max(0, Number(e.target.value)) })} 
+                  className="w-20 h-10 border-t border-b text-center text-sm" 
+                  min="0"
+                />
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, stock: (formData.stock || 0) + 1 })}
+                  className="w-10 h-10 border rounded-r bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-lg"
+                >
+                  +
+                </button>
+              </div>
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium mb-1">Mô tả chi tiết sản phẩm</label>
