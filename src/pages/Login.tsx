@@ -44,7 +44,7 @@ export default function Login() {
           id: userCredential.user.uid,
           name: userCredential.user.displayName || 'Google User',
           email: userCredential.user.email || '',
-          role: (userCredential.user.email === 'admin@hoangha.com' || userCredential.user.email === 'hoangthanhgolle@gmail.com') ? 'admin' : 'user'
+          role: (userCredential.user.email === 'admin@hoangha.com' || userCredential.user.email === 'hoangthanhgolle@gmail.com' || userCredential.user.email === 'alostore6688@gmail.com') ? 'admin' : 'user'
         });
       }
       toast.success('Đăng nhập với Google thành công!');
@@ -144,7 +144,7 @@ export default function Login() {
       <div className="mt-4 p-3 bg-blue-50 text-blue-800 text-xs rounded-md">
         <p className="font-bold mb-1">Cảnh báo:</p>
         <p>Vui lòng kích hoạt Email/Password trong Firebase Console để đăng ký bằng email.</p>
-        <p>Để trở thành admin, bạn cần dùng tài khoản email "hoangthanhgolle@gmail.com".</p>
+        <p>Để trở thành admin, bạn cần dùng tài khoản email "hoangthanhgolle@gmail.com" hoặc "alostore6688@gmail.com".</p>
       </div>
     </div>
   );
