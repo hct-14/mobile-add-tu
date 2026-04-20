@@ -314,8 +314,14 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto py-10">
-      <div className="bg-white rounded-xl p-6 w-full max-w-4xl my-auto max-h-[90vh] overflow-y-auto">
+    <div 
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto py-10"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-xl p-6 w-full max-w-4xl my-auto max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h2 className="text-xl font-bold mb-4">{initialData ? 'Sửa Sản phẩm' : 'Thêm Sản phẩm'}</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -608,14 +614,29 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
                     </div>
                     <div>
                       <label className="block text-xs font-medium mb-1">Số lượng tồn kho</label>
-                      <input 
-                        type="number" 
-                        value={variant.stock || 0} 
-                        onChange={(e) => handleVariantChange(index, 'stock', Number(e.target.value))} 
-                        className="w-full border rounded p-2 text-sm" 
-                        min="0"
-                        placeholder="VD: 10"
-                      />
+                      <div className="flex items-center">
+                        <button
+                          type="button"
+                          onClick={() => handleVariantChange(index, 'stock', Math.max(0, (variant.stock || 0) - 1))}
+                          className="w-8 h-10 border rounded-l bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+                        >
+                          -
+                        </button>
+                        <input 
+                          type="number" 
+                          value={variant.stock || 0} 
+                          onChange={(e) => handleVariantChange(index, 'stock', Math.max(0, Number(e.target.value)))} 
+                          className="w-16 h-10 border-t border-b text-center text-sm" 
+                          min="0"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleVariantChange(index, 'stock', (variant.stock || 0) + 1)}
+                          className="w-8 h-10 border rounded-r bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-xs font-medium mb-1">Hình ảnh phiên bản</label>

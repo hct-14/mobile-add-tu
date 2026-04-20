@@ -161,9 +161,8 @@ export default function Home() {
 
         return (
           <section key={category.id}>
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4">
               <h2 className="text-xl font-bold uppercase text-gray-800">{category.name}</h2>
-              <Link to={`/category/${category.slug}`} className="text-[#00483d] hover:underline text-sm font-medium">Xem tất cả</Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {categoryProducts.slice(0, 5).map((product) => (
