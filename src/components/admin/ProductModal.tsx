@@ -280,7 +280,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Giá gốc (Bỏ trống nếu không giảm)</label>
+              <label className="block text-sm font-medium mb-1">Giá gốc</label>
               <input 
                 type="text" 
                 name="originalPrice" 
