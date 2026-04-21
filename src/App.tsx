@@ -1,31 +1,25 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect } from 'react';
 import Layout from './components/Layout';
 import AuthProvider from './components/AuthProvider';
 import { useProductStore } from './store/useProductStore';
 import { useSettingsStore } from './store/useSettingsStore';
-
-const Home = lazy(() => import('./pages/Home'));
-const ProductDetail = lazy(() => import('./pages/ProductDetail'));
-const Category = lazy(() => import('./pages/Category'));
-const Cart = lazy(() => import('./pages/Cart'));
-const Checkout = lazy(() => import('./pages/Checkout'));
-const Login = lazy(() => import('./pages/Login'));
-const Register = lazy(() => import('./pages/Register'));
-const Orders = lazy(() => import('./pages/Orders'));
-const Admin = lazy(() => import('./pages/Admin'));
-const Compare = lazy(() => import('./pages/Compare'));
-const SearchResults = lazy(() => import('./pages/SearchResults'));
-const TradeIn = lazy(() => import('./pages/TradeIn'));
-const Warranty = lazy(() => import('./pages/Warranty'));
-const About = lazy(() => import('./pages/About'));
-const Profile = lazy(() => import('./pages/Profile'));
+import Home from './pages/Home';
+import ProductDetail from './pages/ProductDetail';
+import Category from './pages/Category';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Orders from './pages/Orders';
+import Admin from './pages/Admin';
+import Compare from './pages/Compare';
+import SearchResults from './pages/SearchResults';
+import TradeIn from './pages/TradeIn';
+import Warranty from './pages/Warranty';
+import About from './pages/About';
+import Profile from './pages/Profile';
 
 export default function App() {
   const subscribeProducts = useProductStore((state) => state.subscribeProducts);
@@ -44,8 +38,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Toaster position="bottom-right" />
-        <Suspense fallback={<div className="flex justify-center items-center h-screen">Đang tải...</div>}>
-          <Routes>
+        <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="product/:slug" element={<ProductDetail />} />
@@ -67,8 +60,7 @@ export default function App() {
               <Route path="*" element={<div className="text-center py-20 text-2xl font-bold">404 - Không tìm thấy trang</div>} />
             </Route>
           </Routes>
-        </Suspense>
-      </AuthProvider>
+        </AuthProvider>
     </BrowserRouter>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useProductStore } from '../store/useProductStore';
 import { useCompareStore } from '../store/useCompareStore';
+import { useCategoryStore } from '../store/useCategoryStore';
 import { Scale } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
