@@ -103,7 +103,7 @@ export default function Home() {
               const product = products.find(p => p.id === campaignProduct.productId);
               if (!product) return null;
               
-              const discountPercent = Math.round((1 - campaignProduct.flashSalePrice / (product.variants[0]?.price || product.price)) * 100);
+              const discountPercent = Math.round((1 - campaignProduct.flashSalePrice / product.price) * 100);
 
               return (
                 <div key={product.id} className="bg-white rounded-lg p-2 md:p-3 hover:shadow-lg transition-shadow border border-gray-100 relative min-w-[30%] max-w-[30%] md:min-w-[200px] md:w-[200px] snap-start shrink-0 group">
@@ -129,7 +129,7 @@ export default function Home() {
                     <h3 className="font-medium text-xs md:text-sm text-gray-800 line-clamp-2 mb-1 md:mb-2 h-8 md:h-10">{product.name}</h3>
                     <div className="flex flex-col">
                       <span className="text-red-600 font-bold text-sm md:text-lg">{formatPrice(campaignProduct.flashSalePrice)}</span>
-                      <span className="text-gray-400 text-[10px] md:text-sm line-through">{formatPrice(product.variants[0]?.price || product.price)}</span>
+                      <span className="text-gray-400 text-[10px] md:text-sm line-through">{formatPrice(product.price)}</span>
                     </div>
                   </Link>
                 </div>
@@ -161,8 +161,9 @@ export default function Home() {
 
         return (
           <section key={category.id}>
-            <div className="mb-4">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold uppercase text-gray-800">{category.name}</h2>
+              <Link to={`/category/${category.slug}`} className="text-[#00483d] hover:underline text-sm font-medium">Xem tất cả</Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {categoryProducts.slice(0, 5).map((product) => (
@@ -188,8 +189,8 @@ export default function Home() {
                     </div>
                     <h3 className="font-medium text-sm text-gray-800 line-clamp-2 mb-2 h-10">{product.name}</h3>
                     <div className="flex flex-col">
-                      <span className="text-red-600 font-bold text-lg">{formatPrice(product.variants[0]?.price || product.price)}</span>
-                      {product.variants[0]?.price !== product.price && product.originalPrice && (
+                      <span className="text-red-600 font-bold text-lg">{formatPrice(product.price)}</span>
+                      {product.originalPrice && (
                         <span className="text-gray-400 text-sm line-through">{formatPrice(product.originalPrice)}</span>
                       )}
                     </div>
@@ -200,6 +201,11 @@ export default function Home() {
                 </div>
               ))}
             </div>
+            {categoryProducts.length > 5 && (
+              <div className="mt-4 text-center">
+                <Link to={`/category/${category.slug}`} className="text-[#00483d] hover:underline text-sm font-medium">Xem thêm {categoryProducts.length - 5} sản phẩm</Link>
+              </div>
+            )}
           </section>
         );
       })}

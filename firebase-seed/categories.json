@@ -1,0 +1,53 @@
+{
+  "categories": {
+    "cat_iphone": {
+      "id": "cat_iphone",
+      "name": "iPhone",
+      "slug": "iphone",
+      "description": "Điện thoại iPhone chính hãng Apple",
+      "icon": "📱"
+    },
+    "cat_samsung": {
+      "id": "cat_samsung",
+      "name": "Samsung",
+      "slug": "samsung",
+      "description": "Điện thoại Samsung Galaxy",
+      "icon": "📱"
+    },
+    "cat_xiaomi": {
+      "id": "cat_xiaomi",
+      "name": "Xiaomi",
+      "slug": "xiaomi",
+      "description": "Điện thoại Xiaomi Redmi và POCO",
+      "icon": "📱"
+    },
+    "cat_oppo": {
+      "id": "cat_oppo",
+      "name": "OPPO",
+      "slug": "oppo",
+      "description": "Điện thoại OPPO",
+      "icon": "📱"
+    },
+    "cat_vivo": {
+      "id": "cat_vivo",
+      "name": "Vivo",
+      "slug": "vivo",
+      "description": "Điện thoại Vivo",
+      "icon": "📱"
+    },
+    "cat_nokia": {
+      "id": "cat_nokia",
+      "name": "Nokia",
+      "slug": "nokia",
+      "description": "Điện thoại Nokia",
+      "icon": "📱"
+    },
+    "cat_accessories": {
+      "id": "cat_accessories",
+      "name": "Phụ kiện",
+      "slug": "phu-kien",
+      "description": "Phụ kiện điện thoại",
+      "icon": "🎧"
+    }
+  }
+}

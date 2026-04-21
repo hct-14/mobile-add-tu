@@ -1,0 +1,56 @@
+{
+  "campaigns": {
+    "campaign_flash_sale_april": {
+      "id": "campaign_flash_sale_april",
+      "name": "Flash Sale Tháng 4",
+      "endDate": "2026-04-30T23:59:59Z",
+      "isActive": true,
+      "products": [
+        {
+          "productId": "iphone_15_pro_256",
+          "flashSalePrice": 29990000
+        },
+        {
+          "productId": "samsung_s24_ultra_256",
+          "flashSalePrice": 26990000
+        },
+        {
+          "productId": "xiaomi_14_512",
+          "flashSalePrice": 14990000
+        }
+      ]
+    },
+    "campaign_iphone_deal": {
+      "id": "campaign_iphone_deal",
+      "name": "iPhone Deal Khủng",
+      "endDate": "2026-05-15T23:59:59Z",
+      "isActive": true,
+      "products": [
+        {
+          "productId": "iphone_15_pro_256",
+          "flashSalePrice": 30990000
+        },
+        {
+          "productId": "iphone_15_128",
+          "flashSalePrice": 19990000
+        }
+      ]
+    },
+    "campaign_samsung_ai": {
+      "id": "campaign_samsung_ai",
+      "name": "Samsung Galaxy AI",
+      "endDate": "2026-06-30T23:59:59Z",
+      "isActive": true,
+      "products": [
+        {
+          "productId": "samsung_s24_ultra_256",
+          "flashSalePrice": 27990000
+        },
+        {
+          "productId": "samsung_s24_128",
+          "flashSalePrice": 15990000
+        }
+      ]
+    }
+  }
+}

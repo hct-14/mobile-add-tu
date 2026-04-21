@@ -1,10 +1,10 @@
 {
-  "projectId": "gen-lang-client-0075689137",
-  "appId": "1:693239059438:web:ef31cead5019ab68e734ff",
-  "apiKey": "AIzaSyATmtBfmLu1KEvHAiL9PnV2o_DBcWjxYNE",
-  "authDomain": "gen-lang-client-0075689137.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-748b80ce-cf80-45c5-b49e-6d82e176d848",
-  "storageBucket": "gen-lang-client-0075689137.firebasestorage.app",
-  "messagingSenderId": "693239059438",
-  "measurementId": ""
+  "projectId": "alostore-61726",
+  "appId": "1:437301679293:web:08259aa4143624facad3d4",
+  "apiKey": "AIzaSyDJLuFyemwkhXkzq4p0KX11oqo-OMQn8KA",
+  "authDomain": "alostore-61726.firebaseapp.com",
+  "storageBucket": "alostore-61726.firebasestorage.app",
+  "messagingSenderId": "437301679293",
+  "measurementId": "G-NN3NR86MDW",
+  "firestoreDatabaseId": "(default)"
 }

@@ -1,8 +1,59 @@
 import { useState, useRef } from 'react';
 import { X, Upload, FileSpreadsheet, Plus, Trash2, Save, AlertCircle, Loader2 } from 'lucide-react';
-import { Product } from '../../types';
+import { Product, ProductImage } from '../../types';
 import { toast } from 'react-hot-toast';
-import { uploadImage } from '../../lib/uploadImage';
+
+const MAX_IMAGE_SIZE_KB = 800;
+
+async function processImageFile(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        const maxDim = 1200;
+        if (width > maxDim || height > maxDim) {
+          const ratio = Math.min(maxDim / width, maxDim / height);
+          width = Math.floor(width * ratio);
+          height = Math.floor(height * ratio);
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas error'));
+          return;
+        }
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        let quality = 0.85;
+        const tryCompress = () => {
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          const sizeKB = Math.round((dataUrl.split(',')[1]?.length || 0) * 0.75 / 1024);
+          
+          if (sizeKB <= MAX_IMAGE_SIZE_KB || quality <= 0.4) {
+            resolve(dataUrl);
+          } else {
+            quality -= 0.1;
+            tryCompress();
+          }
+        };
+        tryCompress();
+      };
+      img.onerror = () => reject(new Error('Image load error'));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error('File read error'));
+    reader.readAsDataURL(file);
+  });
+}
 
 interface BatchProductModalProps {
   isOpen: boolean;
@@ -20,7 +71,8 @@ interface ProductFormData {
   description: string;
   stock: number;
   image: string;
-  images: string[];
+  imagePath: string;
+  images: ProductImage[];
 }
 
 export default function BatchProductModal({ isOpen, onClose, onSave, categories }: BatchProductModalProps) {
@@ -41,6 +93,7 @@ export default function BatchProductModal({ isOpen, onClose, onSave, categories 
       description: '',
       stock: 0,
       image: '',
+      imagePath: '',
       images: []
     };
   }
@@ -67,18 +120,19 @@ export default function BatchProductModal({ isOpen, onClose, onSave, categories 
 
     setUploadingIndex(productIndex);
     try {
-      const uploadedUrls: string[] = [];
+      const uploadedImages: ProductImage[] = [];
       for (const file of files) {
-        const result = await uploadImage(file, 'products');
-        uploadedUrls.push(result.url);
+        const dataUrl = await processImageFile(file);
+        uploadedImages.push({ url: dataUrl, path: 'base64' });
       }
 
       const updated = [...products];
-      const newImages = [...updated[productIndex].images, ...uploadedUrls];
+      const newImages = [...updated[productIndex].images, ...uploadedImages];
       updated[productIndex] = { 
         ...updated[productIndex], 
         images: newImages,
-        image: updated[productIndex].image || uploadedUrls[0]
+        image: updated[productIndex].image || uploadedImages[0]?.url || '',
+        imagePath: 'base64'
       };
       setProducts(updated);
       toast.success(`Đã tải lên ${files.length} ảnh!`);
@@ -205,7 +259,8 @@ export default function BatchProductModal({ isOpen, onClose, onSave, categories 
       price: p.price,
       originalPrice: p.originalPrice || undefined,
       image: p.image || '',
-      images: p.images.length > 0 ? p.images : [],
+      imagePath: p.imagePath || '',
+      images: p.images,
       category: p.category,
       brand: p.brand,
       description: p.description,
@@ -386,7 +441,7 @@ Samsung Galaxy S24 Ultra,28990000,32990000,Điện thoại,Samsung,Điện tho�
                   <div className="flex flex-wrap gap-1">
                     {product.images.slice(0, 3).map((img, imgIdx) => (
                       <div key={imgIdx} className="relative w-10 h-10 border rounded overflow-hidden group">
-                        <img src={img} alt="" className="w-full h-full object-cover" />
+                        <img src={typeof img === 'string' ? img : img.url} alt="" className="w-full h-full object-cover" />
                         <button
                           type="button"
                           onClick={() => removeImage(index, imgIdx)}

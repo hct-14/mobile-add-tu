@@ -3,20 +3,33 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ===============================================================
-    // Data Models
+    // Assumed Data Model
     // ===============================================================
     //
     // Collection: products
-    // Collection: categories
-    // Collection: banners
-    // Collection: promotions
-    // Collection: campaigns
-    // Collection: orders
-    // Collection: warranties
+    // Document ID: {productId}
+    // Fields:
+    //   - id: string (required)
+    //   - name: string (required)
+    //   - inventoryQuantity: number (required)
+    //
     // Collection: import_slips
+    // Document ID: {slipId}
+    // Fields:
+    //   - id: string (required)
+    //   - productId: string (required)
+    //   - quantity: number (required)
+    //   - importPrice: number (required)
+    //   - totalPrice: number (required)
+    //   - importDate: string (required)
+    //
     // Collection: expenses
-    // Collection: settings
-    // Collection: users
+    // Document ID: {expenseId}
+    // Fields:
+    //   - id: string (required)
+    //   - name: string (required)
+    //   - amount: number (required)
+    //   - expenseDate: string (required)
     //
     // ===============================================================
 
@@ -37,64 +50,34 @@ service cloud.firestore {
 
     // Domain Validators
     function isValidProduct(data) {
-      return data.id is string && data.name is string && data.slug is string && 
-             data.price is number && data.image is string &&
+      return hasOnlyAllowedFields(['id', 'name', 'slug', 'price', 'originalPrice', 'discountPercentage', 'image', 'images', 'category', 'brand', 'specs', 'variants', 'inStock', 'isUsed', 'description', 'inventoryQuantity', 'offers', 'reviews']) &&
+             data.id is string && data.name is string && data.slug is string && data.price is number && data.image is string &&
              data.category is string && data.brand is string && data.inStock is bool;
     }
 
-    function isValidOrder(data) {
-      return data.id is string && data.customerName is string && 
-             data.customerPhone is string && data.total is number &&
-             data.status in ['pending', 'processing', 'completed', 'cancelled'] &&
-             data.createdAt is string;
-    }
-
-    function isValidPromotion(data) {
-      return data.id is string && data.code is string && 
-             data.description is string && data.isActive is bool;
-    }
-
-    function isValidCampaign(data) {
-      return data.id is string && data.name is string && 
-             data.endDate is string && data.isActive is bool;
-    }
-
-    function isValidWarranty(data) {
-      return data.id is string && data.imei is string && 
-             data.productName is string && data.customerPhone is string;
-    }
-
     function isValidImportSlip(data) {
-      return data.id is string && data.productId is string && 
-             data.quantity is number && data.quantity > 0 &&
-             data.importPrice is number && data.importPrice >= 0 && 
-             data.totalPrice is number && data.totalPrice >= 0 &&
+      return hasOnlyAllowedFields(['id', 'productId', 'quantity', 'importPrice', 'totalPrice', 'importDate']) &&
+             data.id is string && data.productId is string && data.quantity is number && data.quantity > 0 &&
+             data.importPrice is number && data.importPrice >= 0 && data.totalPrice is number && data.totalPrice >= 0 &&
              data.importDate is string;
     }
 
     function isValidExpense(data) {
-      return data.id is string && data.name is string && 
-             data.amount is number && data.amount >= 0 &&
+      return hasOnlyAllowedFields(['id', 'name', 'amount', 'expenseDate']) &&
+             data.id is string && data.name is string && data.amount is number && data.amount >= 0 &&
              data.expenseDate is string;
     }
 
     function isValidUser(data) {
-      return data.id is string && data.name is string && 
-             data.email is string && data.role in ['user', 'admin'];
-    }
-
-    function isValidCategory(data) {
-      return data.id is string && data.name is string && data.slug is string;
-    }
-
-    function isValidBanner(data) {
-      return data.id is string && data.imageUrl is string && 
-             data.link is string && data.title is string;
+      return hasOnlyAllowedFields(['id', 'name', 'username', 'email', 'role', 'dob']) &&
+             data.id is string && data.name is string && data.email is string && data.role in ['user', 'admin'];
     }
 
     // Rules
     match /users/{userId} {
+      // Allow users to read their own data, allow admin to read all, allow checking for duplicate username
       allow read: if isAuthenticated();
+      // Allow users to create/update their own data
       allow create, update: if isAuthenticated() && request.auth.uid == userId && isValidUser(request.resource.data);
       allow delete: if isAdmin();
     }
@@ -118,30 +101,6 @@ service cloud.firestore {
     match /banners/{bannerId} {
       allow read: if true;
       allow write: if isAdmin();
-    }
-
-    match /promotions/{promoId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /campaigns/{campaignId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /orders/{orderId} {
-      allow read: if isAuthenticated();
-      allow create: if true;
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
-    }
-
-    match /warranties/{warrantyId} {
-      allow read: if isAuthenticated();
-      allow create: if true;
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
     }
 
     match /import_slips/{slipId} {

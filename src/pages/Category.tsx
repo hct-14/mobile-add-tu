@@ -18,6 +18,9 @@ export default function Category() {
   const [brandFilter, setBrandFilter] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
   const [sortFilter, setSortFilter] = useState('default');
+  const [conditionFilter, setConditionFilter] = useState('all');
+  const [ramFilter, setRamFilter] = useState('all');
+  const [storageFilter, setStorageFilter] = useState('all');
   
   useEffect(() => {
     setLoading(true);
@@ -25,7 +28,7 @@ export default function Category() {
       setLoading(false);
     }, 500);
     return () => clearTimeout(timer);
-  }, [slug, brandFilter, priceFilter, sortFilter]);
+  }, [slug, brandFilter, priceFilter, sortFilter, conditionFilter, ramFilter, storageFilter]);
 
   // Simple mapping for demo
   const categoryMap: Record<string, string> = {
@@ -50,26 +53,57 @@ export default function Category() {
     products = products.filter(p => p.brand === brandFilter);
   }
 
+  // Apply Condition Filter
+  if (conditionFilter !== 'all') {
+    const isUsed = conditionFilter === 'used';
+    products = products.filter(p => !!p.isUsed === isUsed);
+  }
+
+  // Apply RAM Filter
+  if (ramFilter !== 'all') {
+    products = products.filter(p => {
+      // Check specs or variants for RAM
+      if (p.specs?.ram === ramFilter) return true;
+      if (p.variants?.some(v => v.ram === ramFilter)) return true;
+      return false;
+    });
+  }
+
+  // Apply Storage Filter
+  if (storageFilter !== 'all') {
+    products = products.filter(p => {
+      if (p.specs?.storage === storageFilter) return true;
+      if (p.variants?.some(v => v.storage === storageFilter)) return true;
+      return false;
+    });
+  }
+
   // Apply Price Filter
   if (priceFilter !== 'all') {
     products = products.filter(p => {
-      const price = p.variants[0]?.price || p.price;
-      if (priceFilter === 'under-10') return price < 10000000;
-      if (priceFilter === '10-20') return price >= 10000000 && price <= 20000000;
-      if (priceFilter === 'over-20') return price > 20000000;
+      if (priceFilter === 'under-5') return p.price < 5000000;
+      if (priceFilter === '5-10') return p.price >= 5000000 && p.price <= 10000000;
+      if (priceFilter === '10-20') return p.price > 10000000 && p.price <= 20000000;
+      if (priceFilter === 'over-20') return p.price > 20000000;
       return true;
     });
   }
 
   // Apply Sorting
   if (sortFilter === 'price-asc') {
-    products.sort((a, b) => (a.variants[0]?.price || a.price) - (b.variants[0]?.price || b.price));
+    products.sort((a, b) => a.price - b.price);
   } else if (sortFilter === 'price-desc') {
-    products.sort((a, b) => (b.variants[0]?.price || b.price) - (a.variants[0]?.price || a.price));
+    products.sort((a, b) => b.price - a.price);
   }
 
   // Extract unique brands for filter dropdown
   const uniqueBrands = Array.from(new Set(allProducts.filter(p => p.category.toLowerCase() === categoryName.toLowerCase()).map(p => p.brand)));
+  
+  // Extract unique RAMs
+  const uniqueRams = Array.from(new Set(allProducts.flatMap(p => [p.specs?.ram, ...(p.variants?.map(v => v.ram) || [])]).filter(Boolean)));
+  
+  // Extract unique Storages
+  const uniqueStorages = Array.from(new Set(allProducts.flatMap(p => [p.specs?.storage, ...(p.variants?.map(v => v.storage) || [])]).filter(Boolean)));
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -125,10 +159,49 @@ export default function Category() {
             className="border rounded-md px-3 py-1.5 text-sm outline-none focus:border-[#00483d]"
           >
             <option value="all">Mọi mức giá</option>
-            <option value="under-10">Dưới 10 triệu</option>
+            <option value="under-5">Dưới 5 triệu</option>
+            <option value="5-10">5 - 10 triệu</option>
             <option value="10-20">10 - 20 triệu</option>
             <option value="over-20">Trên 20 triệu</option>
           </select>
+
+          {slug !== 'hang-cu' && (
+            <select 
+              value={conditionFilter}
+              onChange={(e) => setConditionFilter(e.target.value)}
+              className="border rounded-md px-3 py-1.5 text-sm outline-none focus:border-[#00483d]"
+            >
+              <option value="all">Tất cả tình trạng</option>
+              <option value="new">Máy mới</option>
+              <option value="used">Máy cũ</option>
+            </select>
+          )}
+
+          {uniqueRams.length > 0 && (
+            <select 
+              value={ramFilter}
+              onChange={(e) => setRamFilter(e.target.value)}
+              className="border rounded-md px-3 py-1.5 text-sm outline-none focus:border-[#00483d]"
+            >
+              <option value="all">RAM</option>
+              {uniqueRams.map(ram => (
+                <option key={ram as string} value={ram as string}>{ram as string}</option>
+              ))}
+            </select>
+          )}
+
+          {uniqueStorages.length > 0 && (
+            <select 
+              value={storageFilter}
+              onChange={(e) => setStorageFilter(e.target.value)}
+              className="border rounded-md px-3 py-1.5 text-sm outline-none focus:border-[#00483d]"
+            >
+              <option value="all">Bộ nhớ</option>
+              {uniqueStorages.map(storage => (
+                <option key={storage as string} value={storage as string}>{storage as string}</option>
+              ))}
+            </select>
+          )}
           
           <select 
             value={sortFilter}
@@ -187,8 +260,8 @@ export default function Category() {
                   </div>
                   <h3 className="font-medium text-sm text-gray-800 line-clamp-2 mb-2 h-10">{product.name}</h3>
                   <div className="flex flex-col">
-                    <span className="text-red-600 font-bold text-lg">{formatPrice(product.variants[0]?.price || product.price)}</span>
-                    {product.variants[0]?.price !== product.price && product.originalPrice && (
+                    <span className="text-red-600 font-bold text-lg">{formatPrice(product.price)}</span>
+                    {product.originalPrice && (
                       <span className="text-gray-400 text-sm line-through">{formatPrice(product.originalPrice)}</span>
                     )}
                   </div>

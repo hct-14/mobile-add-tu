@@ -72,14 +72,8 @@ export default function WarrantyModal({ isOpen, onClose, onSave, initialData }: 
   };
 
   return (
-    <div 
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      onClick={onClose}
-    >
-      <div 
-        className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">{initialData ? 'Sửa thông tin bảo hành' : 'Thêm máy bảo hành'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

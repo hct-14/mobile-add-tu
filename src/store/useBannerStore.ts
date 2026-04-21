@@ -1,12 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Banner } from '../types';
-import { 
-  subscribeToCollection, 
-  saveDocument, 
-  deleteDocument,
-  seedCollectionIfEmpty 
-} from '../lib/firebaseSync';
 
 const defaultBanners: Banner[] = [
   {
@@ -37,80 +31,30 @@ const defaultBanners: Banner[] = [
 
 interface BannerStore {
   banners: Banner[];
-  isLoading: boolean;
-  isInitialized: boolean;
-  updateBanner: (id: string, banner: Partial<Banner>) => Promise<void>;
-  addBanner: (banner: Banner) => Promise<void>;
-  deleteBanner: (id: string) => Promise<void>;
-  initializeBanners: () => () => void;
+  updateBanner: (id: string, banner: Partial<Banner>) => void;
+  addBanner: (banner: Banner) => void;
+  deleteBanner: (id: string) => void;
 }
 
 export const useBannerStore = create<BannerStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       banners: defaultBanners,
-      isLoading: true,
-      isInitialized: false,
-
-      updateBanner: async (id, updatedBanner) => {
-        const banner = get().banners.find(b => b.id === id);
-        if (!banner) return;
-        try {
-          await saveDocument('banners', { ...banner, ...updatedBanner }, id);
-        } catch (error) {
-          console.error('Error updating banner:', error);
-          set((state) => ({
-            banners: state.banners.map((b) => b.id === id ? { ...b, ...updatedBanner } : b),
-          }));
-        }
-      },
-
-      addBanner: async (banner) => {
-        try {
-          await saveDocument('banners', banner, banner.id);
-        } catch (error) {
-          console.error('Error adding banner:', error);
-          set((state) => ({
-            banners: [...state.banners, banner],
-          }));
-        }
-      },
-
-      deleteBanner: async (id) => {
-        try {
-          await deleteDocument('banners', id);
-        } catch (error) {
-          console.error('Error deleting banner:', error);
-          set((state) => ({
-            banners: state.banners.filter((b) => b.id !== id),
-          }));
-        }
-      },
-
-      initializeBanners: () => {
-        seedCollectionIfEmpty('banners', defaultBanners, 'id').catch(console.error);
-
-        const unsubscribe = subscribeToCollection<Banner>(
-          { collectionName: 'banners', idField: 'id' as keyof Banner },
-          (banners) => {
-            if (banners.length > 0) {
-              set({ banners, isLoading: false, isInitialized: true });
-            } else if (!get().isInitialized) {
-              set({ isLoading: false, isInitialized: true });
-            }
-          },
-          (error) => {
-            console.error('Banner sync error:', error);
-            set({ isLoading: false, isInitialized: true });
-          }
-        );
-
-        return unsubscribe;
-      },
+      updateBanner: (id, updatedBanner) =>
+        set((state) => ({
+          banners: state.banners.map((b) => (b.id === id ? { ...b, ...updatedBanner } : b)),
+        })),
+      addBanner: (banner) =>
+        set((state) => ({
+          banners: [...state.banners, banner],
+        })),
+      deleteBanner: (id) =>
+        set((state) => ({
+          banners: state.banners.filter((b) => b.id !== id),
+        })),
     }),
     {
       name: 'banner-storage',
-      partialize: (state) => ({ banners: state.banners }),
     }
   )
 );

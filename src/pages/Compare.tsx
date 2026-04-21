@@ -71,7 +71,7 @@ export default function Compare() {
                   <Link to={`/product/${item.slug}`} className="font-bold text-gray-900 hover:text-[#00483d] mb-2">
                     {item.name}
                   </Link>
-                  <div className="text-red-600 font-bold text-lg mb-4">{formatPrice(item.variants[0]?.price || item.price)}</div>
+                  <div className="text-red-600 font-bold text-lg mb-4">{formatPrice(item.price)}</div>
                   <button 
                     onClick={() => addItem(item, item.variants[0])}
                     className="flex items-center justify-center w-full bg-[#00483d] text-white py-2 rounded hover:bg-[#00382f] transition-colors"

@@ -1,0 +1,39 @@
+{
+  "settings": {
+    "store_info": {
+      "id": "store_info",
+      "name": "ALOSTORE",
+      "tagline": "Chuyên iPhone, Samsung, Xiaomi chính hãng",
+      "address": "123 Nguyễn Trãi, Quận 1, TP.HCM",
+      "phone": "0901 234 567",
+      "email": "contact@alostore.com",
+      "hotline": "1800 1234",
+      "workingHours": "8:00 - 21:00 (Thứ 2 - CN)",
+      "facebook": "https://facebook.com/alostore",
+      "zalo": "https://zalo.me/alostore",
+      "youtube": "https://youtube.com/@alostore"
+    },
+    "app_config": {
+      "id": "app_config",
+      "currency": "VND",
+      "currencySymbol": "₫",
+      "taxRate": 0,
+      "shippingFee": 30000,
+      "freeShippingThreshold": 500000,
+      "minOrderValue": 100000,
+      "supportInstallment": true,
+      "installmentMonths": [3, 6, 9, 12],
+      "maxInstallmentAmount": 50000000
+    },
+    "warranty_config": {
+      "id": "warranty_config",
+      "defaultDurationMonths": 12,
+      "extendedWarrantyMonths": 24,
+      "warrantyTypes": [
+        { "name": "Bảo hành tiêu chuẩn", "months": 12, "price": 0 },
+        { "name": "Bảo hành vàng", "months": 18, "price": 500000 },
+        { "name": "Bảo hành kim cương", "months": 24, "price": 1000000 }
+      ]
+    }
+  }
+}

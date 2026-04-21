@@ -1,0 +1,44 @@
+{
+  "banners": {
+    "banner_hero_1": {
+      "id": "banner_hero_1",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/banners%2Fhero-iphone15.jpg?alt=media",
+      "link": "/products/iphone-15-pro-256gb",
+      "title": "iPhone 15 Series",
+      "subtitle": "Giảm đến 3 triệu - Quà tặng hấp dẫn",
+      "type": "hero"
+    },
+    "banner_hero_2": {
+      "id": "banner_hero_2",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/banners%2Fhero-samsung-s24.jpg?alt=media",
+      "link": "/products/samsung-galaxy-s24-ultra-256gb",
+      "title": "Samsung Galaxy S24",
+      "subtitle": "Trải nghiệm AI đỉnh cao",
+      "type": "hero"
+    },
+    "banner_sub_1": {
+      "id": "banner_sub_1",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/banners%2Fsub-flashsale.jpg?alt=media",
+      "link": "/campaign/flash-sale",
+      "title": "Flash Sale",
+      "subtitle": "Giảm giá sốc mỗi ngày",
+      "type": "sub"
+    },
+    "banner_sub_2": {
+      "id": "banner_sub_2",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/banners%2Fsub-tradein.jpg?alt=media",
+      "link": "/trade-in",
+      "title": "Thu cũ đổi mới",
+      "subtitle": "Lên đời với giá hấp dẫn",
+      "type": "sub"
+    },
+    "banner_sub_3": {
+      "id": "banner_sub_3",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/banners%2Fsub-installment.jpg?alt=media",
+      "link": "/installment",
+      "title": "Trả góp 0%",
+      "subtitle": "0đ trả trước - 0% lãi suất",
+      "type": "sub"
+    }
+  }
+}

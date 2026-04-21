@@ -1,0 +1,81 @@
+{
+  "promotions": {
+    "promo_new_user": {
+      "id": "promo_new_user",
+      "code": "NEWUSER500",
+      "discountType": "fixed",
+      "discountAmount": 500000,
+      "minOrderValue": 5000000,
+      "description": "Giảm 500.000đ cho đơn hàng đầu tiên",
+      "isActive": true,
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": "2026-12-31T23:59:59Z",
+      "usageLimit": 1,
+      "usedCount": 0,
+      "applicableCategories": [],
+      "applicableTo": "all",
+      "applicableToAll": true
+    },
+    "promo_iphone": {
+      "id": "promo_iphone",
+      "code": "IPHONE10",
+      "discountType": "percent",
+      "discountPercent": 10,
+      "minOrderValue": 15000000,
+      "description": "Giảm 10% tối đa 3 triệu cho đơn hàng iPhone từ 15 triệu",
+      "isActive": true,
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": "2026-12-31T23:59:59Z",
+      "usageLimit": 1000,
+      "usedCount": 45,
+      "applicableCategories": ["cat_iphone"],
+      "applicableTo": "products",
+      "applicableToAll": false
+    },
+    "promo_samsung": {
+      "id": "promo_samsung",
+      "code": "SAMSUNG1M",
+      "discountType": "fixed",
+      "discountAmount": 1000000,
+      "minOrderValue": 10000000,
+      "description": "Giảm 1 triệu đồng cho đơn hàng Samsung từ 10 triệu",
+      "isActive": true,
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": "2026-06-30T23:59:59Z",
+      "usageLimit": 500,
+      "usedCount": 120,
+      "applicableCategories": ["cat_samsung"],
+      "applicableTo": "products",
+      "applicableToAll": false
+    },
+    "promo_summer": {
+      "id": "promo_summer",
+      "code": "SUMMER2026",
+      "discountType": "percent",
+      "discountPercent": 15,
+      "minOrderValue": 20000000,
+      "description": "Summer Sale - Giảm 15% tối đa 5 triệu cho đơn từ 20 triệu",
+      "isActive": true,
+      "startDate": "2026-04-01T00:00:00Z",
+      "endDate": "2026-05-31T23:59:59Z",
+      "usageLimit": 200,
+      "usedCount": 35,
+      "applicableCategories": [],
+      "applicableTo": "all",
+      "applicableToAll": true
+    },
+    "promo_free_ship": {
+      "id": "promo_free_ship",
+      "code": "FREESHIP",
+      "description": "Miễn phí vận chuyển cho mọi đơn hàng",
+      "isActive": true,
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": "2026-12-31T23:59:59Z",
+      "usageLimit": null,
+      "usedCount": 0,
+      "applicableCategories": [],
+      "applicableTo": "cart",
+      "applicableToAll": false
+    }
+  }
+}

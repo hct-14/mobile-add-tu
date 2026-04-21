@@ -1,0 +1,270 @@
+{
+  "products": {
+    "iphone_15_pro_256": {
+      "id": "iphone_15_pro_256",
+      "name": "iPhone 15 Pro 256GB",
+      "slug": "iphone-15-pro-256gb",
+      "price": 32990000,
+      "originalPrice": 34990000,
+      "discountPercentage": 6,
+      "image": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fiphone15-pro-black.jpg?alt=media",
+      "imagePath": "products/iphone15-pro-black.jpg",
+      "images": [
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fiphone15-pro-black.jpg?alt=media", "path": "products/iphone15-pro-black.jpg" },
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fiphone15-pro-white.jpg?alt=media", "path": "products/iphone15-pro-white.jpg" },
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fiphone15-pro-blue.jpg?alt=media", "path": "products/iphone15-pro-blue.jpg" }
+      ],
+      "category": "cat_iphone",
+      "brand": "Apple",
+      "specs": {
+        "Màn hình": "6.1 inch OLED",
+        "Chip": "Apple A17 Pro",
+        "RAM": "8GB",
+        "Pin": "3274 mAh",
+        "Camera": "48MP chính",
+        "Hệ điều hành": "iOS 17"
+      },
+      "variants": [
+        { "id": "iphone15-pro-black-256", "color": "Titan Đen", "storage": "256GB", "price": 32990000, "inStock": true, "stock": 25 },
+        { "id": "iphone15-pro-white-256", "color": "Titan Trắng", "storage": "256GB", "price": 32990000, "inStock": true, "stock": 20 },
+        { "id": "iphone15-pro-blue-256", "color": "Titan Xanh Dương", "storage": "256GB", "price": 32990000, "inStock": true, "stock": 18 },
+        { "id": "iphone15-pro-natural-256", "color": "Titan Tự Nhiên", "storage": "256GB", "price": 32990000, "inStock": true, "stock": 15 }
+      ],
+      "inStock": true,
+      "isUsed": false,
+      "description": "iPhone 15 Pro với khung titanium cao cấp, chip A17 Pro mạnh mẽ và camera 48MP chuyên nghiệp.",
+      "inventoryQuantity": 78,
+      "offers": ["Tai nghe AirPods 2", "Ốp lưng chính hãng", "Bảo hành 12 tháng"]
+    },
+    "iphone_15_128": {
+      "id": "iphone_15_128",
+      "name": "iPhone 15 128GB",
+      "slug": "iphone-15-128gb",
+      "price": 22490000,
+      "originalPrice": 24990000,
+      "discountPercentage": 10,
+      "image": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fiphone15-pink.jpg?alt=media",
+      "imagePath": "products/iphone15-pink.jpg",
+      "images": [
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fiphone15-pink.jpg?alt=media", "path": "products/iphone15-pink.jpg" },
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fiphone15-black.jpg?alt=media", "path": "products/iphone15-black.jpg" }
+      ],
+      "category": "cat_iphone",
+      "brand": "Apple",
+      "specs": {
+        "Màn hình": "6.1 inch OLED",
+        "Chip": "Apple A16 Bionic",
+        "RAM": "6GB",
+        "Pin": "3349 mAh",
+        "Camera": "48MP chính",
+        "Hệ điều hành": "iOS 17"
+      },
+      "variants": [
+        { "id": "iphone15-pink-128", "color": "Hồng", "storage": "128GB", "price": 22490000, "inStock": true, "stock": 30 },
+        { "id": "iphone15-black-128", "color": "Đen", "storage": "128GB", "price": 22490000, "inStock": true, "stock": 25 },
+        { "id": "iphone15-green-128", "color": "Xanh lá", "storage": "128GB", "price": 22490000, "inStock": true, "stock": 20 }
+      ],
+      "inStock": true,
+      "isUsed": false,
+      "description": "iPhone 15 với Dynamic Island, camera 48MP và cổng USB-C tiện lợi.",
+      "inventoryQuantity": 75,
+      "offers": ["Tai nghe AirPods 2", "Bảo hành 12 tháng"]
+    },
+    "samsung_s24_ultra_256": {
+      "id": "samsung_s24_ultra_256",
+      "name": "Samsung Galaxy S24 Ultra 256GB",
+      "slug": "samsung-galaxy-s24-ultra-256gb",
+      "price": 29990000,
+      "originalPrice": 32990000,
+      "discountPercentage": 9,
+      "image": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fs24-ultra-titanium-black.jpg?alt=media",
+      "imagePath": "products/s24-ultra-titanium-black.jpg",
+      "images": [
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fs24-ultra-titanium-black.jpg?alt=media", "path": "products/s24-ultra-titanium-black.jpg" },
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fs24-ultra-titanium-gray.jpg?alt=media", "path": "products/s24-ultra-titanium-gray.jpg" }
+      ],
+      "category": "cat_samsung",
+      "brand": "Samsung",
+      "specs": {
+        "Màn hình": "6.8 inch AMOLED 2X",
+        "Chip": "Snapdragon 8 Gen 3",
+        "RAM": "12GB",
+        "Pin": "5000 mAh",
+        "Camera": "200MP chính",
+        "Hệ điều hành": "Android 14"
+      },
+      "variants": [
+        { "id": "s24-ultra-black-256", "color": "Titan Đen", "storage": "256GB", "price": 29990000, "inStock": true, "stock": 22 },
+        { "id": "s24-ultra-gray-256", "color": "Titan Xám", "storage": "256GB", "price": 29990000, "inStock": true, "stock": 18 },
+        { "id": "s24-ultra-purple-256", "color": "Titan Tím", "storage": "256GB", "price": 29990000, "inStock": true, "stock": 15 }
+      ],
+      "inStock": true,
+      "isUsed": false,
+      "description": "Samsung Galaxy S24 Ultra với bút S Pen, camera 200MP và AI Galaxy AI.",
+      "inventoryQuantity": 55,
+      "offers": ["Tai nghe Galaxy Buds 2", "Sạc nhanh 45W", "Bảo hành 24 tháng"]
+    },
+    "samsung_s24_128": {
+      "id": "samsung_s24_128",
+      "name": "Samsung Galaxy S24 128GB",
+      "slug": "samsung-galaxy-s24-128gb",
+      "price": 17990000,
+      "originalPrice": 19990000,
+      "discountPercentage": 10,
+      "image": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fs24-onix.jpg?alt=media",
+      "imagePath": "products/s24-onix.jpg",
+      "images": [
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fs24-onix.jpg?alt=media", "path": "products/s24-onix.jpg" }
+      ],
+      "category": "cat_samsung",
+      "brand": "Samsung",
+      "specs": {
+        "Màn hình": "6.2 inch AMOLED 2X",
+        "Chip": "Exynos 2400",
+        "RAM": "8GB",
+        "Pin": "4000 mAh",
+        "Camera": "50MP chính",
+        "Hệ điều hành": "Android 14"
+      },
+      "variants": [
+        { "id": "s24-onix-128", "color": "Onix", "storage": "128GB", "price": 17990000, "inStock": true, "stock": 35 },
+        { "id": "s24-violet-128", "color": "Tím", "storage": "128GB", "price": 17990000, "inStock": true, "stock": 28 }
+      ],
+      "inStock": true,
+      "isUsed": false,
+      "description": "Samsung Galaxy S24 nhỏ gọn với AI và camera 50MP.",
+      "inventoryQuantity": 63,
+      "offers": ["Ốp lưng chính hãng", "Bảo hành 12 tháng"]
+    },
+    "xiaomi_14_512": {
+      "id": "xiaomi_14_512",
+      "name": "Xiaomi 14 512GB",
+      "slug": "xiaomi-14-512gb",
+      "price": 16990000,
+      "originalPrice": 18990000,
+      "discountPercentage": 11,
+      "image": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fxiaomi-14-black.jpg?alt=media",
+      "imagePath": "products/xiaomi-14-black.jpg",
+      "images": [
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fxiaomi-14-black.jpg?alt=media", "path": "products/xiaomi-14-black.jpg" },
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fxiaomi-14-white.jpg?alt=media", "path": "products/xiaomi-14-white.jpg" }
+      ],
+      "category": "cat_xiaomi",
+      "brand": "Xiaomi",
+      "specs": {
+        "Màn hình": "6.36 inch AMOLED",
+        "Chip": "Snapdragon 8 Gen 3",
+        "RAM": "12GB",
+        "Pin": "4610 mAh",
+        "Camera": "50MP Leica",
+        "Hệ điều hành": "Android 14"
+      },
+      "variants": [
+        { "id": "xiaomi14-black-512", "color": "Đen", "storage": "512GB", "price": 16990000, "inStock": true, "stock": 25 },
+        { "id": "xiaomi14-white-512", "color": "Trắng", "storage": "512GB", "price": 16990000, "inStock": true, "stock": 20 }
+      ],
+      "inStock": true,
+      "isUsed": false,
+      "description": "Xiaomi 14 với camera Leica 50MP và chip Snapdragon 8 Gen 3.",
+      "inventoryQuantity": 45,
+      "offers": ["Tai nghe Xiaomi Buds 4", "Bảo hành 24 tháng"]
+    },
+    "oppo_find_x7_ultra": {
+      "id": "oppo_find_x7_ultra",
+      "name": "OPPO Find X7 Ultra 512GB",
+      "slug": "oppo-find-x7-ultra-512gb",
+      "price": 24990000,
+      "originalPrice": 27990000,
+      "discountPercentage": 11,
+      "image": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Foppo-find-x7-ultra.jpg?alt=media",
+      "imagePath": "products/oppo-find-x7-ultra.jpg",
+      "images": [
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Foppo-find-x7-ultra.jpg?alt=media", "path": "products/oppo-find-x7-ultra.jpg" }
+      ],
+      "category": "cat_oppo",
+      "brand": "OPPO",
+      "specs": {
+        "Màn hình": "6.82 inch AMOLED",
+        "Chip": "Snapdragon 8 Gen 3",
+        "RAM": "16GB",
+        "Pin": "5000 mAh",
+        "Camera": "50MP Hasselblad",
+        "Hệ điều hành": "Android 14"
+      },
+      "variants": [
+        { "id": "oppo-x7-ultra-black-512", "color": "Đen", "storage": "512GB", "price": 24990000, "inStock": true, "stock": 15 },
+        { "id": "oppo-x7-ultra-brown-512", "color": "Nâu", "storage": "512GB", "price": 24990000, "inStock": true, "stock": 12 }
+      ],
+      "inStock": true,
+      "isUsed": false,
+      "description": "OPPO Find X7 Ultra với camera Hasselblad và hệ thống 4 camera 50MP.",
+      "inventoryQuantity": 27,
+      "offers": ["Tai nghe Enco X3", "Bảo hành 24 tháng"]
+    },
+    "iphone_14_used": {
+      "id": "iphone_14_used",
+      "name": "iPhone 14 Pro Max 256GB - Qua sử dụng",
+      "slug": "iphone-14-pro-max-256gb-cu",
+      "price": 19990000,
+      "originalPrice": 26990000,
+      "discountPercentage": 26,
+      "image": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fiphone14-pro-max-deeppurple.jpg?alt=media",
+      "imagePath": "products/iphone14-pro-max-deeppurple.jpg",
+      "images": [
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fiphone14-pro-max-deeppurple.jpg?alt=media", "path": "products/iphone14-pro-max-deeppurple.jpg" }
+      ],
+      "category": "cat_iphone",
+      "brand": "Apple",
+      "specs": {
+        "Màn hình": "6.7 inch OLED",
+        "Chip": "Apple A16 Bionic",
+        "RAM": "6GB",
+        "Pin": "4323 mAh",
+        "Camera": "48MP chính",
+        "Hệ điều hành": "iOS 17"
+      },
+      "variants": [
+        { "id": "iphone14-pm-deeppurple-256", "color": "Tím Đậm", "storage": "256GB", "condition": "99%", "price": 19990000, "inStock": true, "stock": 8 },
+        { "id": "iphone14-pm-gold-256", "color": "Vàng", "storage": "256GB", "condition": "98%", "price": 18990000, "inStock": true, "stock": 5 }
+      ],
+      "inStock": true,
+      "isUsed": true,
+      "description": "iPhone 14 Pro Max đã qua sử dụng, tình trạng tốt, bảo hành 6 tháng.",
+      "inventoryQuantity": 13,
+      "offers": ["Bảo hành 6 tháng", "Kiểm tra pin trên 85%"]
+    },
+    "samsung_z_fold5": {
+      "id": "samsung_z_fold5",
+      "name": "Samsung Galaxy Z Fold5 512GB",
+      "slug": "samsung-galaxy-z-fold5-512gb",
+      "price": 34990000,
+      "originalPrice": 39990000,
+      "discountPercentage": 13,
+      "image": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fzfold5-phantomblack.jpg?alt=media",
+      "imagePath": "products/zfold5-phantomblack.jpg",
+      "images": [
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fzfold5-phantomblack.jpg?alt=media", "path": "products/zfold5-phantomblack.jpg" },
+        { "url": "https://firebasestorage.googleapis.com/v0/b/alostore-61726.firebasestorage.app/o/products%2Fzfold5-cream.jpg?alt=media", "path": "products/zfold5-cream.jpg" }
+      ],
+      "category": "cat_samsung",
+      "brand": "Samsung",
+      "specs": {
+        "Màn hình": "7.6 inch Foldable AMOLED",
+        "Chip": "Snapdragon 8 Gen 2",
+        "RAM": "12GB",
+        "Pin": "4400 mAh",
+        "Camera": "50MP chính",
+        "Hệ điều hành": "Android 14"
+      },
+      "variants": [
+        { "id": "zfold5-black-512", "color": "Phantom Black", "storage": "512GB", "price": 34990000, "inStock": true, "stock": 10 },
+        { "id": "zfold5-cream-512", "color": "Cream", "storage": "512GB", "price": 34990000, "inStock": true, "stock": 8 }
+      ],
+      "inStock": true,
+      "isUsed": false,
+      "description": "Samsung Galaxy Z Fold5 - Điện thoại gập với màn hình lớn 7.6 inch.",
+      "inventoryQuantity": 18,
+      "offers": ["Ốp lưng đặc biệt Fold", "Sạc nhanh 25W", "Bảo hành 12 tháng"]
+    }
+  }
+}

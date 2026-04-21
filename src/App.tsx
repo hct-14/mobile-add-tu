@@ -22,56 +22,22 @@ import TradeIn from './pages/TradeIn';
 import Warranty from './pages/Warranty';
 import About from './pages/About';
 import AuthProvider from './components/AuthProvider';
+import Profile from './pages/Profile';
 import { useProductStore } from './store/useProductStore';
 import { useSettingsStore } from './store/useSettingsStore';
-import { usePromotionStore } from './store/usePromotionStore';
-import { useCategoryStore } from './store/useCategoryStore';
-import { useBannerStore } from './store/useBannerStore';
-import { useOrderStore } from './store/useOrderStore';
-import { useWarrantyStore } from './store/useWarrantyStore';
-import { useCampaignStore } from './store/useCampaignStore';
 
 export default function App() {
   const subscribeProducts = useProductStore((state) => state.subscribeProducts);
   const subscribeSettings = useSettingsStore((state) => state.subscribeSettings);
-  const initializePromotions = usePromotionStore((state) => state.initializePromotions);
-  const initializeCategories = useCategoryStore((state) => state.initializeCategories);
-  const initializeBanners = useBannerStore((state) => state.initializeBanners);
-  const initializeOrders = useOrderStore((state) => state.initializeOrders);
-  const initializeWarranties = useWarrantyStore((state) => state.initializeWarranties);
-  const initializeCampaigns = useCampaignStore((state) => state.initializeCampaigns);
 
   useEffect(() => {
-    // Initialize all Firestore subscriptions
     const unsubProducts = subscribeProducts();
     const unsubSettings = subscribeSettings();
-    const unsubPromotions = initializePromotions();
-    const unsubCategories = initializeCategories();
-    const unsubBanners = initializeBanners();
-    const unsubOrders = initializeOrders();
-    const unsubWarranties = initializeWarranties();
-    const unsubCampaigns = initializeCampaigns();
-
     return () => {
       unsubProducts();
       unsubSettings();
-      unsubPromotions();
-      unsubCategories();
-      unsubBanners();
-      unsubOrders();
-      unsubWarranties();
-      unsubCampaigns();
     };
-  }, [
-    subscribeProducts, 
-    subscribeSettings,
-    initializePromotions,
-    initializeCategories,
-    initializeBanners,
-    initializeOrders,
-    initializeWarranties,
-    initializeCampaigns
-  ]);
+  }, [subscribeProducts, subscribeSettings]);
 
   return (
     <BrowserRouter>
@@ -90,6 +56,7 @@ export default function App() {
             <Route path="checkout" element={<Checkout />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+            <Route path="profile" element={<Profile />} />
             <Route path="orders" element={<Orders />} />
             <Route path="admin" element={<Admin />} />
             <Route path="compare" element={<Compare />} />

@@ -20,7 +20,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
           if (userDoc.exists()) {
             const userData = userDoc.data() as User;
             // Check if they are admin using custom email
-            if (firebaseUser.email === 'admin@alostore.com' || firebaseUser.email === 'hoangthanhgolle@gmail.com' || firebaseUser.email === 'alostore6688@gmail.com' || firebaseUser.email === 'admin@gmail.com') {
+            if (firebaseUser.email === 'admin@hoangha.com' || firebaseUser.email === 'hoangthanhgolle@gmail.com' || firebaseUser.email === 'alostore6688@gmail.com' || firebaseUser.email === 'admin@gmail.com') {
               userData.role = 'admin';
             }
             // For Email/Password logins, check if they verified their email
@@ -38,7 +38,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                 id: firebaseUser.uid,
                 name: firebaseUser.displayName || 'Google User',
                 email: firebaseUser.email || '',
-                role: (firebaseUser.email === 'admin@alostore.com' || firebaseUser.email === 'hoangthanhgolle@gmail.com' || firebaseUser.email === 'alostore6688@gmail.com' || firebaseUser.email === 'admin@gmail.com') ? 'admin' : 'user'
+                role: (firebaseUser.email === 'admin@hoangha.com' || firebaseUser.email === 'hoangthanhgolle@gmail.com' || firebaseUser.email === 'alostore6688@gmail.com' || firebaseUser.email === 'admin@gmail.com') ? 'admin' : 'user'
               };
               await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
               login(newUser);

@@ -8,7 +8,7 @@ import { useCompareStore } from '../store/useCompareStore';
 import { useUserStore } from '../store/useUserStore';
 import { useAnalyticsStore } from '../store/useAnalyticsStore';
 import { useSettingsStore } from '../store/useSettingsStore';
-import CouponInput from '../components/CouponInput';
+import { useCampaignStore } from '../store/useCampaignStore';
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -22,9 +22,13 @@ export default function ProductDetail() {
   const user = useUserStore(state => state.user);
   const incrementProductView = useAnalyticsStore(state => state.incrementProductView);
   const settings = useSettingsStore(state => state.settings);
+  const getActiveCampaign = useCampaignStore(state => state.getActiveCampaign);
+  
+  const activeCampaign = getActiveCampaign();
+  const campaignProduct = activeCampaign?.products.find(cp => cp.productId === product?.id);
 
   const [selectedVariant, setSelectedVariant] = useState(product?.variants[0]);
-  const [activeImage, setActiveImage] = useState(product?.variants[0]?.image || product?.images[0]);
+  const [activeImage, setActiveImage] = useState(product?.variants[0]?.image || product?.image || product?.images?.[0]);
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
 
@@ -37,8 +41,8 @@ export default function ProductDetail() {
   useEffect(() => {
     if (selectedVariant?.image) {
       setActiveImage(selectedVariant.image);
-    } else if (product?.images[0]) {
-      setActiveImage(product.images[0]);
+    } else if (product?.image || product?.images?.[0]) {
+      setActiveImage(product.image || product.images[0]);
     }
   }, [selectedVariant, product]);
 
@@ -50,23 +54,16 @@ export default function ProductDetail() {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
 
+  const currentPrice = campaignProduct ? campaignProduct.flashSalePrice : selectedVariant.price;
+  const displayOriginalPrice = campaignProduct ? selectedVariant.price : product.originalPrice;
+
   const handleAddToCart = () => {
-    // Check stock before adding
-    if (selectedVariant.stock === 0 || !selectedVariant.inStock) {
-      toast.error('Sản phẩm này đã hết hàng!');
-      return;
-    }
-    addItem(product, selectedVariant);
+    addItem(product, { ...selectedVariant, price: currentPrice });
     toast.success('Đã thêm sản phẩm vào giỏ hàng!');
   };
 
   const handleBuyNow = () => {
-    // Check stock before adding
-    if (selectedVariant.stock === 0 || !selectedVariant.inStock) {
-      toast.error('Sản phẩm này đã hết hàng!');
-      return;
-    }
-    addItem(product, selectedVariant);
+    addItem(product, { ...selectedVariant, price: currentPrice });
     navigate('/cart');
   };
 
@@ -137,7 +134,7 @@ export default function ProductDetail() {
               <img src={activeImage} alt={product.name} className="w-full h-full object-cover" />
             </div>
             <div className="flex gap-2 overflow-x-auto">
-              {product.images.map((img, idx) => (
+              {[product.image, ...(product.images || [])].filter(Boolean).map((img, idx) => (
                 <button 
                   key={idx} 
                   onClick={() => setActiveImage(img)}
@@ -159,10 +156,15 @@ export default function ProductDetail() {
 
           {/* Info */}
           <div className="md:col-span-5 flex flex-col">
+            {campaignProduct && (
+              <div className="mb-2 w-fit bg-red-600 text-white text-sm font-bold px-3 py-1 rounded-full animate-pulse">
+                ⚡ ĐANG TRONG CHƯƠNG TRÌNH FLASH SALE
+              </div>
+            )}
             <div className="flex items-end gap-4 mb-6">
-              <span className="text-3xl font-bold text-red-600">{formatPrice(selectedVariant.price)}</span>
-              {product.originalPrice && (
-                <span className="text-lg text-gray-400 line-through mb-1">{formatPrice(product.originalPrice)}</span>
+              <span className="text-3xl font-bold text-red-600">{formatPrice(currentPrice)}</span>
+              {displayOriginalPrice && (
+                <span className="text-lg text-gray-400 line-through mb-1">{formatPrice(displayOriginalPrice)}</span>
               )}
             </div>
 
@@ -194,12 +196,9 @@ export default function ProductDetail() {
                       {variant.condition && (
                         <div className="text-xs text-gray-500 mt-0.5">Tình trạng: {variant.condition}</div>
                       )}
-                      <div className="text-red-600 font-bold mt-1">{formatPrice(variant.price)}</div>
-                      {variant.stock > 0 ? (
-                        <div className="text-xs text-green-600 mt-1">Còn {variant.stock} sản phẩm</div>
-                      ) : (
-                        <div className="text-xs text-red-500 mt-1">Hết hàng</div>
-                      )}
+                      <div className="text-red-600 font-bold mt-1">
+                        {formatPrice(campaignProduct ? campaignProduct.flashSalePrice : variant.price)}
+                      </div>
                     </div>
                     {selectedVariant.id === variant.id && (
                       <div className="absolute top-0 right-0 bg-[#00483d] text-white rounded-bl-lg rounded-tr-lg p-1">
@@ -212,7 +211,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Promotions */}
-            {/* {product.offers && product.offers.length > 0 && (
+            {product.offers && product.offers.length > 0 && (
               <div className="border border-green-200 rounded-lg overflow-hidden mb-6">
                 <div className="bg-green-100 text-green-800 font-medium px-4 py-2 flex items-center">
                   🎁 Khuyến mãi & Ưu đãi
@@ -226,10 +225,7 @@ export default function ProductDetail() {
                   ))}
                 </div>
               </div>
-            )} */}
-
-            {/* Coupon Input */}
-            <CouponInput productCategory={product.category} productPrice={selectedVariant?.price || product.price} showAllPromotions={false} />
+            )}
 
             {/* Contact Buttons */}
             <div className="grid grid-cols-2 gap-3 mb-6">
@@ -253,33 +249,32 @@ export default function ProductDetail() {
               </a>
             </div>
 
+            {/* Inventory Note */}
+            {product.inventoryQuantity !== undefined && (
+              <div className="mb-4">
+                <span className={`text-sm font-medium ${product.inventoryQuantity > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                  {product.inventoryQuantity > 0 ? `Còn hàng - Có sẵn ${product.inventoryQuantity} sản phẩm` : 'Hết hàng'}
+                </span>
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex gap-4 mt-auto">
-              {selectedVariant.stock > 0 && selectedVariant.inStock ? (
-                <>
-                  <button 
-                    onClick={handleBuyNow}
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg flex flex-col items-center justify-center transition-colors"
-                  >
-                    <span>MUA NGAY</span>
-                    <span className="text-xs font-normal">Giao hàng tận nơi hoặc nhận tại cửa hàng</span>
-                  </button>
-                  <button 
-                    onClick={handleAddToCart}
-                    className="w-16 flex items-center justify-center border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
-                  >
-                    <ShoppingCart size={24} />
-                  </button>
-                </>
-              ) : (
-                <button 
-                  disabled
-                  className="w-full bg-gray-400 text-white font-bold py-3 px-6 rounded-lg flex flex-col items-center justify-center cursor-not-allowed"
-                >
-                  <span>HẾT HÀNG</span>
-                  <span className="text-xs font-normal">Vui lòng chọn sản phẩm khác</span>
-                </button>
-              )}
+              <button 
+                onClick={handleBuyNow}
+                disabled={product.inventoryQuantity !== undefined && product.inventoryQuantity <= 0}
+                className={`flex-1 ${product.inventoryQuantity !== undefined && product.inventoryQuantity <= 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'} text-white font-bold py-3 px-6 rounded-lg flex flex-col items-center justify-center transition-colors`}
+              >
+                <span>MUA NGAY</span>
+                <span className="text-xs font-normal">Giao hàng tận nơi hoặc nhận tại cửa hàng</span>
+              </button>
+              <button 
+                onClick={handleAddToCart}
+                disabled={product.inventoryQuantity !== undefined && product.inventoryQuantity <= 0}
+                className={`w-16 flex items-center justify-center border-2 rounded-lg transition-colors ${product.inventoryQuantity !== undefined && product.inventoryQuantity <= 0 ? 'border-gray-400 text-gray-400 cursor-not-allowed' : 'border-red-600 text-red-600 hover:bg-red-50'}`}
+              >
+                <ShoppingCart size={24} />
+              </button>
             </div>
           </div>
 
@@ -426,7 +421,7 @@ export default function ProductDetail() {
       </div>
 
       {/* Smart Recommendations */}
-      <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
+      <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm mb-6">
         <h2 className="text-xl font-bold mb-4">Gợi ý sản phẩm tương tự</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {products
@@ -443,12 +438,43 @@ export default function ProductDetail() {
                 </div>
                 <h3 className="font-medium text-sm line-clamp-2 mb-1">{p.name}</h3>
                 <div className="text-red-600 font-bold mb-2">
-                  {formatPrice(p.variants[0]?.price || 0)}
+                  {formatPrice(p.variants[0]?.price || p.price)}
                 </div>
               </div>
             ))}
         </div>
       </div>
+
+      {product.category !== 'Phụ kiện' && (
+        <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
+          <h2 className="text-xl font-bold mb-4">Phụ kiện mua kèm giảm giá</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {products
+              .filter(p => p.category === 'Phụ kiện')
+              .slice(0, 4)
+              .map(p => (
+                <div 
+                  key={p.id} 
+                  className="border rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer flex flex-col"
+                  onClick={() => navigate(`/product/${p.slug}`)}
+                >
+                  <div className="aspect-square mb-3 relative">
+                    <img src={p.images[0]} alt={p.name} className="w-full h-full object-contain mix-blend-multiply" />
+                    {p.discountPercentage && (
+                      <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-bl-lg rounded-tr-lg">
+                        Giảm {p.discountPercentage}%
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="font-medium text-sm line-clamp-2 mb-1">{p.name}</h3>
+                  <div className="text-red-600 font-bold mb-2">
+                    {formatPrice(p.variants[0]?.price || p.price)}
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,181 +1,174 @@
+import React from 'react';
+import { Smartphone, Headphones, RefreshCcw, Wrench, MapPin, Phone, Clock, ShieldCheck, HeartHandshake, Zap, ThumbsUp } from 'lucide-react';
 import { useSettingsStore } from '../store/useSettingsStore';
-import { MapPin, Phone, Clock, CheckCircle, Award, Heart } from 'lucide-react';
 
 export default function About() {
-  const { settings } = useSettingsStore();
+  const settings = useSettingsStore(state => state.settings);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="space-y-12 pb-12">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-[#00483d] to-[#006b52] text-white py-16">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <h1 className="text-4xl font-bold text-center mb-4">
-            Chào mừng đến với {settings.storeName}
-          </h1>
-          <p className="text-center text-lg opacity-90 max-w-2xl mx-auto">
-            {settings.storeName} là cửa hàng chuyên cung cấp các sản phẩm công nghệ chính hãng và uy tín, 
-            mang đến cho khách hàng những lựa chọn tốt nhất về điện thoại, phụ kiện và dịch vụ sửa chữa.
-          </p>
+      <div className="bg-gradient-to-r from-[#00483d] to-[#006e5e] text-white rounded-3xl p-8 md:p-12 shadow-lg">
+        <h1 className="text-3xl md:text-5xl font-bold mb-6">Chào mừng đến với AloStore</h1>
+        <p className="text-lg md:text-xl text-green-50 max-w-3xl leading-relaxed">
+          AloStore là cửa hàng chuyên cung cấp các sản phẩm công nghệ chính hãng và uy tín, mang đến cho khách hàng những lựa chọn tốt nhất về điện thoại, phụ kiện và dịch vụ sửa chữa.
+        </p>
+      </div>
+
+      {/* Về chúng tôi */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 className="text-3xl font-bold mb-6 text-gray-900 border-b-4 border-yellow-400 pb-2 inline-block">Về chúng tôi</h2>
+          <div 
+            className="space-y-4 text-gray-700 text-lg leading-relaxed content"
+            dangerouslySetInnerHTML={{ __html: settings.aboutUsContent || '' }}
+          />
+        </div>
+        <div className="hidden md:block rounded-xl overflow-hidden shadow-xl">
+          <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=80" alt="AloStore Store" className="w-full h-[400px] object-cover" />
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 max-w-6xl py-12">
-        
-        {/* About Section */}
-        <section className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-bold text-[#00483d] mb-6 flex items-center">
-            <Heart className="mr-3" />
-            Về chúng tôi
-          </h2>
-          <div className="prose prose-lg max-w-none text-gray-700">
-            <p className="mb-4">
-              Với phương châm <strong className="text-[#00483d]">"Uy tín tạo nên thương hiệu"</strong>, 
-              {settings.storeName} luôn đặt chất lượng sản phẩm và sự hài lòng của khách hàng lên hàng đầu. 
-              Mỗi sản phẩm trước khi đến tay khách hàng đều được kiểm tra kỹ lưỡng, 
-              đảm bảo hoạt động ổn định và đúng như cam kết.
-            </p>
-            <p>
-              {settings.storeName} hướng tới trở thành địa chỉ tin cậy về công nghệ tại <strong>Quảng Ninh</strong>, 
-              nơi khách hàng có thể an tâm lựa chọn sản phẩm với mức giá hợp lý và dịch vụ chuyên nghiệp.
-            </p>
-            <p className="mt-4 text-[#00483d] font-medium">
-              Chúng tôi không chỉ bán sản phẩm, mà còn mang đến trải nghiệm mua sắm <strong>đơn giản – nhanh chóng – đáng tin cậy</strong>.
-            </p>
+      {/* Sản phẩm & Dịch vụ */}
+      <div>
+        <h2 className="text-3xl font-bold mb-8 text-center text-gray-900">Sản phẩm & Dịch vụ</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-center group">
+            <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+              <Smartphone size={32} />
+            </div>
+            <h3 className="text-xl font-bold mb-2">Điện thoại</h3>
+            <p className="text-gray-600">iPhone, Samsung, Xiaomi…<br/>(mới & like new)</p>
           </div>
-        </section>
 
-        {/* Products & Services */}
-        <section className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-bold text-[#00483d] mb-6 flex items-center">
-            <Award className="mr-3" />
-            Sản phẩm & Dịch vụ
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="text-center p-6 bg-gray-50 rounded-xl hover:shadow-md transition-shadow">
-              <div className="text-5xl mb-4">📱</div>
-              <h3 className="font-bold text-lg mb-2">Điện thoại</h3>
-              <p className="text-gray-600 text-sm">
-                iPhone, Samsung, Xiaomi… (mới & like new)
-              </p>
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-center group">
+            <div className="w-16 h-16 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+              <Headphones size={32} />
             </div>
-            <div className="text-center p-6 bg-gray-50 rounded-xl hover:shadow-md transition-shadow">
-              <div className="text-5xl mb-4">🎧</div>
-              <h3 className="font-bold text-lg mb-2">Phụ kiện</h3>
-              <p className="text-gray-600 text-sm">
-                Sạc, cáp, tai nghe, ốp lưng chính hãng
-              </p>
-            </div>
-            <div className="text-center p-6 bg-gray-50 rounded-xl hover:shadow-md transition-shadow">
-              <div className="text-5xl mb-4">🔄</div>
-              <h3 className="font-bold text-lg mb-2">Thu cũ đổi mới</h3>
-              <p className="text-gray-600 text-sm">
-                Hỗ trợ lên đời thiết bị với giá tốt nhất
-              </p>
-            </div>
-            <div className="text-center p-6 bg-gray-50 rounded-xl hover:shadow-md transition-shadow">
-              <div className="text-5xl mb-4">🔧</div>
-              <h3 className="font-bold text-lg mb-2">Sửa chữa</h3>
-              <p className="text-gray-600 text-sm">
-                Thay thế linh kiện nhanh chóng, chất lượng
-              </p>
-            </div>
+            <h3 className="text-xl font-bold mb-2">Phụ kiện</h3>
+            <p className="text-gray-600">Sạc, cáp, tai nghe, ốp lưng chính hãng</p>
           </div>
-        </section>
 
-        {/* Commitments */}
-        <section className="bg-gradient-to-r from-[#00483d] to-[#006b52] rounded-2xl shadow-lg p-8 mb-8 text-white">
-          <h2 className="text-2xl font-bold mb-6 flex items-center">
-            <CheckCircle className="mr-3" />
-            Cam kết của chúng tôi
-          </h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="flex items-start bg-white/10 rounded-lg p-4">
-              <CheckCircle className="text-yellow-400 mr-3 flex-shrink-0 mt-1" size={24} />
-              <div>
-                <h3 className="font-bold">Sản phẩm chất lượng</h3>
-                <p className="text-sm opacity-90">Nguồn gốc rõ ràng, chính hãng 100%</p>
-              </div>
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-center group">
+            <div className="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+              <RefreshCcw size={32} />
             </div>
-            <div className="flex items-start bg-white/10 rounded-lg p-4">
-              <CheckCircle className="text-yellow-400 mr-3 flex-shrink-0 mt-1" size={24} />
-              <div>
-                <h3 className="font-bold">Giá cả cạnh tranh</h3>
-                <p className="text-sm opacity-90">Nhiều ưu đãi hấp dẫn mỗi ngày</p>
-              </div>
-            </div>
-            <div className="flex items-start bg-white/10 rounded-lg p-4">
-              <CheckCircle className="text-yellow-400 mr-3 flex-shrink-0 mt-1" size={24} />
-              <div>
-                <h3 className="font-bold">Bảo hành minh bạch</h3>
-                <p className="text-sm opacity-90">Hỗ trợ tận tâm, nhanh chóng</p>
-              </div>
-            </div>
-            <div className="flex items-start bg-white/10 rounded-lg p-4">
-              <CheckCircle className="text-yellow-400 mr-3 flex-shrink-0 mt-1" size={24} />
-              <div>
-                <h3 className="font-bold">Tư vấn đúng nhu cầu</h3>
-                <p className="text-sm opacity-90">Không ép buộc mua hàng</p>
-              </div>
-            </div>
+            <h3 className="text-xl font-bold mb-2">Thu cũ đổi mới</h3>
+            <p className="text-gray-600">Hỗ trợ lên đời thiết bị với giá thu vô cùng tốt nhất</p>
           </div>
-        </section>
 
-        {/* Contact Info */}
-        <section className="bg-white rounded-2xl shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-[#00483d] mb-6 flex items-center">
-            <MapPin className="mr-3" />
-            Thông tin liên hệ
-          </h2>
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-center group">
+            <div className="w-16 h-16 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+              <Wrench size={32} />
+            </div>
+            <h3 className="text-xl font-bold mb-2">Sửa chữa</h3>
+            <p className="text-gray-600">Thay thế linh kiện nhanh chóng, chất lượng uy tín</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Cam kết */}
+      <div className="bg-[#f8fcfb] rounded-3xl p-8 md:p-12 border border-green-50">
+        <h2 className="text-3xl font-bold mb-10 text-center text-gray-900">Cam kết của chúng tôi</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="flex gap-4 items-start">
+            <div className="mt-1 bg-white p-3 rounded-full text-green-600 shadow-sm">
+              <ShieldCheck size={24} />
+            </div>
             <div>
-              <h3 className="font-bold text-lg mb-4">{settings.storeName}</h3>
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <MapPin className="text-[#00483d] mr-3 flex-shrink-0" size={24} />
-                  <div>
-                    <p className="font-medium">Địa chỉ</p>
-                    <p className="text-gray-600">Chợ Tiền An, Quảng Yên, Quảng Ninh</p>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <Phone className="text-[#00483d] mr-3 flex-shrink-0" size={24} />
-                  <div>
-                    <p className="font-medium">Hotline</p>
-                    <p className="text-gray-600">
-                      <a href="tel:0364760807" className="hover:text-[#00483d]">0364.760.807</a>
-                      {' / '}
-                      <a href="tel:0386151863" className="hover:text-[#00483d]">0386.151.863</a>
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <Clock className="text-[#00483d] mr-3 flex-shrink-0" size={24} />
-                  <div>
-                    <p className="font-medium">Giờ mở cửa</p>
-                    <p className="text-gray-600">7h30 - 20h30 (Hàng ngày)</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Map placeholder */}
-            <div className="bg-gray-200 rounded-xl h-64 flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <MapPin size={48} className="mx-auto mb-2" />
-                <p>Bản đồ sẽ được cập nhật</p>
-                <a 
-                  href="https://maps.google.com/?q=Chợ+Tiền+An,+Quảng+Yên,+Quảng+Ninh" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-[#00483d] hover:underline text-sm"
-                >
-                  Mở trong Google Maps
-                </a>
-              </div>
+              <h3 className="text-xl font-bold mb-2">Sản phẩm chất lượng</h3>
+              <p className="text-gray-600">Nguồn gốc xuất xứ rõ ràng, chính hãng 100%.</p>
             </div>
           </div>
-        </section>
+          
+          <div className="flex gap-4 items-start">
+            <div className="mt-1 bg-white p-3 rounded-full text-green-600 shadow-sm">
+              <Zap size={24} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-2">Giá cả cạnh tranh</h3>
+              <p className="text-gray-600">Nhiều chương trình ưu đãi hấp dẫn mỗi ngày.</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4 items-start">
+            <div className="mt-1 bg-white p-3 rounded-full text-green-600 shadow-sm">
+              <HeartHandshake size={24} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-2">Bảo hành minh bạch</h3>
+              <p className="text-gray-600">Hỗ trợ chăm sóc bảo hành tận tâm, nhanh chóng.</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4 items-start">
+            <div className="mt-1 bg-white p-3 rounded-full text-green-600 shadow-sm">
+              <ThumbsUp size={24} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-2">Tư vấn đúng nhu cầu</h3>
+              <p className="text-gray-600">Luôn lắng nghe, không chèo kéo, không ép buộc mua hàng.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Thông tin liên hệ & Map */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm">
+        <div className="p-8 md:p-10 flex flex-col justify-center">
+          <h2 className="text-3xl font-bold mb-8 text-gray-900 border-b-4 border-yellow-400 pb-2 inline-block w-fit">Thông tin liên hệ</h2>
+          
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <MapPin className="text-[#00483d] flex-shrink-0 mt-1" size={24} />
+              <div>
+                <h4 className="font-bold text-gray-900">Địa chỉ</h4>
+                <p className="text-gray-600">Chợ Tiền An, Quảng Yên, Quảng Ninh</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <Phone className="text-[#00483d] flex-shrink-0 mt-1" size={24} />
+              <div>
+                <h4 className="font-bold text-gray-900">Hotline</h4>
+                <p className="text-gray-600">0364.760.807 / 0386.151.863</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <Clock className="text-[#00483d] flex-shrink-0 mt-1" size={24} />
+              <div>
+                <h4 className="font-bold text-gray-900">Giờ mở cửa</h4>
+                <p className="text-gray-600">7h30 - 20h30 (Hàng ngày)</p>
+              </div>
+            </div>
+
+            <div className="pt-4">
+              <a 
+                href="https://www.google.com/maps/search/?api=1&query=Chợ+Tiền+An,+Quảng+Yên,+Quảng+Ninh" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-[#00483d] text-white px-6 py-3 rounded-full font-medium hover:bg-[#00382d] transition-colors"
+              >
+                <MapPin size={20} />
+                Mở trong Google Maps
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div className="h-[400px] lg:h-full w-full min-h-[300px]">
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14896.790587786016!2d106.7770889!3d20.932757!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314a70b28489aedd%3A0xc68820c4f82c23bc!2zQ2jhu6MgVGnhu4FuIEFu!5e0!3m2!1svi!2s!4v1711234567890!5m2!1svi!2s" 
+            width="100%" 
+            height="100%" 
+            style={{ border: 0 }} 
+            allowFullScreen={Boolean(true)} 
+            loading="lazy" 
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Bản đồ AloStore"
+          />
+        </div>
       </div>
     </div>
   );

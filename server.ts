@@ -31,7 +31,7 @@ async function startServer() {
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: process.env.ADMIN_EMAIL,
-        subject: "Đơn hàng mới từ AloStore",
+        subject: "Đơn hàng mới từ HoangHaMobile",
         text: `Khách hàng: ${customerName}\nSố điện thoại: ${customerPhone}\nTổng tiền: ${total}\nChi tiết: ${JSON.stringify(items)}`,
       });
       res.json({ success: true });

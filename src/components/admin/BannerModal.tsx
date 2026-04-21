@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Banner } from '../../types';
 import { Upload } from 'lucide-react';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../../lib/firebase';
+import { toast } from 'react-hot-toast';
 
 interface BannerModalProps {
   isOpen: boolean;
@@ -42,6 +45,10 @@ export default function BannerModal({ isOpen, onClose, onSave, initialData }: Ba
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 800000) {
+          toast.error('Kích thước ảnh quá lớn (tối đa 800KB). Vui lòng chọn ảnh khác.');
+          return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData({ ...formData, imageUrl: reader.result as string });
@@ -64,14 +71,8 @@ export default function BannerModal({ isOpen, onClose, onSave, initialData }: Ba
   };
 
   return (
-    <div 
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      onClick={onClose}
-    >
-      <div 
-        className="bg-white rounded-xl p-6 w-full max-w-md"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-6 w-full max-w-md">
         <h2 className="text-xl font-bold mb-4">{initialData ? 'Sửa Banner' : 'Thêm Banner'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

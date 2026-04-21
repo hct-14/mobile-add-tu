@@ -23,6 +23,7 @@ export interface StoreSettings {
   zaloUrl: string;
   footerText: string;
   warrantyPolicy?: string;
+  aboutUsContent?: string;
   theme?: StoreTheme;
 }
 
@@ -40,14 +41,17 @@ const defaultTheme: StoreTheme = {
 };
 
 const defaultSettings: StoreSettings = {
-  storeName: 'AloStore',
+  storeName: 'HoangHaMobile',
   phone: '1900 2091',
   address: 'Số 89 Tam Trinh, Phường Mai Động, Quận Hoàng Mai, Thành Phố Hà Nội, Việt Nam.',
-  email: 'cskh@AloStore.com',
+  email: 'cskh@hoanghamobile.com',
   facebookUrl: 'https://facebook.com',
   zaloUrl: 'https://zalo.me',
   footerText: '© 2026 Công ty Cổ phần Xây dựng và Đầu tư Thương mại Hoàng Hà.',
   theme: defaultTheme,
+  aboutUsContent: `<p>Với phương châm <strong>"Uy tín tạo nên thương hiệu"</strong>, AloStore luôn đặt chất lượng sản phẩm và sự hài lòng của khách hàng lên hàng đầu. Mỗi sản phẩm trước khi đến tay khách hàng đều được kiểm tra kỹ lưỡng, đảm bảo hoạt động ổn định và đúng như cam kết.</p>
+<p>AloStore hướng tới trở thành địa chỉ tin cậy về công nghệ tại Quảng Ninh, nơi khách hàng có thể an tâm lựa chọn sản phẩm với mức giá hợp lý và dịch vụ chuyên nghiệp.</p>
+<p class="font-medium text-[#00483d] italic">Chúng tôi không chỉ bán sản phẩm, mà còn mang đến trải nghiệm mua sắm đơn giản – nhanh chóng – đáng tin cậy.</p>`,
   warrantyPolicy: `<h2>I. Cam kết Lỗi Đổi Liền của Hoàng Hà</h2>
 <p>Trong <strong>30 ngày đầu tiên</strong> kể từ ngày mua hàng, nếu sản phẩm phát sinh lỗi phần cứng do nhà sản xuất, quý khách sẽ được <strong>đổi ngay 1 sản phẩm mới nguyên seal</strong> (cùng model, cùng màu sắc) mà không phát sinh thêm bất kỳ chi phí nào.</p>
 <ul>

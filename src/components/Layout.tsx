@@ -108,14 +108,15 @@ export default function Layout() {
             </Link>
             {user ? (
               <div className="relative group">
-                <Link to="/account" className="flex flex-col items-center hover:text-yellow-400 transition-colors">
+                <Link to="/profile" className="flex flex-col items-center hover:text-yellow-400 transition-colors">
                   <User size={24} />
                   <span className="text-xs hidden md:block mt-1">{user.name}</span>
                 </Link>
                 <div className="absolute right-0 top-full pt-2 w-48 hidden group-hover:block z-50">
                   <div className="bg-white rounded-md shadow-lg py-1 text-gray-800 border border-gray-100">
+                    <Link to="/profile" className="block px-4 py-2 text-sm hover:bg-gray-100">Hồ sơ cá nhân</Link>
                     <Link to="/orders" className="block px-4 py-2 text-sm hover:bg-gray-100">Đơn hàng của tôi</Link>
-                    {user.role === 'admin' && (
+                    {(user.role === 'admin' || user.role === 'sale' || user.role === 'warehouse') && (
                       <Link to="/admin" className="block px-4 py-2 text-sm hover:bg-gray-100">Quản trị viên</Link>
                     )}
                     <button 
@@ -185,22 +186,22 @@ export default function Layout() {
         <div className="container mx-auto px-4 py-10 max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="font-bold text-lg mb-4">Hỗ Trợ Khách Hàng</h3>
+              <h3 className="font-bold text-lg mb-4">Về AloStore</h3>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link to="#" className="hover:text-[#00483d]">Thẻ ưu đãi</Link></li>
-                <li><Link to="#" className="hover:text-[#00483d]">Hướng dẫn mua online</Link></li>
-                <li><Link to="#" className="hover:text-[#00483d]">Ưu đãi dành cho Doanh Nghiệp</Link></li>
-                <li><Link to="#" className="hover:text-[#00483d]">Chính sách trả góp</Link></li>
-                <li><Link to="#" className="hover:text-[#00483d]">Dịch vụ sửa chữa</Link></li>
+                <li><Link to="/about" className="hover:text-[#00483d]">Giới thiệu cửa hàng</Link></li>
+                <li><Link to="#" className="hover:text-[#00483d]">Hệ thống cửa hàng</Link></li>
+                <li><Link to="#" className="hover:text-[#00483d]">Tuyển dụng</Link></li>
+                <li><Link to="#" className="hover:text-[#00483d]">Tin công nghệ</Link></li>
+                <li><Link to="#" className="hover:text-[#00483d]">Liên hệ hợp tác</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-bold text-lg mb-4">Chính Sách</h3>
+              <h3 className="font-bold text-lg mb-4">Hỗ Trợ Khách Hàng</h3>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li><Link to="/warranty" className="hover:text-[#00483d]">Chính sách bảo hành</Link></li>
-                <li><Link to="#" className="hover:text-[#00483d]">Chính sách đổi trả</Link></li>
-                <li><Link to="#" className="hover:text-[#00483d]">Chính sách bảo mật</Link></li>
-                <li><Link to="#" className="hover:text-[#00483d]">Chính sách giao hàng</Link></li>
+                <li><Link to="#" className="hover:text-[#00483d]">Hướng dẫn mua online</Link></li>
+                <li><Link to="#" className="hover:text-[#00483d]">Chính sách trả góp</Link></li>
+                <li><Link to="#" className="hover:text-[#00483d]">Dịch vụ sữa chữa</Link></li>
               </ul>
             </div>
             <div>

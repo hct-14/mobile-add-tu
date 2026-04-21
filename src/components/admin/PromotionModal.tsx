@@ -83,21 +83,14 @@ export default function PromotionModal({ isOpen, onClose, onSave, initialData }:
       endDate: formData.endDate ? new Date(formData.endDate).toISOString() : undefined,
       usageLimit: formData.usageLimit || undefined,
       usedCount: initialData?.usedCount || 0,
-      applicableCategories: formData.applicableCategories || [],
-      applicableToAll: formData.applicableToAll ?? true
+      applicableCategories: formData.applicableCategories || []
     });
     onClose();
   };
 
   return (
-    <div 
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      onClick={onClose}
-    >
-      <div 
-        className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">{initialData ? 'Sửa Khuyến mãi' : 'Thêm Khuyến mãi'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -159,28 +152,6 @@ export default function PromotionModal({ isOpen, onClose, onSave, initialData }:
               ))}
             </select>
           </div>
-          
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <div className="flex items-start">
-              <input 
-                type="checkbox" 
-                id="applicableToAll" 
-                name="applicableToAll" 
-                checked={formData.applicableToAll ?? true} 
-                onChange={handleChange} 
-                className="mr-3 mt-1 w-4 h-4 accent-[#00483d]"
-              />
-              <div>
-                <label htmlFor="applicableToAll" className="text-sm font-medium text-yellow-800 cursor-pointer">
-                  Áp dụng ở tất cả các nơi
-                </label>
-                <p className="text-xs text-yellow-700 mt-1">
-                  Khi bật, mã này sẽ hiển thị và áp dụng được ở: Giỏ hàng, Trang sản phẩm, và Checkout.
-                </p>
-              </div>
-            </div>
-          </div>
-          
           <div className="flex items-center">
             <input type="checkbox" id="isActive" name="isActive" checked={formData.isActive} onChange={handleChange} className="mr-2" />
             <label htmlFor="isActive" className="text-sm font-medium">Đang hoạt động</label>

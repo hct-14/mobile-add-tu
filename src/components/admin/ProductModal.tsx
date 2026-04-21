@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Product, ProductVariant } from '../../types';
-import { Plus, Trash2, Upload, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Upload } from 'lucide-react';
 import { useCategoryStore } from '../../store/useCategoryStore';
-import { uploadImage } from '../../lib/uploadImage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../../lib/firebase';
 import { toast } from 'react-hot-toast';
 
 interface ProductModalProps {
@@ -10,10 +11,9 @@ interface ProductModalProps {
   onClose: () => void;
   onSave: (product: Product) => void;
   initialData?: Product | null;
-  existingProducts?: Product[];
 }
 
-export default function ProductModal({ isOpen, onClose, onSave, initialData, existingProducts = [] }: ProductModalProps) {
+export default function ProductModal({ isOpen, onClose, onSave, initialData }: ProductModalProps) {
   const { categories } = useCategoryStore();
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
@@ -25,54 +25,16 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
     brand: '',
     description: '',
     inStock: true,
-    stock: 0,
     images: [],
     specs: {},
     variants: []
   });
-  const [slugWarning, setSlugWarning] = useState<string>('');
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadingVariantIndex, setUploadingVariantIndex] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Function to generate unique slug
-  const generateUniqueSlug = useCallback((baseSlug: string, excludeId?: string): string => {
-    let slug = baseSlug;
-    let counter = 1;
-    
-    // Check if slug exists (excluding current product if editing)
-    while (existingProducts.some(p => p.slug === slug && p.id !== excludeId)) {
-      slug = `${baseSlug}-${counter}`;
-      counter++;
-    }
-    
-    return slug;
-  }, [existingProducts]);
-
-  // Auto-generate slug from name
-  const autoGenerateSlug = useCallback((name: string, currentSlug: string, excludeId?: string): string => {
-    // Only auto-generate if user hasn't manually entered a custom slug
-    const baseSlug = name.toLowerCase()
-      .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
-      .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
-      .replace(/[ìíịỉĩ]/g, 'i')
-      .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
-      .replace(/[ùúụủũưừứựửữ]/g, 'u')
-      .replace(/[ỳýỵỷỹ]/g, 'y')
-      .replace(/[đ]/g, 'd')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    
-    if (!baseSlug) return currentSlug || Date.now().toString();
-    
-    return generateUniqueSlug(baseSlug, excludeId);
-  }, [generateUniqueSlug]);
 
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
-      setSlugWarning('');
     } else {
       setFormData({
         name: '',
@@ -84,14 +46,12 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
         brand: '',
         description: '',
         inStock: true,
-        stock: 0,
         images: [],
         specs: {},
         variants: [
-          { id: Date.now().toString(), color: 'Mặc định', price: 0, inStock: true, stock: 10 }
+          { id: Date.now().toString(), color: 'Mặc định', price: 0, inStock: true }
         ]
       });
-      setSlugWarning('');
     }
   }, [initialData, isOpen]);
 
@@ -125,31 +85,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
         return newData;
       });
     } else {
-      setFormData(prev => {
-        const newData = { ...prev, [name]: value };
-        
-        // Auto-generate slug when name changes (only if slug is empty or same as old auto-generated)
-        if (name === 'name' && !initialData) {
-          const oldAutoSlug = autoGenerateSlug(prev.name || '', prev.slug, prev.id);
-          // Only auto-update if user hasn't manually changed the slug
-          if (!prev.slug || prev.slug === oldAutoSlug || prev.slug === '') {
-            newData.slug = autoGenerateSlug(value, prev.id);
-          }
-        }
-        
-        // Check slug uniqueness when slug field changes manually
-        if (name === 'slug') {
-          const isDuplicate = existingProducts.some(p => p.slug === value && p.id !== initialData?.id);
-          if (isDuplicate) {
-            setSlugWarning(`Slug "${value}" đã tồn tại! Sẽ tự động thêm hậu tố khi lưu.`);
-            newData.slug = generateUniqueSlug(value, initialData?.id);
-          } else {
-            setSlugWarning('');
-          }
-        }
-        
-        return newData;
-      });
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
@@ -159,20 +95,18 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
     setFormData({ ...formData, variants: newVariants });
   };
 
-  const handleVariantImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVariantImageUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setUploadingVariantIndex(index);
-      try {
-        const result = await uploadImage(file, 'products/variants');
-        handleVariantChange(index, 'image', result.url);
-        toast.success('Tải ảnh lên thành công!');
-      } catch (error) {
-        console.error('Upload error:', error);
-        toast.error('Lỗi khi tải ảnh lên!');
-      } finally {
-        setUploadingVariantIndex(null);
+      if (file.size > 800000) {
+          toast.error('Kích thước ảnh quá lớn (tối đa 800KB). Vui lòng chọn ảnh khác.');
+          return;
       }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleVariantChange(index, 'image', reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -181,7 +115,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
       ...formData,
       variants: [
         ...(formData.variants || []),
-        { id: Date.now().toString(), color: '', price: formData.price || 0, inStock: true, stock: 0 }
+        { id: Date.now().toString(), color: '', price: formData.price || 0, inStock: true }
       ]
     });
   };
@@ -192,72 +126,53 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
     setFormData({ ...formData, variants: newVariants });
   };
 
-  const handleMainImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setIsUploading(true);
-      try {
-        const result = await uploadImage(file, 'products');
-        setFormData(prev => ({ ...prev, image: result.url }));
-        // Also add to images array
-        setFormData(prev => ({
-          ...prev,
-          images: [...(prev.images || []), result.url].filter(Boolean)
-        }));
-        toast.success('Tải ảnh lên thành công!');
-      } catch (error) {
-        console.error('Upload error:', error);
-        toast.error('Lỗi khi tải ảnh lên!');
-      } finally {
-        setIsUploading(false);
+      if (file.size > 800000) {
+          toast.error('Kích thước ảnh quá lớn (tối đa 800KB). Vui lòng chọn ảnh khác.');
+          return;
       }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, image: reader.result as string });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleMultipleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+    if (!files.length) return;
 
-    setIsUploading(true);
-    try {
-      const uploadedUrls: string[] = [];
-      for (const file of files) {
-        const result = await uploadImage(file, 'products');
-        uploadedUrls.push(result.url);
-      }
-      
-      // Set first image as main image if empty
+    // Filter large files
+    const validFiles = files.filter(f => f.size <= 800000);
+    if (validFiles.length < files.length) {
+      toast.error('Vài ảnh bị bỏ qua do kích thước quá lớn (tối đa 800KB/ảnh).');
+    }
+
+    Promise.all(
+      validFiles.map((file) => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+      })
+    ).then((base64Images) => {
       setFormData(prev => ({
         ...prev,
-        image: prev.image || uploadedUrls[0],
-        images: [...(prev.images || []), ...uploadedUrls].filter(Boolean)
+        images: [...(prev.images || []), ...base64Images]
       }));
-      toast.success(`Đã tải lên ${files.length} ảnh!`);
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Lỗi khi tải ảnh lên!');
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setFormData(prev => {
-      const newImages = [...(prev.images || [])];
-      newImages.splice(index, 1);
-      return {
-        ...prev,
-        image: index === 0 ? (newImages[0] || '') : prev.image,
-        images: newImages
-      };
     });
   };
 
-  const setMainImage = (url: string) => {
-    setFormData(prev => ({
-      ...prev,
-      image: url
-    }));
+  const removeGalleryImage = (index: number) => {
+    setFormData(prev => {
+      const newImages = [...(prev.images || [])];
+      newImages.splice(index, 1);
+      return { ...prev, images: newImages };
+    });
   };
 
   const handleOfferChange = (index: number, value: string) => {
@@ -304,12 +219,12 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
       images: formData.images || [formData.image || ''],
       category: formData.category || 'Điện thoại',
       brand: formData.brand || '',
+      isUsed: formData.isUsed ?? false,
+      inventoryQuantity: formData.inventoryQuantity,
       description: formData.description || '',
       inStock: formData.inStock ?? true,
       specs: formData.specs || {},
-      variants: formData.variants && formData.variants.length > 0 
-        ? formData.variants.map(v => ({ ...v, stock: v.stock ?? 0 }))
-        : [{ id: Date.now().toString(), color: 'Mặc định', price: formData.price || 0, inStock: true, stock: 10 }],
+      variants: formData.variants && formData.variants.length > 0 ? formData.variants : [{ id: Date.now().toString(), color: 'Mặc định', price: formData.price || 0, inStock: true }],
       ...(cleanOffers.length > 0 ? { offers: cleanOffers } : {})
     });
     onClose();
@@ -333,21 +248,58 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Slug (URL)</label>
-              <input type="text" name="slug" value={formData.slug} onChange={handleChange} className="w-full border rounded p-2" placeholder="Tu-dong-tao-neu-trong" />
-              {slugWarning && (
-                <p className="text-xs text-orange-600 mt-1">{slugWarning}</p>
-              )}
-              {!formData.slug && formData.name && (
-                <p className="text-xs text-gray-500 mt-1">Slug se tu dong tao: {autoGenerateSlug(formData.name, '', undefined).substring(0, 40)}...</p>
-              )}
+              <input type="text" name="slug" value={formData.slug} onChange={handleChange} className="w-full border rounded p-2" placeholder="De-trong-de-tu-tao" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Giá bán cơ bản (Giá KM)</label>
-              <input type="number" name="price" value={formData.price} onChange={handleChange} className="w-full border rounded p-2" required min="0" />
+              <input 
+                type="text" 
+                name="price" 
+                value={formData.price ? formData.price.toLocaleString('vi-VN') : ''} 
+                onChange={(e) => {
+                  const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                  const numValue = rawValue ? Number(rawValue) : 0;
+                  setFormData(prev => {
+                    const newData = { ...prev, price: numValue };
+                    if (newData.originalPrice && newData.price && newData.originalPrice > newData.price) {
+                      newData.discountPercentage = Math.round(((newData.originalPrice - newData.price) / newData.originalPrice) * 100);
+                    } else {
+                       newData.discountPercentage = undefined;
+                    }
+                    newData.variants = prev.variants?.map(v => {
+                      if (prev.variants?.length === 1 || v.price === prev.price || v.price === 0) {
+                        return { ...v, price: numValue };
+                      }
+                      return v;
+                    });
+                    return newData;
+                  });
+                }}
+                className="w-full border rounded p-2" 
+                required 
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Giá gốc </label>
-              <input type="number" name="originalPrice" value={formData.originalPrice || ''} onChange={handleChange} className="w-full border rounded p-2" min="0" />
+              <label className="block text-sm font-medium mb-1">Giá gốc (Bỏ trống nếu không giảm)</label>
+              <input 
+                type="text" 
+                name="originalPrice" 
+                value={formData.originalPrice ? formData.originalPrice.toLocaleString('vi-VN') : ''} 
+                onChange={(e) => {
+                  const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                  const numValue = rawValue ? Number(rawValue) : 0;
+                  setFormData(prev => {
+                    const newData = { ...prev, originalPrice: numValue === 0 ? undefined : numValue };
+                    if (newData.originalPrice && newData.price && newData.originalPrice > newData.price) {
+                      newData.discountPercentage = Math.round(((newData.originalPrice - newData.price) / newData.originalPrice) * 100);
+                    } else {
+                       newData.discountPercentage = undefined;
+                    }
+                    return newData;
+                  });
+                }}
+                className="w-full border rounded p-2" 
+              />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Danh mục</label>
@@ -362,31 +314,28 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
               <input type="text" name="brand" value={formData.brand} onChange={handleChange} className="w-full border rounded p-2" required />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Số lượng tồn kho</label>
-              <div className="flex items-center">
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, stock: Math.max(0, (formData.stock || 0) - 1) })}
-                  className="w-10 h-10 border rounded-l bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-lg"
-                >
-                  -
-                </button>
-                <input 
-                  type="number" 
-                  name="stock"
-                  value={formData.stock || 0} 
-                  onChange={(e) => setFormData({ ...formData, stock: Math.max(0, Number(e.target.value)) })} 
-                  className="w-20 h-10 border-t border-b text-center text-sm" 
-                  min="0"
-                />
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, stock: (formData.stock || 0) + 1 })}
-                  className="w-10 h-10 border rounded-r bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-lg"
-                >
-                  +
-                </button>
-              </div>
+              <label className="block text-sm font-medium mb-1">Tình trạng máy</label>
+              <select 
+                name="isUsed" 
+                value={formData.isUsed ? 'true' : 'false'} 
+                onChange={(e) => setFormData({...formData, isUsed: e.target.value === 'true'})} 
+                className="w-full border rounded p-2"
+              >
+                <option value="false">Máy mới nguyên seal</option>
+                <option value="true">Máy cũ (Like New)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Số lượng tồn kho (Tổng)</label>
+              <input 
+                type="number" 
+                name="inventoryQuantity" 
+                value={formData.inventoryQuantity || ''} 
+                onChange={handleChange} 
+                className="w-full border rounded p-2" 
+                placeholder="VD: 100" 
+                min="0"
+              />
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium mb-1">Mô tả chi tiết sản phẩm</label>
@@ -399,125 +348,61 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
                 placeholder="Nhập mô tả chi tiết về sản phẩm, tính năng, ưu điểm..."
               />
             </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Hình ảnh sản phẩm</label>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {/* Image input for URL or single upload */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Hình ảnh chính</label>
+              <div className="flex gap-2">
+                <input type="text" name="image" value={formData.image} onChange={handleChange} className="flex-1 border rounded p-2" placeholder="URL hoặc tải ảnh lên" required />
+                <button 
+                  type="button" 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-3 py-2 bg-gray-100 border rounded hover:bg-gray-200 flex items-center"
+                >
+                  <Upload size={18} />
+                </button>
                 <input 
-                  type="text" 
-                  name="image" 
-                  value={formData.image} 
-                  onChange={handleChange} 
-                  className="flex-1 min-w-[200px] border rounded p-2 text-sm" 
-                  placeholder="URL ảnh chính (hoặc tải ảnh bên dưới)"
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleMainImageUpload} 
+                  className="hidden" 
+                  accept="image/*"
                 />
               </div>
-              
-              {/* Upload buttons */}
-              <div className="flex gap-2 mb-3">
-                <label className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-[#00483d] text-white rounded hover:bg-[#00382f] transition-colors">
-                  <Upload size={18} />
-                  {isUploading ? (
-                    <>
-                      <Loader2 size={18} className="animate-spin" /> Đang tải...
-                    </>
-                  ) : (
-                    'Tải 1 ảnh lên'
-                  )}
-                  <input 
-                    type="file" 
-                    ref={fileInputRef}
-                    onChange={handleMainImageUpload} 
-                    className="hidden" 
-                    accept="image/*"
-                    disabled={isUploading}
-                  />
-                </label>
-                
-                <label className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-                  <Upload size={18} />
-                  {isUploading ? (
-                    <>
-                      <Loader2 size={18} className="animate-spin" /> Đang tải...
-                    </>
-                  ) : (
-                    'Tải nhiều ảnh'
-                  )}
-                  <input 
-                    type="file" 
-                    onChange={handleMultipleImageUpload} 
-                    className="hidden" 
-                    accept="image/*"
-                    multiple
-                    disabled={isUploading}
-                  />
-                </label>
-              </div>
-              
-              {/* Multiple images display */}
-              {formData.images && formData.images.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-gray-700">
-                    Đã tải {formData.images.length} ảnh:
-                  </p>
-                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
-                    {formData.images.map((img, index) => (
-                      <div 
-                        key={index} 
-                        className={`relative group border-2 rounded overflow-hidden ${
-                          img === formData.image ? 'border-[#00483d] ring-2 ring-[#00483d] ring-offset-1' : 'border-gray-200'
-                        }`}
-                      >
-                        <img 
-                          src={img} 
-                          alt={`Ảnh ${index + 1}`} 
-                          className="w-full aspect-square object-cover"
-                        />
-                        
-                        {/* Overlay on hover */}
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                          {/* Set as main */}
-                          {img !== formData.image && (
-                            <button
-                              type="button"
-                              onClick={() => setMainImage(img)}
-                              className="p-1.5 bg-white rounded text-xs font-medium hover:bg-gray-100"
-                              title="Đặt làm ảnh chính"
-                            >
-                              ⭐
-                            </button>
-                          )}
-                          {/* Delete */}
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            className="p-1.5 bg-red-500 text-white rounded hover:bg-red-600"
-                            title="Xóa ảnh"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                        
-                        {/* Main image badge */}
-                        {img === formData.image && (
-                          <div className="absolute top-1 left-1 bg-[#00483d] text-white text-xs px-1.5 py-0.5 rounded">
-                            ⭐ Chính
-                          </div>
-                        )}
-                      </div>
-                    ))}
+              {formData.image && (
+                <div className="mt-2 w-20 h-20 border rounded overflow-hidden">
+                  <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                </div>
+              )}
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-1">Các hình ảnh phụ (Tối đa 5 ảnh)</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {(formData.images || []).map((img, idx) => (
+                  <div key={idx} className="relative w-20 h-20 border rounded overflow-hidden group">
+                    <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                    <button 
+                      type="button" 
+                      onClick={() => removeGalleryImage(idx)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 size={12} />
+                    </button>
                   </div>
-                  <p className="text-xs text-gray-500">
-                    Nhấn ⭐ để đặt làm ảnh chính. Nhấn ✕ để xóa.
-                  </p>
-                </div>
-              )}
-              
-              {(!formData.images || formData.images.length === 0) && (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-500 text-sm">
-                  Chưa có ảnh nào. Nhấn "Tải 1 ảnh lên" hoặc "Tải nhiều ảnh" để thêm hình ảnh sản phẩm.
-                </div>
-              )}
+                ))}
+                {(!formData.images || formData.images.length < 5) && (
+                  <label className="w-20 h-20 border border-dashed rounded flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:bg-gray-50">
+                    <Plus size={20} />
+                    <span className="text-[10px] mt-1">Thêm ảnh</span>
+                    <input 
+                      type="file" 
+                      multiple 
+                      onChange={handleGalleryImageUpload} 
+                      className="hidden" 
+                      accept="image/*"
+                    />
+                  </label>
+                )}
+              </div>
             </div>
           </div>
           
@@ -633,39 +518,16 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
                     <div>
                       <label className="block text-xs font-medium mb-1">Giá bán (VNĐ) *</label>
                       <input 
-                        type="number" 
-                        value={variant.price} 
-                        onChange={(e) => handleVariantChange(index, 'price', Number(e.target.value))} 
+                        type="text" 
+                        value={variant.price ? variant.price.toLocaleString('vi-VN') : ''} 
+                        onChange={(e) => {
+                          const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                          const numValue = rawValue ? Number(rawValue) : 0;
+                          handleVariantChange(index, 'price', numValue);
+                        }} 
                         className="w-full border rounded p-2 text-sm" 
                         required 
-                        min="0"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-1">Số lượng tồn kho</label>
-                      <div className="flex items-center">
-                        <button
-                          type="button"
-                          onClick={() => handleVariantChange(index, 'stock', Math.max(0, (variant.stock || 0) - 1))}
-                          className="w-8 h-10 border rounded-l bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
-                        >
-                          -
-                        </button>
-                        <input 
-                          type="number" 
-                          value={variant.stock || 0} 
-                          onChange={(e) => handleVariantChange(index, 'stock', Math.max(0, Number(e.target.value)))} 
-                          className="w-16 h-10 border-t border-b text-center text-sm" 
-                          min="0"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleVariantChange(index, 'stock', (variant.stock || 0) + 1)}
-                          className="w-8 h-10 border rounded-r bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
-                        >
-                          +
-                        </button>
-                      </div>
                     </div>
                     <div>
                       <label className="block text-xs font-medium mb-1">Hình ảnh phiên bản</label>
@@ -686,23 +548,15 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, exi
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center lg:col-span-3 gap-4">
-                      <div className="flex items-center">
-                        <input 
-                          type="checkbox" 
-                          id={`variant-stock-${index}`} 
-                          checked={variant.inStock} 
-                          onChange={(e) => handleVariantChange(index, 'inStock', e.target.checked)} 
-                          className="mr-2" 
-                        />
-                        <label htmlFor={`variant-stock-${index}`} className="text-sm font-medium">Còn hàng</label>
-                      </div>
-                      <div className="flex items-center">
-                        <label className="text-xs text-gray-500 mr-2">Tồn kho:</label>
-                        <span className={`text-sm font-medium ${variant.stock > 0 ? 'text-green-600' : variant.inStock ? 'text-orange-500' : 'text-red-500'}`}>
-                          {variant.stock || 0} sản phẩm
-                        </span>
-                      </div>
+                    <div className="flex items-center lg:col-span-3">
+                      <input 
+                        type="checkbox" 
+                        id={`variant-stock-${index}`} 
+                        checked={variant.inStock} 
+                        onChange={(e) => handleVariantChange(index, 'inStock', e.target.checked)} 
+                        className="mr-2" 
+                      />
+                      <label htmlFor={`variant-stock-${index}`} className="text-sm font-medium">Còn hàng</label>
                     </div>
                   </div>
                 </div>

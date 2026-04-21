@@ -9,12 +9,11 @@ import { useCategoryStore } from '../store/useCategoryStore';
 import { useCampaignStore } from '../store/useCampaignStore';
 import { useWarrantyStore } from '../store/useWarrantyStore';
 import { Link } from 'react-router-dom';
-import { Package, ShoppingBag, Image as ImageIcon, Tag, Edit, Trash2, CheckCircle, XCircle, BarChart3, ListTree, Zap, ShieldCheck, Clock, Settings as SettingsIcon, Upload } from 'lucide-react';
+import { Package, ShoppingBag, Image as ImageIcon, Tag, Edit, Trash2, CheckCircle, XCircle, BarChart3, ListTree, Zap, ShieldCheck, Clock, Settings as SettingsIcon } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import BannerModal from '../components/admin/BannerModal';
 import PromotionModal from '../components/admin/PromotionModal';
 import ProductModal from '../components/admin/ProductModal';
-import BatchProductModal from '../components/admin/BatchProductModal';
 import CategoryModal from '../components/admin/CategoryModal';
 import CampaignModal from '../components/admin/CampaignModal';
 import WarrantyModal from '../components/admin/WarrantyModal';
@@ -42,27 +41,6 @@ export default function Admin() {
   const { importSlips, expenses, fetchWarehouseData, addImportSlip, addExpense } = useWarehouseStore();
   const { settings, updateSettings } = useSettingsStore();
 
-  // Helper to update product variant stock
-  const updateProductStock = (productId: string, variantId: string, quantityToSubtract: number) => {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    
-    const variantIndex = product.variants.findIndex(v => v.id === variantId);
-    if (variantIndex === -1) return;
-    
-    const currentStock = product.variants[variantIndex].stock || 0;
-    const newStock = Math.max(0, currentStock - quantityToSubtract);
-    
-    const updatedVariants = [...product.variants];
-    updatedVariants[variantIndex] = { 
-      ...updatedVariants[variantIndex], 
-      stock: newStock,
-      inStock: newStock > 0 
-    };
-    
-    updateProduct(productId, { variants: updatedVariants });
-  };
-
   const [settingsForm, setSettingsForm] = useState(settings);
 
   useEffect(() => {
@@ -82,24 +60,150 @@ export default function Admin() {
 
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [isBatchProductModalOpen, setIsBatchProductModalOpen] = useState(false);
+  const [productPage, setProductPage] = useState(1);
+  const productsPerPage = 10;
+  
+  const paginatedProducts = useMemo(() => {
+    return products.slice((productPage - 1) * productsPerPage, productPage * productsPerPage);
+  }, [products, productPage]);
+
+  const totalProductPages = Math.ceil(products.length / productsPerPage);
 
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [categoryPage, setCategoryPage] = useState(1);
+  const categoriesPerPage = 10;
+
+  const paginatedCategories = useMemo(() => {
+    return categories.slice((categoryPage - 1) * categoriesPerPage, categoryPage * categoriesPerPage);
+  }, [categories, categoryPage]);
+  
+  const totalCategoryPages = Math.ceil(categories.length / categoriesPerPage);
 
   const [isCampaignModalOpen, setIsCampaignModalOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
+  const [campaignPage, setCampaignPage] = useState(1);
+  const campaignsPerPage = 5;
+
+  const paginatedCampaigns = useMemo(() => {
+    return campaigns.slice((campaignPage - 1) * campaignsPerPage, campaignPage * campaignsPerPage);
+  }, [campaigns, campaignPage]);
+  
+  const totalCampaignPages = Math.ceil(campaigns.length / campaignsPerPage);
 
   const [isWarrantyModalOpen, setIsWarrantyModalOpen] = useState(false);
   const [editingWarranty, setEditingWarranty] = useState<Warranty | null>(null);
+  const [warrantyPage, setWarrantyPage] = useState(1);
+  const warrantiesPerPage = 10;
+
+  const paginatedWarranties = useMemo(() => {
+    return warranties.slice((warrantyPage - 1) * warrantiesPerPage, warrantyPage * warrantiesPerPage);
+  }, [warranties, warrantyPage]);
+  
+  const totalWarrantyPages = Math.ceil(warranties.length / warrantiesPerPage);
 
   const [isWarrantyHistoryModalOpen, setIsWarrantyHistoryModalOpen] = useState(false);
   const [selectedWarranty, setSelectedWarranty] = useState<Warranty | null>(null);
 
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+  
+  const [orderPage, setOrderPage] = useState(1);
+  const ordersPerPage = 10;
+  
+  const paginatedOrders = useMemo(() => {
+    return orders.slice((orderPage - 1) * ordersPerPage, orderPage * ordersPerPage);
+  }, [orders, orderPage]);
+  
+  const totalOrderPages = Math.ceil(orders.length / ordersPerPage);
 
-  if (!user || user.role !== 'admin') {
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  };
+
+  const PaginationControls = ({ currentPage, totalPages, onPageChange }: { currentPage: number, totalPages: number, onPageChange: (page: number) => void }) => {
+    if (totalPages <= 1) return null;
+    return (
+      <div className="flex justify-center items-center gap-2 mt-4 pb-4">
+        <button 
+          disabled={currentPage === 1}
+          onClick={() => onPageChange(currentPage - 1)}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Trước
+        </button>
+        <span className="text-sm font-medium">Trang {currentPage} / {totalPages}</span>
+        <button 
+          disabled={currentPage === totalPages}
+          onClick={() => onPageChange(currentPage + 1)}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Sau
+        </button>
+      </div>
+    );
+  };
+
+  const lowStockProducts = useMemo(() => {
+    return products.filter(p => typeof p.inventoryQuantity === 'number' && p.inventoryQuantity < 5);
+  }, [products]);
+
+  const tabs = [
+    { id: 'analytics', name: 'Phân tích', icon: BarChart3, roles: ['admin'] },
+    { id: 'products', name: 'Sản phẩm', icon: Package, roles: ['admin', 'warehouse'], badge: lowStockProducts.length > 0 ? lowStockProducts.length : undefined },
+    { id: 'warehouse', name: 'Kho hàng', icon: ListTree, roles: ['admin', 'warehouse'] },
+    { id: 'categories', name: 'Danh mục', icon: ListTree, roles: ['admin'] },
+    { id: 'orders', name: 'Đơn hàng', icon: ShoppingBag, roles: ['admin', 'sale'] },
+    { id: 'banners', name: 'Banners', icon: ImageIcon, roles: ['admin'] },
+    { id: 'promotions', name: 'Khuyến mãi', icon: Tag, roles: ['admin'] },
+    { id: 'campaigns', name: 'Chiến dịch', icon: Zap, roles: ['admin'] },
+    { id: 'warranties', name: 'Bảo hành', icon: ShieldCheck, roles: ['admin', 'sale'] },
+    { id: 'settings', name: 'Cấu hình cửa hàng', icon: SettingsIcon, roles: ['admin'] },
+  ];
+
+  const allowedTabs = tabs.filter(t => user && t.roles.includes(user.role));
+  
+  useEffect(() => {
+    // If active tab is not allowed for the user, reset to first allowed tab
+    if (allowedTabs.length > 0 && !allowedTabs.find(t => t.id === activeTab)) {
+      setActiveTab(allowedTabs[0].id);
+    }
+  }, [user, allowedTabs, activeTab]);
+
+  const exportToExcel = (data: any[], filename: string) => {
+    if (data.length === 0) return;
+    
+    // Convert array of objects to CSV
+    const headers = Object.keys(data[0]);
+    const csvContent = 
+      "data:text/csv;charset=utf-8,\uFEFF" + // BOM for UTF-8
+      headers.join(",") + "\n" +
+      data.map(row => 
+        headers.map(header => {
+          let cell = row[header];
+          if (cell === null || cell === undefined) return "";
+          if (typeof cell === 'object') cell = JSON.stringify(cell);
+          cell = String(cell);
+          // Escape quotes
+          cell = cell.replace(/"/g, '""');
+          // Quote strings with commas or newlines
+          if (cell.search(/("|,|\n)/g) >= 0) {
+            cell = `"${cell}"`;
+          }
+          return cell;
+        }).join(",")
+      ).join("\n");
+      
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  if (!user || !['admin', 'sale', 'warehouse'].includes(user.role)) {
     return (
       <div className="text-center py-20">
         <h2 className="text-2xl font-bold mb-4">Truy cập bị từ chối</h2>
@@ -108,23 +212,6 @@ export default function Admin() {
       </div>
     );
   }
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-  };
-
-  const tabs = [
-    { id: 'analytics', name: 'Phân tích', icon: BarChart3 },
-    { id: 'products', name: 'Sản phẩm', icon: Package },
-    { id: 'warehouse', name: 'Kho hàng', icon: ListTree },
-    { id: 'categories', name: 'Danh mục', icon: ListTree },
-    { id: 'orders', name: 'Đơn hàng', icon: ShoppingBag },
-    { id: 'banners', name: 'Banners', icon: ImageIcon },
-    { id: 'promotions', name: 'Khuyến mãi', icon: Tag },
-    { id: 'campaigns', name: 'Chiến dịch', icon: Zap },
-    { id: 'warranties', name: 'Bảo hành', icon: ShieldCheck },
-    { id: 'settings', name: 'Cấu hình cửa hàng', icon: SettingsIcon },
-  ];
 
   // Prepare data for charts
   const topViewedProducts = Object.entries(productViews)
@@ -173,20 +260,27 @@ export default function Admin() {
       <div className="w-full md:w-64 bg-white rounded-xl shadow-sm p-4 h-fit">
         <h2 className="text-lg font-bold mb-4 px-2">Quản trị viên</h2>
         <nav className="space-y-1">
-          {tabs.map((tab) => {
+          {allowedTabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                   activeTab === tab.id
                     ? 'bg-[#00483d] text-white'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
-                <Icon size={18} className="mr-3" />
-                {tab.name}
+                <div className="flex items-center">
+                  <Icon size={18} className="mr-3" />
+                  {tab.name}
+                </div>
+                {tab.badge !== undefined && (
+                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    {tab.badge}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -305,21 +399,12 @@ export default function Admin() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold">Quản lý sản phẩm</h1>
-              <div className="flex gap-3">
-                <button 
-                  onClick={() => setIsBatchProductModalOpen(true)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
-                >
-                  <Upload size={18} />
-                  Thêm nhiều sản phẩm
-                </button>
-                <button 
-                  onClick={() => { setEditingProduct(null); setIsProductModalOpen(true); }}
-                  className="bg-[#00483d] text-white px-4 py-2 rounded-md hover:bg-[#00382f] transition-colors"
-                >
-                  + Thêm sản phẩm
-                </button>
-              </div>
+              <button 
+                onClick={() => { setEditingProduct(null); setIsProductModalOpen(true); }}
+                className="bg-[#00483d] text-white px-4 py-2 rounded-md hover:bg-[#00382f] transition-colors"
+              >
+                + Thêm sản phẩm
+              </button>
             </div>
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
@@ -336,7 +421,7 @@ export default function Admin() {
                     </tr>
                   </thead>
                   <tbody>
-                    {products.map((product) => (
+                    {paginatedProducts.map((product) => (
                       <tr key={product.id} className="border-b hover:bg-gray-50">
                         <td className="p-4 text-sm text-gray-500">{product.id}</td>
                         <td className="p-4">
@@ -346,10 +431,10 @@ export default function Admin() {
                         </td>
                         <td className="p-4 font-medium text-gray-900">{product.name}</td>
                         <td className="p-4 text-sm text-gray-500">{product.category}</td>
-                        <td className="p-4 font-medium text-red-600">{formatPrice(product.variants[0]?.price || product.price)}</td>
+                        <td className="p-4 font-medium text-red-600">{formatPrice(product.price)}</td>
                         <td className="p-4">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.inStock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {product.inStock ? 'Còn hàng' : 'Hết hàng'}
+                            {product.inStock ? 'Còn hàng' : 'Hết hàng'} ({product.inventoryQuantity || 0})
                           </span>
                         </td>
                         <td className="p-4">
@@ -376,6 +461,7 @@ export default function Admin() {
                     ))}
                   </tbody>
                 </table>
+                <PaginationControls currentPage={productPage} totalPages={totalProductPages} onPageChange={setProductPage} />
               </div>
             </div>
           </div>
@@ -444,7 +530,25 @@ export default function Admin() {
 
         {activeTab === 'orders' && (
           <div>
-            <h1 className="text-2xl font-bold mb-6">Quản lý đơn hàng</h1>
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold">Quản lý đơn hàng</h1>
+              <button 
+                onClick={() => exportToExcel(orders.map(o => ({
+                  'Mã ĐH': o.id,
+                  'Ngày đặt': new Date(o.createdAt).toLocaleDateString('vi-VN'),
+                  'Khách hàng': o.customerName,
+                  'SĐT': o.customerPhone,
+                  'Địa chỉ': o.customerAddress,
+                  'Sản phẩm': o.items.map(i => `${i.productName} (${i.quantity})`).join('; '),
+                  'Tổng tiền': o.total,
+                  'Trạng thái': o.status,
+                  'Ghi chú': o.note || ''
+                })), 'DanhSachDonHang')}
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center"
+              >
+                Xuất Excel
+              </button>
+            </div>
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
@@ -486,17 +590,21 @@ export default function Admin() {
                             </td>
                             <td className="p-4">
                               <div className="flex flex-col gap-2">
-                                <select
+                                <select 
                                   value={order.status}
                                   onChange={(e) => {
                                     const newStatus = e.target.value as any;
-                                    updateOrderStatus(order.id, newStatus);
-                                    // Subtract stock when order is completed
-                                    if (newStatus === 'completed') {
+                                    if (newStatus === 'completed' && order.status !== 'completed') {
+                                      // Reduce inventory
                                       order.items.forEach(item => {
-                                        updateProductStock(item.productId, item.variantId, item.quantity);
+                                        const product = products.find(p => p.id === item.productId);
+                                        if (product && typeof product.inventoryQuantity === 'number') {
+                                          const newQuantity = Math.max(0, product.inventoryQuantity - item.quantity);
+                                          updateProduct(product.id, { inventoryQuantity: newQuantity });
+                                        }
                                       });
                                     }
+                                    updateOrderStatus(order.id, newStatus);
                                   }}
                                   className="text-sm border rounded p-1 w-full"
                                 >
@@ -507,9 +615,7 @@ export default function Admin() {
                                 </select>
                                 {order.status === 'pending' && (
                                   <button
-                                    onClick={() => {
-                                      updateOrderStatus(order.id, 'processing');
-                                    }}
+                                    onClick={() => updateOrderStatus(order.id, 'processing')}
                                     className="bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5 px-2 rounded font-medium whitespace-nowrap transition-colors flex items-center justify-center gap-1"
                                   >
                                     <CheckCircle size={14} /> Xác nhận đơn hàng
@@ -907,7 +1013,7 @@ export default function Admin() {
             <h1 className="text-2xl font-bold mb-6">Quản lý Kho hàng, Chi phí & Lợi nhuận</h1>
             
             {/* 3 Main Action Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
               <button 
                 onClick={() => setIsImportModalOpen(true)}
                 className="flex items-center justify-center gap-3 bg-[#00483d] text-white p-4 rounded-xl shadow-sm hover:bg-[#00382f] transition-all transform hover:scale-[1.02]"
@@ -938,6 +1044,24 @@ export default function Admin() {
                 <div className="text-left">
                   <div className="font-bold">Báo cáo</div>
                   <div className="text-xs opacity-80">Xem thống kê chi tiết</div>
+                </div>
+              </button>
+              
+              <button 
+                onClick={() => exportToExcel(products.map(p => ({
+                  'ID': p.id,
+                  'Tên sản phẩm': p.name,
+                  'Danh mục': p.category,
+                  'Thương hiệu': p.brand,
+                  'Số lượng tồn': p.inventoryQuantity ?? 0,
+                  'Giá bán': p.price
+                })), 'BaoCaoKhoHang')}
+                className="flex items-center justify-center gap-3 bg-green-600 text-white p-4 rounded-xl shadow-sm hover:bg-green-700 transition-all transform hover:scale-[1.02]"
+              >
+                <ListTree size={24} />
+                <div className="text-left">
+                  <div className="font-bold">Xuất Excel</div>
+                  <div className="text-xs opacity-80">Danh sách tồn kho</div>
                 </div>
               </button>
             </div>
@@ -1109,6 +1233,17 @@ export default function Admin() {
                     onChange={(e) => setSettingsForm({...settingsForm, footerText: e.target.value})}
                     className="w-full border rounded-md p-2 focus:ring-[#00483d] outline-none" 
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Đoạn văn giới thiệu (HTML - Hiện tại trang "Về chúng tôi")</label>
+                  <textarea 
+                    value={settingsForm.aboutUsContent || ''}
+                    onChange={(e) => setSettingsForm({...settingsForm, aboutUsContent: e.target.value})}
+                    className="w-full border rounded-md p-2 focus:ring-[#00483d] outline-none font-mono text-sm" 
+                    rows={6}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Đoạn văn này hỗ trợ mã HTML. Bạn có thể sử dụng thẻ &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;.</p>
                 </div>
 
                 <div className="pt-4 border-t">
@@ -1339,19 +1474,18 @@ export default function Admin() {
         isOpen={isProductModalOpen} 
         onClose={() => setIsProductModalOpen(false)} 
         initialData={editingProduct}
-        existingProducts={products}
         onSave={(product) => {
-          if (editingProduct) updateProduct(product.id, product);
-          else addProduct(product);
-        }}
-      />
-
-      <BatchProductModal
-        isOpen={isBatchProductModalOpen}
-        onClose={() => setIsBatchProductModalOpen(false)}
-        categories={categories.map(c => c.name)}
-        onSave={(newProducts) => {
-          newProducts.forEach(product => addProduct(product));
+          if (editingProduct) {
+            updateProduct(product.id, product);
+          } else {
+            let uniqueSlug = product.slug;
+            let counter = 1;
+            while (products.some(p => p.slug === uniqueSlug)) {
+              uniqueSlug = `${product.slug}-${counter}`;
+              counter++;
+            }
+            addProduct({ ...product, slug: uniqueSlug });
+          }
         }}
       />
 

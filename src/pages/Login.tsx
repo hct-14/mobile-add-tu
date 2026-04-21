@@ -16,33 +16,16 @@ export default function Login() {
     setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
-      // Check if user exists in Firestore users collection
-      const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
-      if (!userDoc.exists()) {
-        // Create user document with admin role for admin emails
-        const isAdminEmail = ['hoangthanhgolle@gmail.com', 'alostore6688@gmail.com', 'admin@gmail.com'].includes(email);
-        await setDoc(doc(db, 'users', userCredential.user.uid), {
-          id: userCredential.user.uid,
-          name: email.split('@')[0],
-          email: email,
-          role: isAdminEmail ? 'admin' : 'user'
-        });
+      // Check email verification
+      if (!userCredential.user.emailVerified) {
+        toast.error('Vui lòng xác minh email trước khi đăng nhập!');
+        setLoading(false);
+        return;
       }
-      
-      // Skip email verification check for development/testing
       toast.success('Đăng nhập thành công!');
       navigate('/');
     } catch (error: any) {
-      if (error.code === 'auth/user-not-found') {
-        toast.error('Tài khoản không tồn tại. Vui lòng đăng ký!');
-      } else if (error.code === 'auth/wrong-password') {
-        toast.error('Sai mật khẩu!');
-      } else if (error.code === 'auth/invalid-email') {
-        toast.error('Email không hợp lệ!');
-      } else {
-        toast.error(error.message || 'Sai email hoặc mật khẩu!');
-      }
+      toast.error('Sai email hoặc mật khẩu!');
       console.error(error);
     } finally {
       setLoading(false);
@@ -61,7 +44,7 @@ export default function Login() {
           id: userCredential.user.uid,
           name: userCredential.user.displayName || 'Google User',
           email: userCredential.user.email || '',
-          role: (userCredential.user.email === 'hoangthanhgolle@gmail.com' || userCredential.user.email === 'alostore6688@gmail.com' || userCredential.user.email === 'admin@gmail.com') ? 'admin' : 'user'
+          role: (userCredential.user.email === 'admin@hoangha.com' || userCredential.user.email === 'hoangthanhgolle@gmail.com' || userCredential.user.email === 'alostore6688@gmail.com' || userCredential.user.email === 'admin@gmail.com') ? 'admin' : 'user'
         });
       }
       toast.success('Đăng nhập với Google thành công!');

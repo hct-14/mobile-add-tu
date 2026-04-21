@@ -38,14 +38,8 @@ export default function ImportSlipModal({ isOpen, onClose, products, onSave }: I
   };
 
   return (
-    <div 
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <div 
-        className="bg-white rounded-xl w-full max-w-md overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl w-full max-w-md overflow-hidden">
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-lg font-bold">Thêm phiếu nhập hàng</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">

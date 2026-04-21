@@ -4,15 +4,12 @@ import { useCartStore } from '../store/useCartStore';
 import { useOrderStore } from '../store/useOrderStore';
 import { usePromotionStore } from '../store/usePromotionStore';
 import { useAnalyticsStore } from '../store/useAnalyticsStore';
-import { useCouponStore } from '../store/useCouponStore';
-import CouponInput from '../components/CouponInput';
 
 export default function Checkout() {
   const { items, getTotal, clearCart } = useCartStore();
   const addOrder = useOrderStore(state => state.addOrder);
   const promotions = usePromotionStore(state => state.promotions);
   const incrementProductOrder = useAnalyticsStore(state => state.incrementProductOrder);
-  const { appliedCoupon, clearCoupon } = useCouponStore();
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
@@ -22,6 +19,9 @@ export default function Checkout() {
     note: '',
     deliveryMethod: 'store' as 'store' | 'home',
   });
+  
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState(0);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -41,6 +41,61 @@ export default function Checkout() {
     setFormData({ ...formData, deliveryMethod: method });
   };
 
+  const handleApplyCoupon = () => {
+    const promo = promotions.find(p => p.code === couponCode && p.isActive);
+    if (!promo) {
+      alert('Mã giảm giá không hợp lệ hoặc đã tắt.');
+      setAppliedDiscount(0);
+      return;
+    }
+
+    const now = new Date().getTime();
+
+    if (promo.startDate && new Date(promo.startDate).getTime() > now) {
+      alert(`Mã giảm giá chỉ có hiệu lực từ ${new Date(promo.startDate).toLocaleString('vi-VN')}.`);
+      setAppliedDiscount(0);
+      return;
+    }
+
+    if (promo.endDate && new Date(promo.endDate).getTime() < now) {
+      alert('Mã giảm giá đã hết hạn.');
+      setAppliedDiscount(0);
+      return;
+    }
+
+    if (promo.usageLimit && promo.usedCount && promo.usedCount >= promo.usageLimit) {
+      alert('Mã giảm giá đã hết lượt sử dụng.');
+      setAppliedDiscount(0);
+      return;
+    }
+
+    if (promo.applicableCategories && promo.applicableCategories.length > 0) {
+      const hasApplicableItem = items.some(item => promo.applicableCategories?.includes(item.product.category));
+      if (!hasApplicableItem) {
+        alert('Mã giảm giá không áp dụng cho các sản phẩm trong giỏ hàng.');
+        setAppliedDiscount(0);
+        return;
+      }
+    }
+
+    const cartTotal = getTotal();
+    if (promo.minOrderValue && cartTotal < promo.minOrderValue) {
+      alert(`Đơn hàng chưa đạt giá trị tối thiểu ${formatPrice(promo.minOrderValue)} để áp dụng mã này.`);
+      setAppliedDiscount(0);
+      return;
+    }
+
+    let discount = 0;
+    if (promo.discountType === 'percent') {
+      discount = cartTotal * ((promo.discountPercent || 0) / 100);
+    } else {
+      discount = promo.discountAmount || 0;
+    }
+
+    setAppliedDiscount(discount);
+    alert('Áp dụng mã giảm giá thành công!');
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -56,7 +111,7 @@ export default function Checkout() {
       }
     }
     
-    const finalTotal = Math.max(0, getTotal() - (appliedCoupon?.discount || 0));
+    const finalTotal = Math.max(0, getTotal() - appliedDiscount);
     
     addOrder({
       id: Date.now().toString(),
@@ -79,21 +134,19 @@ export default function Checkout() {
           variantCondition: item.variant.condition,
           priceAtOrder: item.variant.price,
           quantity: item.quantity,
-          stockAtOrder: item.variant.stock || 0, // Luu stock luc dat hang
           productImage: item.product.image,
           variantImage: item.variant.image
         };
       }),
       total: finalTotal,
-      promotionCode: appliedCoupon?.code,
-      discountAmount: appliedCoupon?.discount,
+      promotionCode: appliedDiscount > 0 ? couponCode : undefined,
+      discountAmount: appliedDiscount > 0 ? appliedDiscount : undefined,
       status: 'pending',
       createdAt: new Date().toISOString()
     });
 
-    if (appliedCoupon?.code) {
-      usePromotionStore.getState().incrementUsedCount(appliedCoupon.code);
-      clearCoupon(); // Clear coupon after successful order
+    if (appliedDiscount > 0 && couponCode) {
+      usePromotionStore.getState().incrementUsedCount(couponCode);
     }
 
     alert('Đặt hàng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.');
@@ -229,6 +282,26 @@ export default function Checkout() {
               ))}
             </div>
 
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mã giảm giá</label>
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#00483d]"
+                  placeholder="Nhập mã giảm giá"
+                />
+                <button 
+                  type="button"
+                  onClick={handleApplyCoupon}
+                  className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-900"
+                >
+                  Áp dụng
+                </button>
+              </div>
+            </div>
+
             <div className="border-t pt-4 space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Tạm tính:</span>
@@ -238,24 +311,19 @@ export default function Checkout() {
                 <span className="text-gray-600">Phí vận chuyển:</span>
                 <span>Miễn phí</span>
               </div>
-              {appliedCoupon && (
+              {appliedDiscount > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span className="flex items-center gap-2">
-                    <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-medium">{appliedCoupon.code}</span>
-                    Giảm giá:
-                  </span>
-                  <span>-{formatPrice(appliedCoupon.discount)}</span>
+                  <span>Giảm giá:</span>
+                  <span>-{formatPrice(appliedDiscount)}</span>
                 </div>
               )}
               <div className="flex justify-between items-center pt-3 border-t">
                 <span className="font-bold text-base">Tổng cộng:</span>
                 <span className="font-bold text-2xl text-red-600">
-                  {formatPrice(Math.max(0, getTotal() - (appliedCoupon?.discount || 0)))}
+                  {formatPrice(Math.max(0, getTotal() - appliedDiscount))}
                 </span>
               </div>
             </div>
-
-            <CouponInput showAllPromotions={true} />
 
             <button 
               type="submit"
