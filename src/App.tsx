@@ -54,6 +54,8 @@ export default function App() {
               <Route path="trade-in" element={<TradeIn />} />
               <Route path="warranty" element={<Warranty />} />
               <Route path="about" element={<About />} />
+              <Route path="stores" element={<div className="p-20 text-center text-xl">Hệ thống cửa hàng đang cập nhật...</div>} />
+              <Route path="news" element={<div className="p-20 text-center text-xl">Tin tức đang cập nhật...</div>} />
               <Route path="cart" element={<Cart />} />
               <Route path="checkout" element={<Checkout />} />
               <Route path="login" element={<Login />} />

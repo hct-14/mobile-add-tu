@@ -12,15 +12,14 @@ export default function SearchResults() {
   const allProducts = useProductStore(state => state.products);
   const addToCompare = useCompareStore(state => state.addToCompare);
   
-  const fuse = useMemo(() => new Fuse(allProducts, {
-    keys: ['name', 'category', 'brand'],
-    threshold: 0.3,
-  }), [allProducts]);
-
   const products = useMemo(() => {
     if (!query) return allProducts;
-    return fuse.search(query).map(result => result.item);
-  }, [query, fuse, allProducts]);
+    return allProducts.filter(p => 
+      p.name.toLowerCase().includes(query.toLowerCase()) ||
+      p.category.toLowerCase().includes(query.toLowerCase()) ||
+      p.brand.toLowerCase().includes(query.toLowerCase())
+    );
+  }, [query, allProducts]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);

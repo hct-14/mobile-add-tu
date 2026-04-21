@@ -99,18 +99,6 @@ export default function Checkout() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate cart constraints: max 2 products, max 2 quantity each
-    if (items.length > 2) {
-      alert('Bạn chỉ được phép đặt tối đa 2 sản phẩm khác nhau.');
-      return;
-    }
-    for (const item of items) {
-      if (item.quantity > 2) {
-        alert(`Bạn chỉ được phép đặt tối đa 2 chiếc cho sản phẩm: ${item.product.name}.`);
-        return;
-      }
-    }
-    
     const finalTotal = Math.max(0, getTotal() - appliedDiscount);
     
     addOrder({

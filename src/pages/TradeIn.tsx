@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Phone, RefreshCw, ShieldCheck, Zap, MessageSquare, ChevronDown, CheckCircle, Upload } from 'lucide-react';
+import { db } from '../lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 export default function TradeIn() {
   const [formData, setFormData] = useState({
@@ -8,14 +10,13 @@ export default function TradeIn() {
     oldDevice: '',
     condition: '',
     newDevice: '',
-    area: '',
     note: ''
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     if (e.target.name === 'phone') {
-      // Allow only numbers
       const value = e.target.value.replace(/[^0-9]/g, '');
       setFormData({ ...formData, [e.target.name]: value });
     } else {
@@ -23,10 +24,31 @@ export default function TradeIn() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 5000);
+    setLoading(true);
+    try {
+      await addDoc(collection(db, 'trade_in_requests'), {
+        ...formData,
+        createdAt: new Date().toISOString(),
+        status: 'pending'
+      });
+      setSubmitted(true);
+      setFormData({
+        name: '',
+        phone: '',
+        oldDevice: '',
+        condition: '',
+        newDevice: '',
+        note: ''
+      });
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (error) {
+      console.error('Lỗi khi gửi yêu cầu:', error);
+      alert('Có lỗi xảy ra, vui lòng thử lại.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -102,15 +124,17 @@ export default function TradeIn() {
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
-              <input type="text" name="name" placeholder="Họ và tên *" required className="w-full border rounded-lg p-3" onChange={handleChange} />
+              <input type="text" name="name" placeholder="Họ và tên *" required className="w-full border rounded-lg p-3" onChange={handleChange} value={formData.name} />
               <input type="text" name="phone" placeholder="Số điện thoại *" required className="w-full border rounded-lg p-3" onChange={handleChange} value={formData.phone} />
             </div>
-            <input type="text" name="oldDevice" placeholder="Dòng máy đang sử dụng *" required className="w-full border rounded-lg p-3" onChange={handleChange} />
-            <input type="text" name="condition" placeholder="Tình trạng máy (trầy, lỗi, pin...)" className="w-full border rounded-lg p-3" onChange={handleChange} />
-            <input type="text" name="newDevice" placeholder="Máy muốn đổi lên *" required className="w-full border rounded-lg p-3" onChange={handleChange} />
-            <textarea name="note" placeholder="Ghi chú thêm" className="w-full border rounded-lg p-3" rows={3} onChange={handleChange}></textarea>
+            <input type="text" name="oldDevice" placeholder="Dòng máy đang sử dụng *" required className="w-full border rounded-lg p-3" onChange={handleChange} value={formData.oldDevice} />
+            <input type="text" name="condition" placeholder="Tình trạng máy (trầy, lỗi, pin...)" className="w-full border rounded-lg p-3" onChange={handleChange} value={formData.condition} />
+            <input type="text" name="newDevice" placeholder="Máy muốn đổi lên *" required className="w-full border rounded-lg p-3" onChange={handleChange} value={formData.newDevice} />
+            <textarea name="note" placeholder="Ghi chú thêm" className="w-full border rounded-lg p-3" rows={3} onChange={handleChange} value={formData.note}></textarea>
             
-            <button type="submit" className="w-full bg-[#00483d] text-white font-bold py-4 rounded-lg hover:bg-[#00382f]">Gửi yêu cầu ngay</button>
+            <button type="submit" className="w-full bg-[#00483d] text-white font-bold py-4 rounded-lg hover:bg-[#00382f]" disabled={loading}>
+              {loading ? 'Đang gửi...' : 'Gửi yêu cầu ngay'}
+            </button>
           </form>
           {submitted && <p className="text-center text-green-600 mt-4 font-bold">Yêu cầu đã được gửi! Shop sẽ liên hệ với bạn sớm nhất.</p>}
         </div>

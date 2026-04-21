@@ -30,17 +30,10 @@ export default function Category() {
     return () => clearTimeout(timer);
   }, [slug, brandFilter, priceFilter, sortFilter, conditionFilter, ramFilter, storageFilter]);
 
-  // Simple mapping for demo
-  const categoryMap: Record<string, string> = {
-    'dien-thoai': 'Điện thoại',
-    'laptop': 'Laptop',
-    'apple': 'Apple',
-    'tablet': 'Tablet',
-    'phu-kien': 'Phụ kiện',
-    'hang-cu': 'Hàng cũ'
-  };
-
-  const categoryName = slug ? categoryMap[slug] || 'Sản phẩm' : 'Sản phẩm';
+  // Use dynamic category name
+  const allCategories = useCategoryStore(state => state.categories);
+  const currentCategory = allCategories.find(c => c.slug === slug);
+  const categoryName = currentCategory ? currentCategory.name : (slug === 'hang-cu' ? 'Hàng cũ' : 'Sản phẩm');
   
   let products = allProducts.filter(p => {
     if (slug === 'hang-cu') return p.isUsed;

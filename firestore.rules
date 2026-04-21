@@ -114,5 +114,18 @@ service cloud.firestore {
       allow create: if isAdmin() && isValidExpense(request.resource.data);
       allow update, delete: if isAdmin();
     }
+
+    match /orders/{orderId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    match /trade_in_requests/{requestId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
   }
 }
