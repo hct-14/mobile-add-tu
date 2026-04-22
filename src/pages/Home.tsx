@@ -156,7 +156,7 @@ export default function Home() {
 
       {/* Categories Products */}
       {categories.map((category) => {
-        const categoryProducts = products.filter(p => p.category === category.name);
+        const categoryProducts = products.filter(p => p.category?.trim().toLowerCase() === category.name?.trim().toLowerCase());
         if (categoryProducts.length === 0) return null;
 
         return (
