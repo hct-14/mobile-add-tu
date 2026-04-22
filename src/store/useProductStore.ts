@@ -1,10 +1,8 @@
 import { create } from 'zustand';
 import { Product, Review } from '../types';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
-import { collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, getDocs } from 'firebase/firestore';
+import { collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
-
-import { mockProducts } from '../data/mockProducts';
 
 interface ProductStore {
   products: Product[];
@@ -24,7 +22,6 @@ export const useProductStore = create<ProductStore>()((set, get) => ({
   addProduct: async (product) => {
     try {
       await setDoc(doc(db, 'products', product.id), product);
-      // set is handled by onSnapshot
     } catch (error) {
       console.error(error);
       toast.error('Có lỗi xảy ra khi thêm sản phẩm');
@@ -78,31 +75,16 @@ export const useProductStore = create<ProductStore>()((set, get) => ({
   
   subscribeProducts: () => {
     const q = collection(db, 'products');
-    let isInitialLoad = true;
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const prods: Product[] = [];
       snapshot.forEach((doc) => {
         prods.push({ id: doc.id, ...doc.data() } as Product);
       });
       
-      if (isInitialLoad && prods.length === 0) {
-        mockProducts.forEach(async (p) => {
-          try {
-            await setDoc(doc(db, 'products', p.id), p);
-          } catch(e) {
-            console.error('Failed to seed:', e);
-          }
-        });
-      }
-      isInitialLoad = false;
-      
-      if (prods.length > 0 || !isInitialLoad) {
-        set({ products: prods });
-      } else {
-        set({ products: mockProducts });
-      }
+      set({ products: prods });
     }, (error) => {
       console.error('Lỗi khi lắng nghe sản phẩm', error);
+      set({ products: [] });
     });
     return unsubscribe;
   }

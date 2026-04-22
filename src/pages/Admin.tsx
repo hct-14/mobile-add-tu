@@ -683,7 +683,7 @@ export default function Admin() {
                                       if (code) {
                                         const promo = promotions.find(p => p.code === code && p.isActive);
                                         if (promo) {
-                                          const newTotal = Math.max(0, order.total - promo.discountAmount);
+                                          const newTotal = Math.max(0, order.total - (promo.discountAmount || 0));
                                           updateOrder(order.id, {
                                             promotionCode: promo.code,
                                             discountAmount: promo.discountAmount,
