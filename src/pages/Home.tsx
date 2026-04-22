@@ -155,57 +155,56 @@ export default function Home() {
       </section>
 
       {/* Categories Products */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold uppercase text-gray-800 mb-4">Tất cả sản phẩm</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {products.map((product) => (
+            <div key={product.id} className="bg-white rounded-lg p-3 hover:shadow-lg transition-shadow border border-gray-100 relative group">
+              {product.discountPercentage && (
+                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
+                  Giảm {product.discountPercentage}%
+                </div>
+              )}
+              <Link to={`/product/${product.slug}`} className="block">
+                <div className="aspect-square mb-3 overflow-hidden rounded-md">
+                  <img src={product.image} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                </div>
+                <h3 className="font-medium text-sm text-gray-800 line-clamp-2 mb-2 h-10">{product.name}</h3>
+                <div className="flex flex-col">
+                  <span className="text-red-600 font-bold text-lg">{formatPrice(product.price)}</span>
+                  {product.originalPrice && (
+                    <span className="text-gray-400 text-sm line-through">{formatPrice(product.originalPrice)}</span>
+                  )}
+                </div>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Categories Grouped (Optional: If user still wants to see grouped by category) */}
       {categories.map((category) => {
         const categoryProducts = products.filter(p => p.category?.trim().toLowerCase() === category.name?.trim().toLowerCase());
         if (categoryProducts.length === 0) return null;
 
         return (
-          <section key={category.id}>
+          <section key={category.id} className="mb-10">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold uppercase text-gray-800">{category.name}</h2>
+              <h2 className="text-lg font-bold text-gray-700">{category.name}</h2>
               <Link to={`/category/${category.slug}`} className="text-[#00483d] hover:underline text-sm font-medium">Xem tất cả</Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {categoryProducts.slice(0, 5).map((product) => (
-                <div key={product.id} className="bg-white rounded-lg p-3 hover:shadow-lg transition-shadow border border-gray-100 relative group">
-                  {product.discountPercentage && (
-                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
-                      Giảm {product.discountPercentage}%
-                    </div>
-                  )}
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      addToCompare(product);
-                    }}
-                    className="absolute top-2 right-2 bg-white/80 p-1.5 rounded-full text-gray-600 hover:text-[#00483d] hover:bg-white z-10 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                    title="Thêm vào so sánh"
-                  >
-                    <Scale size={16} />
-                  </button>
+                <div key={product.id} className="bg-white rounded-lg p-3 border border-gray-100">
                   <Link to={`/product/${product.slug}`} className="block">
-                    <div className="aspect-square mb-3 overflow-hidden rounded-md">
-                      <img src={product.image} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-                    </div>
-                    <h3 className="font-medium text-sm text-gray-800 line-clamp-2 mb-2 h-10">{product.name}</h3>
-                    <div className="flex flex-col">
-                      <span className="text-red-600 font-bold text-lg">{formatPrice(product.price)}</span>
-                      {product.originalPrice && (
-                        <span className="text-gray-400 text-sm line-through">{formatPrice(product.originalPrice)}</span>
-                      )}
-                    </div>
-                    <div className="mt-2 bg-gray-100 rounded p-2 text-xs text-gray-600">
-                      <p>Thu cũ lên đời trợ giá 2 triệu</p>
-                    </div>
+                     <div className="aspect-square mb-2 overflow-hidden rounded-md">
+                       <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                     </div>
+                     <h3 className="font-medium text-sm text-gray-800 line-clamp-1">{product.name}</h3>
                   </Link>
                 </div>
               ))}
             </div>
-            {categoryProducts.length > 5 && (
-              <div className="mt-4 text-center">
-                <Link to={`/category/${category.slug}`} className="text-[#00483d] hover:underline text-sm font-medium">Xem thêm {categoryProducts.length - 5} sản phẩm</Link>
-              </div>
-            )}
           </section>
         );
       })}
