@@ -15,8 +15,12 @@ interface OrderStore {
 export const useOrderStore = create<OrderStore>((set) => ({
   orders: [],
   addOrder: async (order) => {
-    const docRef = await addDoc(collection(db, 'orders'), order);
-    // Zustand state will update via subscription
+    try {
+      const docRef = await addDoc(collection(db, 'orders'), order);
+      console.log('Order added with ID: ', docRef.id);
+    } catch (e) {
+      console.error('Error adding order: ', e);
+    }
   },
   updateOrderStatus: async (id, status) => {
     const docRef = doc(db, 'orders', id);
@@ -28,9 +32,13 @@ export const useOrderStore = create<OrderStore>((set) => ({
   },
   subscribeOrders: () => {
     const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
+    console.log('Subscribing to orders...');
     return onSnapshot(q, (snapshot) => {
+      console.log('Received order snapshot, size:', snapshot.size);
       const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
       set({ orders });
+    }, (error) => {
+      console.error('Error in subscribeOrders:', error);
     });
   },
 }));
