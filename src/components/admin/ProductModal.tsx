@@ -142,7 +142,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
   };
 
   const handleGalleryImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+    const files = Array.from(e.target.files as FileList || []);
     if (!files.length) return;
 
     // Filter large files
