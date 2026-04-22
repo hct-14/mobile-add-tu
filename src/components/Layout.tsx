@@ -214,8 +214,10 @@ export default function Layout() {
             <div>
               <h3 className="font-bold text-lg mb-4">Kết Nối Với Chúng Tôi</h3>
               <div className="flex space-x-4">
-                <a href={settings.facebookUrl} target="_blank" rel="noreferrer" className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold hover:bg-blue-700">F</a>
-                <a href={settings.zaloUrl} target="_blank" rel="noreferrer" className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold hover:bg-blue-600">Z</a>
+                {settings.facebookUrl && <a href={settings.facebookUrl} target="_blank" rel="noreferrer" className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold hover:bg-blue-700">F</a>}
+                {settings.zaloUrl && <a href={settings.zaloUrl} target="_blank" rel="noreferrer" className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold hover:bg-blue-600">Z</a>}
+                {settings.instagramUrl && <a href={settings.instagramUrl} target="_blank" rel="noreferrer" className="w-8 h-8 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold hover:opacity-80">I</a>}
+                {settings.tiktokUrl && <a href={settings.tiktokUrl} target="_blank" rel="noreferrer" className="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white font-bold hover:bg-gray-800">T</a>}
               </div>
             </div>
           </div>

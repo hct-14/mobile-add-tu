@@ -106,6 +106,18 @@ export interface Order {
   createdAt: string;
 }
 
+export interface TradeInRequest {
+  id: string;
+  name: string;
+  phone: string;
+  oldDevice: string;
+  condition: string;
+  newDevice: string;
+  note: string;
+  createdAt: string;
+  status: 'pending' | 'processing' | 'completed' | 'cancelled';
+}
+
 export interface WarrantyHistory {
   id: string;
   date: string;

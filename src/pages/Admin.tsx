@@ -9,7 +9,7 @@ import { useCategoryStore } from '../store/useCategoryStore';
 import { useCampaignStore } from '../store/useCampaignStore';
 import { useWarrantyStore } from '../store/useWarrantyStore';
 import { Link } from 'react-router-dom';
-import { Package, ShoppingBag, Image as ImageIcon, Tag, Edit, Trash2, CheckCircle, XCircle, BarChart3, ListTree, Zap, ShieldCheck, Clock, Settings as SettingsIcon } from 'lucide-react';
+import { Package, ShoppingBag, Image as ImageIcon, Tag, Edit, Trash2, CheckCircle, XCircle, BarChart3, ListTree, Zap, ShieldCheck, Clock, Settings as SettingsIcon, RefreshCw } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import BannerModal from '../components/admin/BannerModal';
 import PromotionModal from '../components/admin/PromotionModal';
@@ -21,6 +21,7 @@ import WarrantyHistoryModal from '../components/admin/WarrantyHistoryModal';
 import ImportSlipModal from '../components/admin/ImportSlipModal';
 import ExpenseModal from '../components/admin/ExpenseModal';
 import { useWarehouseStore } from '../store/useWarehouseStore';
+import { useTradeInStore } from '../store/useTradeInStore';
 import SeedButton from '../lib/SeedButton';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { Banner, Promotion, Product, Category, Campaign, Warranty, WarrantyHistory, ImportSlip, Expense } from '../types';
@@ -39,6 +40,7 @@ export default function Admin() {
   const { campaigns, addCampaign, updateCampaign, deleteCampaign } = useCampaignStore();
   const { warranties, addWarranty, updateWarranty, deleteWarranty } = useWarrantyStore();
   const { importSlips, expenses, fetchWarehouseData, addImportSlip, addExpense } = useWarehouseStore();
+  const { requests: tradeInRequests, updateStatus: updateTradeInStatus, deleteRequest: deleteTradeInRequest } = useTradeInStore();
   const { settings, updateSettings } = useSettingsStore();
 
   const [settingsForm, setSettingsForm] = useState(settings);
@@ -53,8 +55,13 @@ export default function Admin() {
 
   useEffect(() => {
     const { subscribeOrders } = useOrderStore.getState();
-    const unsub = subscribeOrders();
-    return () => unsub();
+    const unsubOrders = subscribeOrders();
+    const { subscribe: subscribeTradeIn } = useTradeInStore.getState();
+    const unsubTradeIn = subscribeTradeIn();
+    return () => {
+      unsubOrders();
+      unsubTradeIn();
+    };
   }, []);
 
   // Modal states
@@ -164,6 +171,7 @@ export default function Admin() {
     { id: 'promotions', name: 'Khuyến mãi', icon: Tag, roles: ['admin'] },
     { id: 'campaigns', name: 'Chiến dịch', icon: Zap, roles: ['admin'] },
     { id: 'warranties', name: 'Bảo hành', icon: ShieldCheck, roles: ['admin', 'sale'] },
+    { id: 'trade-in', name: 'Thu cũ đổi mới', icon: RefreshCw, roles: ['admin', 'sale'], badge: tradeInRequests?.filter(r => r.status === 'pending').length || undefined },
     { id: 'settings', name: 'Cấu hình cửa hàng', icon: SettingsIcon, roles: ['admin'] },
   ];
 
@@ -214,7 +222,7 @@ export default function Admin() {
       <div className="text-center py-20">
         <h2 className="text-2xl font-bold mb-4">Truy cập bị từ chối</h2>
         <p className="text-gray-500 mb-4">Bạn không có quyền truy cập trang này.</p>
-        <Link to="/" className="text-[#00483d] hover:underline">Về trang chủ</Link>
+        <Link to="/" className="text-[#db1c32] hover:underline">Về trang chủ</Link>
       </div>
     );
   }
@@ -231,16 +239,25 @@ export default function Admin() {
     .sort((a, b) => b.views - a.views)
     .slice(0, 5);
 
-  const topOrderedProducts = Object.entries(productOrders)
-    .map(([id, orders]) => {
-      const product = products.find(p => p.id === id);
-      return {
-        name: product ? product.name : `Sản phẩm ${id}`,
-        orders
-      };
-    })
-    .sort((a, b) => b.orders - a.orders)
-    .slice(0, 5);
+  const topOrderedProducts = useMemo(() => {
+    const orderCount: Record<string, number> = {};
+    orders.filter(o => o.status === 'completed').forEach(order => {
+      order.items.forEach(item => {
+        orderCount[item.productId] = (orderCount[item.productId] || 0) + item.quantity;
+      });
+    });
+
+    return Object.entries(orderCount)
+      .map(([id, count]) => {
+        const product = products.find(p => p.id === id);
+        return {
+          name: product ? product.name : `Sản phẩm ${id}`,
+          orders: count
+        };
+      })
+      .sort((a, b) => b.orders - a.orders)
+      .slice(0, 5);
+  }, [orders, products]);
 
   const dailyRevenueData = useMemo(() => {
     const revenueByDate: Record<string, number> = {};
@@ -274,7 +291,7 @@ export default function Admin() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                   activeTab === tab.id
-                    ? 'bg-[#00483d] text-white'
+                    ? 'bg-[#db1c32] text-white'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -407,7 +424,7 @@ export default function Admin() {
               <h1 className="text-2xl font-bold">Quản lý sản phẩm</h1>
               <button 
                 onClick={() => { setEditingProduct(null); setIsProductModalOpen(true); }}
-                className="bg-[#00483d] text-white px-4 py-2 rounded-md hover:bg-[#00382f] transition-colors"
+                className="bg-[#00483d] text-white px-4 py-2 rounded-md hover:bg-[#b41729] transition-colors"
               >
                 + Thêm sản phẩm
               </button>
@@ -479,7 +496,7 @@ export default function Admin() {
               <h1 className="text-2xl font-bold">Quản lý danh mục</h1>
               <button 
                 onClick={() => { setEditingCategory(null); setIsCategoryModalOpen(true); }}
-                className="bg-[#00483d] text-white px-4 py-2 rounded-md hover:bg-[#00382f] transition-colors"
+                className="bg-[#00483d] text-white px-4 py-2 rounded-md hover:bg-[#b41729] transition-colors"
               >
                 + Thêm danh mục
               </button>
@@ -606,6 +623,15 @@ export default function Admin() {
                                         const product = products.find(p => p.id === item.productId);
                                         if (product && typeof product.inventoryQuantity === 'number') {
                                           const newQuantity = Math.max(0, product.inventoryQuantity - item.quantity);
+                                          updateProduct(product.id, { inventoryQuantity: newQuantity });
+                                        }
+                                      });
+                                    } else if (order.status === 'completed' && newStatus !== 'completed') {
+                                      // Restore inventory
+                                      order.items.forEach(item => {
+                                        const product = products.find(p => p.id === item.productId);
+                                        if (product && typeof product.inventoryQuantity === 'number') {
+                                          const newQuantity = product.inventoryQuantity + item.quantity;
                                           updateProduct(product.id, { inventoryQuantity: newQuantity });
                                         }
                                       });
@@ -1014,6 +1040,80 @@ export default function Admin() {
           </div>
         )}
 
+        {activeTab === 'trade-in' && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold">Yêu cầu Thu cũ đổi mới</h1>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 border-b">
+                      <th className="p-4 font-medium text-gray-600">Khách hàng</th>
+                      <th className="p-4 font-medium text-gray-600">SĐT</th>
+                      <th className="p-4 font-medium text-gray-600">Máy hiện tại</th>
+                      <th className="p-4 font-medium text-gray-600">Tình trạng</th>
+                      <th className="p-4 font-medium text-gray-600">Máy muốn đổi</th>
+                      <th className="p-4 font-medium text-gray-600">Trạng thái</th>
+                      <th className="p-4 font-medium text-gray-600">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tradeInRequests.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="p-8 text-center text-gray-500">Chưa có yêu cầu nào</td>
+                      </tr>
+                    ) : (
+                      tradeInRequests.map((req) => (
+                        <tr key={req.id} className="border-b hover:bg-gray-50">
+                          <td className="p-4 font-medium text-gray-900">{req.name} {req.note && <div className="text-xs text-gray-500 font-normal mt-1">Ghi chú: {req.note}</div>}</td>
+                          <td className="p-4 text-sm text-gray-600">{req.phone}</td>
+                          <td className="p-4 font-medium text-gray-900">{req.oldDevice}</td>
+                          <td className="p-4 text-sm text-gray-600">{req.condition}</td>
+                          <td className="p-4 font-medium text-blue-600">{req.newDevice}</td>
+                          <td className="p-4">
+                            <select 
+                              value={req.status}
+                              onChange={(e) => updateTradeInStatus(req.id, e.target.value as any)}
+                              className={`text-sm border rounded p-1 w-full font-medium ${
+                                req.status === 'completed' ? 'bg-green-50 text-green-700 border-green-200' :
+                                req.status === 'processing' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                req.status === 'cancelled' ? 'bg-red-50 text-red-700 border-red-200' :
+                                'bg-yellow-50 text-yellow-700 border-yellow-200'
+                              }`}
+                            >
+                              <option value="pending">Chờ xử lý</option>
+                              <option value="processing">Đang xử lý</option>
+                              <option value="completed">Đã hoàn tất</option>
+                              <option value="cancelled">Đã hủy</option>
+                            </select>
+                            <div className="text-[10px] text-gray-400 mt-1 whitespace-nowrap">
+                              {new Date(req.createdAt).toLocaleString('vi-VN')}
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <button 
+                              onClick={() => {
+                                if (window.confirm('Bạn có chắc chắn muốn xóa yêu cầu này?')) {
+                                  deleteTradeInRequest(req.id);
+                                }
+                              }} 
+                              className="text-red-600 hover:text-red-800 p-1"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'warehouse' && (
           <div>
             <h1 className="text-2xl font-bold mb-6">Quản lý Kho hàng, Chi phí & Lợi nhuận</h1>
@@ -1231,6 +1331,27 @@ export default function Admin() {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Link Instagram</label>
+                    <input 
+                      type="url" 
+                      value={settingsForm.instagramUrl || ''}
+                      onChange={(e) => setSettingsForm({...settingsForm, instagramUrl: e.target.value})}
+                      className="w-full border rounded-md p-2 focus:ring-[#00483d] outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Link TikTok</label>
+                    <input 
+                      type="url" 
+                      value={settingsForm.tiktokUrl || ''}
+                      onChange={(e) => setSettingsForm({...settingsForm, tiktokUrl: e.target.value})}
+                      className="w-full border rounded-md p-2 focus:ring-[#00483d] outline-none" 
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nội dung Footer (Bản quyền)</label>
                   <input 
@@ -1437,15 +1558,15 @@ export default function Admin() {
                     onClick={() => {
                       if (window.confirm('Bạn có chắc chắn muốn khôi phục giao diện mặc định?')) {
                         const defaultTheme = {
-                          topbar: { bg: '#00483d', text: '#ffffff' },
-                          header: { bg: '#00483d', text: '#ffffff' },
-                          menu: { bg: '#00382f', text: '#ffffff' },
+                          topbar: { bg: 'rgb(219, 28, 50)', text: '#ffffff' },
+                          header: { bg: 'rgb(219, 28, 50)', text: '#ffffff' },
+                          menu: { bg: 'rgb(190, 15, 35)', text: '#ffffff' },
                         };
                         setSettingsForm({...settingsForm, theme: defaultTheme});
                         // updateSettings({ theme: defaultTheme });
                       }
                     }}
-                    className="text-[#00483d] font-medium py-2 px-4 rounded-md hover:bg-gray-100"
+                    className="text-[#db1c32] font-medium py-2 px-4 rounded-md hover:bg-gray-100"
                   >
                     Khôi phục màu mặc định
                   </button>

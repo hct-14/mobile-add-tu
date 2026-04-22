@@ -21,6 +21,8 @@ export interface StoreSettings {
   email: string;
   facebookUrl: string;
   zaloUrl: string;
+  instagramUrl?: string; // Added instagram
+  tiktokUrl?: string;    // Added tiktok
   footerText: string;
   warrantyPolicy?: string;
   aboutUsContent?: string;
@@ -35,31 +37,33 @@ interface SettingsState {
 }
 
 const defaultTheme: StoreTheme = {
-  topbar: { bg: '#00483d', text: '#ffffff' },
-  header: { bg: '#00483d', text: '#ffffff' },
-  menu: { bg: '#00382f', text: '#ffffff' },
+  topbar: { bg: 'rgb(219, 28, 50)', text: '#ffffff' },
+  header: { bg: 'rgb(219, 28, 50)', text: '#ffffff' },
+  menu: { bg: 'rgb(190, 15, 35)', text: '#ffffff' },
 };
 
 const defaultSettings: StoreSettings = {
-  storeName: 'HoangHaMobile',
-  phone: '1900 2091',
-  address: 'Số 89 Tam Trinh, Phường Mai Động, Quận Hoàng Mai, Thành Phố Hà Nội, Việt Nam.',
-  email: 'cskh@hoanghamobile.com',
+  storeName: 'AloStore',
+  phone: '0364760807',
+  address: 'Hà Nội, Việt Nam',
+  email: 'cskh@alostore.com',
   facebookUrl: 'https://facebook.com',
   zaloUrl: 'https://zalo.me',
-  footerText: '© 2026 Công ty Cổ phần Xây dựng và Đầu tư Thương mại Hoàng Hà.',
+  instagramUrl: 'https://instagram.com',
+  tiktokUrl: 'https://tiktok.com',
+  footerText: '© 2026 AloStore.',
   theme: defaultTheme,
   aboutUsContent: `<p>Với phương châm <strong>"Uy tín tạo nên thương hiệu"</strong>, AloStore luôn đặt chất lượng sản phẩm và sự hài lòng của khách hàng lên hàng đầu. Mỗi sản phẩm trước khi đến tay khách hàng đều được kiểm tra kỹ lưỡng, đảm bảo hoạt động ổn định và đúng như cam kết.</p>
 <p>AloStore hướng tới trở thành địa chỉ tin cậy về công nghệ tại Quảng Ninh, nơi khách hàng có thể an tâm lựa chọn sản phẩm với mức giá hợp lý và dịch vụ chuyên nghiệp.</p>
-<p class="font-medium text-[#00483d] italic">Chúng tôi không chỉ bán sản phẩm, mà còn mang đến trải nghiệm mua sắm đơn giản – nhanh chóng – đáng tin cậy.</p>`,
-  warrantyPolicy: `<h2>I. Cam kết Lỗi Đổi Liền của Hoàng Hà</h2>
+<p class="font-medium text-[rgb(219,28,50)] italic">Chúng tôi không chỉ bán sản phẩm, mà còn mang đến trải nghiệm mua sắm đơn giản – nhanh chóng – đáng tin cậy.</p>`,
+  warrantyPolicy: `<h2>I. Cam kết Lỗi Đổi Liền của AloStore</h2>
 <p>Trong <strong>30 ngày đầu tiên</strong> kể từ ngày mua hàng, nếu sản phẩm phát sinh lỗi phần cứng do nhà sản xuất, quý khách sẽ được <strong>đổi ngay 1 sản phẩm mới nguyên seal</strong> (cùng model, cùng màu sắc) mà không phát sinh thêm bất kỳ chi phí nào.</p>
 <ul>
   <li><strong>Điều kiện áp dụng:</strong> Sản phẩm giữ nguyên tình trạng ban đầu, vỏ máy không trầy xước, cấn móp, rơi vỡ, không bị vào nước.</li>
   <li>Yêu cầu có đầy đủ hộp, sách hướng dẫn, phụ kiện đi kèm, tem bảo hành (nếu có) và hóa đơn mua hàng hợp lệ.</li>
 </ul>
 
-<h2>II. Chính sách đổi/trả hàng hoá của Hoàng Hà</h2>
+<h2>II. Chính sách đổi/trả hàng hoá của AloStore</h2>
 <p>Đối với các sản phẩm khách hàng mua tại hệ thống, chúng tôi áp dụng quy định trả hàng như sau:</p>
 <ul>
   <li><strong>Trả hàng do lỗi nhà sản xuất:</strong> Trong 30 ngày đầu, quý khách có thể trả lại hàng và được hoàn tiền 100% (nếu không đổi sản phẩm khác hoặc sản phẩm thay thế đã hết hàng).</li>
@@ -71,7 +75,7 @@ const defaultSettings: StoreSettings = {
 <p>Nhằm mang đến tính minh bạch và sự an tâm tuyệt đối, toàn bộ thiết bị bán ra được áp dụng chế độ bảo hành chuẩn của hãng:</p>
 <ol>
   <li><strong>Thời gian bảo hành:</strong> Điện thoại, máy tính bảng được bảo hành chính hãng từ <strong>12 đến 24 tháng</strong> (tùy thuộc vào quy định của từng thương hiệu như Apple, Samsung, Xiaomi,...). Củ sạc, cáp zin theo máy được bảo hành 6 - 12 tháng.</li>
-  <li><strong>Địa điểm bảo hành:</strong> Quý khách có thể mang trực tiếp sản phẩm đến các Trung Tâm Bảo Hành ủy quyền của hãng, hoặc gửi máy tại toàn bộ chi nhánh cửa hàng của Hoàng Hà để được hỗ trợ tiếp nhận.</li>
+  <li><strong>Địa điểm bảo hành:</strong> Quý khách có thể mang trực tiếp sản phẩm đến các Trung Tâm Bảo Hành ủy quyền của hãng, hoặc gửi máy tại toàn bộ chi nhánh cửa hàng của AloStore để được hỗ trợ tiếp nhận.</li>
   <li><strong>Các trường hợp TỪ CHỐI bảo hành (Out of Warranty):</strong>
     <ul>
       <li>Sản phẩm đã qua thời hạn bảo hành ghi nhận trên hệ thống.</li>
@@ -109,7 +113,24 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   subscribeSettings: () => {
     const unsub = onSnapshot(doc(db, 'settings', 'global'), (docSnap) => {
       if (docSnap.exists()) {
-        set({ settings: { ...defaultSettings, ...(docSnap.data() as StoreSettings) } });
+        const data = docSnap.data() as StoreSettings;
+        // Force update to AloStore and new red theme if the user is stuck on HoangHaMobile
+        let needsUpdate = false;
+        if (data.storeName.toLowerCase().includes('hoanghamobile')) {
+          data.storeName = 'AloStore';
+          data.footerText = '© 2026 AloStore.';
+          needsUpdate = true;
+        }
+        if (!data.theme || data.theme.header.bg === '#00483d') {
+          data.theme = defaultTheme;
+          needsUpdate = true;
+        }
+        
+        if (needsUpdate) {
+            setDoc(doc(db, 'settings', 'global'), { ...defaultSettings, ...data });
+        }
+        
+        set({ settings: { ...defaultSettings, ...data } });
       } else {
         setDoc(doc(db, 'settings', 'global'), defaultSettings).catch(console.error);
       }
