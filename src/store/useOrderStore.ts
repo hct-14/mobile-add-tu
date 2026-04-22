@@ -16,10 +16,13 @@ export const useOrderStore = create<OrderStore>((set) => ({
   orders: [],
   addOrder: async (order) => {
     try {
-      const docRef = await addDoc(collection(db, 'orders'), order);
+      // Remove undefined values since Firestore does not support them
+      const cleanOrder = JSON.parse(JSON.stringify(order));
+      const docRef = await addDoc(collection(db, 'orders'), cleanOrder);
       console.log('Order added with ID: ', docRef.id);
     } catch (e) {
       console.error('Error adding order: ', e);
+      throw e;
     }
   },
   updateOrderStatus: async (id, status) => {

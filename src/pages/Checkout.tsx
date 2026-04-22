@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast, Toaster } from 'react-hot-toast';
 import { useCartStore } from '../store/useCartStore';
 import { useOrderStore } from '../store/useOrderStore';
 import { usePromotionStore } from '../store/usePromotionStore';
@@ -96,59 +97,70 @@ export default function Checkout() {
     alert('Áp dụng mã giảm giá thành công!');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const finalTotal = Math.max(0, getTotal() - appliedDiscount);
     
-    addOrder({
-      id: Date.now().toString(),
-      customerName: formData.name,
-      customerPhone: formData.phone,
-      customerAddress: formData.deliveryMethod === 'home' ? formData.address : 'Nhận tại cửa hàng',
-      deliveryMethod: formData.deliveryMethod,
-      note: formData.note,
-      items: items.map(item => {
-        // Track order analytics
-        incrementProductOrder(item.product.id, item.quantity);
-        
-        return {
-          productId: item.product.id,
-          productName: item.product.name,
-          variantId: item.variant.id,
-          variantColor: item.variant.color,
-          variantStorage: item.variant.storage,
-          variantRam: item.variant.ram,
-          variantCondition: item.variant.condition,
-          priceAtOrder: item.variant.price,
-          quantity: item.quantity,
-          productImage: item.product.image,
-          variantImage: item.variant.image
-        };
-      }),
-      total: finalTotal,
-      promotionCode: appliedDiscount > 0 ? couponCode : undefined,
-      discountAmount: appliedDiscount > 0 ? appliedDiscount : undefined,
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    });
+    try {
+      await addOrder({
+        id: Date.now().toString(),
+        customerName: formData.name,
+        customerPhone: formData.phone,
+        customerAddress: formData.deliveryMethod === 'home' ? formData.address : 'Nhận tại cửa hàng',
+        deliveryMethod: formData.deliveryMethod,
+        note: formData.note,
+        items: items.map(item => {
+          // Track order analytics
+          incrementProductOrder(item.product.id, item.quantity);
+          
+          return {
+            productId: item.product.id,
+            productName: item.product.name,
+            variantId: item.variant.id,
+            variantColor: item.variant.color,
+            variantStorage: item.variant.storage,
+            variantRam: item.variant.ram,
+            variantCondition: item.variant.condition,
+            priceAtOrder: item.variant.price,
+            quantity: item.quantity,
+            productImage: item.product.image,
+            variantImage: item.variant.image
+          };
+        }),
+        total: finalTotal,
+        promotionCode: appliedDiscount > 0 ? couponCode : undefined,
+        discountAmount: appliedDiscount > 0 ? appliedDiscount : undefined,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      });
 
-    if (appliedDiscount > 0 && couponCode) {
-      usePromotionStore.getState().incrementUsedCount(couponCode);
+      if (appliedDiscount > 0 && couponCode) {
+        usePromotionStore.getState().incrementUsedCount(couponCode);
+      }
+
+      toast.success('Đặt hàng thành công!');
+      clearCart();
+      navigate('/');
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      toast.error('Đặt hàng thất bại. Vui lòng thử lại.');
     }
-
-    alert('Đặt hàng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.');
-    clearCart();
-    navigate('/');
   };
 
+  React.useEffect(() => {
+    if (items.length === 0) {
+      navigate('/cart');
+    }
+  }, [items.length, navigate]);
+
   if (items.length === 0) {
-    navigate('/cart');
     return null;
   }
 
   return (
     <div className="max-w-5xl mx-auto">
+      <Toaster position="top-right" />
       <h1 className="text-2xl font-bold mb-6">Đặt hàng</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
