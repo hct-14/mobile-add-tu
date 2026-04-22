@@ -41,8 +41,9 @@ export default function SearchComponent({ isMobile = false }: { isMobile?: boole
     <div className={isMobile ? 'relative' : 'relative w-full'} ref={searchRef}>
       <input
         type="text"
-        placeholder="Hôm nay bạn cần tìm gì?"
-        className={`w-full py-2 px-4 pr-10 rounded-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400 ${isMobile ? '' : ''}`}
+        placeholder="Hôm nay bạn cần tìm gì?" 
+        
+        className={`w-full py-2 px-4 pr-10 rounded-full placeholder-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400 ${isMobile ? '' : ''}`}
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
