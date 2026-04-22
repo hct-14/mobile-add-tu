@@ -51,6 +51,12 @@ export default function Admin() {
     fetchWarehouseData();
   }, [fetchWarehouseData]);
 
+  useEffect(() => {
+    const { subscribeOrders } = useOrderStore.getState();
+    const unsub = subscribeOrders();
+    return () => unsub();
+  }, []);
+
   // Modal states
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
