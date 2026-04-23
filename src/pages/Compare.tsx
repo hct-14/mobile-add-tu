@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useCompareStore } from '../store/useCompareStore';
 import { Trash2, ShoppingCart } from 'lucide-react';
 import { useCartStore } from '../store/useCartStore';
+import { getLowestPrice } from '../lib/utils';
 
 export default function Compare() {
   const { compareItems, removeFromCompare, clearCompare } = useCompareStore();
@@ -71,7 +72,7 @@ export default function Compare() {
                   <Link to={`/product/${item.slug}`} className="font-bold text-gray-900 hover:text-[#00483d] mb-2">
                     {item.name}
                   </Link>
-                  <div className="text-red-600 font-bold text-lg mb-4">{formatPrice(item.price)}</div>
+                  <div className="text-red-600 font-bold text-lg mb-4">{formatPrice(getLowestPrice(item))}</div>
                   <button 
                     onClick={() => addItem(item, item.variants[0])}
                     className="flex items-center justify-center w-full bg-[#00483d] text-white py-2 rounded hover:bg-[#00382f] transition-colors"

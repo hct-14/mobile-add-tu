@@ -4,6 +4,7 @@ import { useCompareStore } from '../store/useCompareStore';
 import { Scale } from 'lucide-react';
 import Fuse from 'fuse.js';
 import { useMemo } from 'react';
+import { getLowestPrice } from '../lib/utils';
 
 export default function SearchResults() {
   const [searchParams] = useSearchParams();
@@ -61,11 +62,11 @@ export default function SearchResults() {
                 </button>
                 <Link to={`/product/${product.slug}`} className="block">
                   <div className="aspect-square mb-3 overflow-hidden rounded-md">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                    <img src={product.image} alt={product.name} loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
                   </div>
                   <h3 className="font-medium text-sm text-gray-800 line-clamp-2 mb-2 h-10">{product.name}</h3>
                   <div className="flex flex-col">
-                    <span className="text-red-600 font-bold text-lg">{formatPrice(product.price)}</span>
+                    <span className="text-red-600 font-bold text-lg">{formatPrice(getLowestPrice(product))}</span>
                     {product.originalPrice && (
                       <span className="text-gray-400 text-sm line-through">{formatPrice(product.originalPrice)}</span>
                     )}

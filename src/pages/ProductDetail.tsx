@@ -9,6 +9,7 @@ import { useUserStore } from '../store/useUserStore';
 import { useAnalyticsStore } from '../store/useAnalyticsStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useCampaignStore } from '../store/useCampaignStore';
+import { getLowestPrice } from '../lib/utils';
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -27,8 +28,9 @@ export default function ProductDetail() {
   const activeCampaign = getActiveCampaign();
   const campaignProduct = activeCampaign?.products.find(cp => cp.productId === product?.id);
 
-  const [selectedVariant, setSelectedVariant] = useState(product?.variants[0]);
-  const [activeImage, setActiveImage] = useState(product?.variants[0]?.image || product?.image || product?.images?.[0]);
+  const lowestPriceVariant = product?.variants?.reduce((prev, curr) => (prev.price < curr.price ? prev : curr), product.variants[0]);
+  const [selectedVariant, setSelectedVariant] = useState(lowestPriceVariant);
+  const [activeImage, setActiveImage] = useState(lowestPriceVariant?.image || product?.image || product?.images?.[0]);
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
 
@@ -434,11 +436,11 @@ export default function ProductDetail() {
                 onClick={() => navigate(`/product/${p.slug}`)}
               >
                 <div className="aspect-square mb-3">
-                  <img src={p.images[0]} alt={p.name} className="w-full h-full object-contain mix-blend-multiply" />
+                  <img src={p.images[0]} alt={p.name} loading="lazy" className="w-full h-full object-contain mix-blend-multiply" />
                 </div>
                 <h3 className="font-medium text-sm line-clamp-2 mb-1">{p.name}</h3>
                 <div className="text-red-600 font-bold mb-2">
-                  {formatPrice(p.variants[0]?.price || p.price)}
+                  {formatPrice(getLowestPrice(p))}
                 </div>
               </div>
             ))}
@@ -468,7 +470,7 @@ export default function ProductDetail() {
                   </div>
                   <h3 className="font-medium text-sm line-clamp-2 mb-1">{p.name}</h3>
                   <div className="text-red-600 font-bold mb-2">
-                    {formatPrice(p.variants[0]?.price || p.price)}
+                    {formatPrice(getLowestPrice(p))}
                   </div>
                 </div>
               ))}

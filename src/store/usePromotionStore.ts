@@ -1,56 +1,66 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { Promotion } from '../types';
-
-const defaultPromotions: Promotion[] = [
-  {
-    id: 'p1',
-    code: 'HOANGHA500',
-    discountType: 'fixed',
-    discountAmount: 500000,
-    minOrderValue: 0,
-    description: 'Giảm 500.000đ cho đơn hàng',
-    isActive: true,
-  },
-  {
-    id: 'p2',
-    code: 'APPLE1M',
-    discountType: 'fixed',
-    discountAmount: 1000000,
-    minOrderValue: 0,
-    description: 'Giảm 1.000.000đ cho sản phẩm Apple',
-    isActive: true,
-  }
-];
+import { db } from '../lib/firebase';
+import { collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, increment } from 'firebase/firestore';
+import { toast } from 'react-hot-toast';
 
 interface PromotionStore {
   promotions: Promotion[];
-  addPromotion: (promo: Promotion) => void;
-  updatePromotion: (id: string, promo: Partial<Promotion>) => void;
-  deletePromotion: (id: string) => void;
-  incrementUsedCount: (code: string) => void;
+  addPromotion: (promo: Promotion) => Promise<void>;
+  updatePromotion: (id: string, promo: Partial<Promotion>) => Promise<void>;
+  deletePromotion: (id: string) => Promise<void>;
+  incrementUsedCount: (id: string) => Promise<void>;
+  subscribePromotions: () => () => void;
 }
 
-export const usePromotionStore = create<PromotionStore>()(
-  persist(
-    (set) => ({
-      promotions: defaultPromotions,
-      addPromotion: (promo) => set((state) => ({ promotions: [...state.promotions, promo] })),
-      updatePromotion: (id, updatedPromo) =>
-        set((state) => ({
-          promotions: state.promotions.map((p) => (p.id === id ? { ...p, ...updatedPromo } : p)),
-        })),
-      deletePromotion: (id) =>
-        set((state) => ({ promotions: state.promotions.filter((p) => p.id !== id) })),
-      incrementUsedCount: (code) =>
-        set((state) => ({
-          promotions: state.promotions.map((p) => 
-            p.code === code ? { ...p, usedCount: (p.usedCount || 0) + 1 } : p
-          ),
-        })),
-    }),
-    {
-      name: 'promotion-storage',
+export const usePromotionStore = create<PromotionStore>()((set) => ({
+  promotions: [],
+  addPromotion: async (promo) => {
+    try {
+      if (!promo.id) {
+        promo.id = Date.now().toString();
+      }
+      await setDoc(doc(db, 'promotions', promo.id), promo);
+      toast.success('Thêm mã khuyến mãi thành công');
+    } catch (error) {
+      console.error('Lỗi khi thêm mã khuyến mãi:', error);
+      toast.error('Có lỗi xảy ra khi thêm mã khuyến mãi');
     }
-  )
-);
+  },
+  updatePromotion: async (id, updatedPromo) => {
+    try {
+      await updateDoc(doc(db, 'promotions', id), updatedPromo as any);
+      toast.success('Cập nhật mã khuyến mãi thành công');
+    } catch (error) {
+      console.error('Lỗi cập nhật mã khuyến mãi:', error);
+      toast.error('Có lỗi xảy ra khi cập nhật mã khuyến mãi');
+    }
+  },
+  deletePromotion: async (id) => {
+    try {
+      await deleteDoc(doc(db, 'promotions', id));
+      toast.success('Xóa mã khuyến mãi thành công');
+    } catch (error) {
+      console.error('Lỗi xóa mã khuyến mãi:', error);
+      toast.error('Có lỗi xảy ra khi xóa mã khuyến mãi');
+    }
+  },
+  incrementUsedCount: async (id) => {
+    try {
+      await updateDoc(doc(db, 'promotions', id), {
+        usedCount: increment(1)
+      });
+    } catch (error) {
+      console.error('Lỗi cập nhật số lần sử dụng mã:', error);
+    }
+  },
+  subscribePromotions: () => {
+    const unsub = onSnapshot(collection(db, 'promotions'), (snapshot) => {
+      const promotionsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Promotion));
+      set({ promotions: promotionsData });
+    }, (error) => {
+      console.error('Error fetching promotions:', error);
+    });
+    return unsub;
+  }
+}));

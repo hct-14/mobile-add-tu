@@ -6,6 +6,7 @@ import { useCampaignStore } from '../store/useCampaignStore';
 import { useCategoryStore } from '../store/useCategoryStore';
 import { useCompareStore } from '../store/useCompareStore';
 import { Scale } from 'lucide-react';
+import { getLowestPrice } from '../lib/utils';
 
 export default function Home() {
   const products = useProductStore(state => state.products);
@@ -76,6 +77,7 @@ export default function Home() {
               <img 
                 src={banner.imageUrl} 
                 alt={banner.title} 
+                loading="lazy"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-4 text-white">
@@ -94,12 +96,19 @@ export default function Home() {
             <h2 className="text-2xl font-bold text-white flex items-center">
               <span className="mr-2">⚡</span> {activeCampaign.name}
             </h2>
-            <div className="text-white font-medium bg-black/20 px-3 py-1 rounded-full text-xs md:text-sm">
-              Kết thúc trong: {timeLeft}
+            <div className="flex items-center gap-4">
+              <div className="text-white font-medium bg-black/20 px-3 py-1 rounded-full text-xs md:text-sm">
+                Kết thúc trong: {timeLeft}
+              </div>
+              {activeCampaign.products.length > 5 && (
+                <Link to="/campaign" className="hidden md:inline-flex text-white hover:text-gray-200 text-sm font-medium border border-white/40 px-3 py-1 rounded-full whitespace-nowrap">
+                  Xem tất cả
+                </Link>
+              )}
             </div>
           </div>
           <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 hide-scrollbar">
-            {activeCampaign.products.map((campaignProduct) => {
+            {activeCampaign.products.slice(0, 5).map((campaignProduct) => {
               const product = products.find(p => p.id === campaignProduct.productId);
               if (!product) return null;
               
@@ -124,7 +133,7 @@ export default function Home() {
                   </button>
                   <Link to={`/product/${product.slug}`} className="block">
                     <div className="aspect-square mb-2 md:mb-3 overflow-hidden rounded-md">
-                      <img src={product.image} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                      <img src={product.image} alt={product.name} loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
                     </div>
                     <h3 className="font-medium text-xs md:text-sm text-gray-800 line-clamp-2 mb-1 md:mb-2 h-8 md:h-10">{product.name}</h3>
                     <div className="flex flex-col">
@@ -135,6 +144,16 @@ export default function Home() {
                 </div>
               );
             })}
+            {activeCampaign.products.length > 5 && (
+              <div className="bg-white/10 rounded-lg p-2 md:p-3 relative min-w-[30%] max-w-[30%] md:min-w-[200px] md:w-[200px] snap-start shrink-0 flex items-center justify-center border border-dashed border-white/40 hover:bg-white/20 transition-colors">
+                <Link to="/campaign" className="flex flex-col items-center justify-center text-white h-full w-full">
+                  <div className="w-10 h-10 rounded-full bg-white text-red-600 flex items-center justify-center mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                  </div>
+                  <span className="font-medium text-sm md:text-base">Xem tất cả</span>
+                </Link>
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -167,11 +186,11 @@ export default function Home() {
               )}
               <Link to={`/product/${product.slug}`} className="block">
                 <div className="aspect-square mb-3 overflow-hidden rounded-md">
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                  <img src={product.image} alt={product.name} loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
                 </div>
                 <h3 className="font-medium text-sm text-gray-800 line-clamp-2 mb-2 h-10">{product.name}</h3>
                 <div className="flex flex-col">
-                  <span className="text-red-600 font-bold text-lg">{formatPrice(product.price)}</span>
+                  <span className="text-red-600 font-bold text-lg">{formatPrice(getLowestPrice(product))}</span>
                   {product.originalPrice && (
                     <span className="text-gray-400 text-sm line-through">{formatPrice(product.originalPrice)}</span>
                   )}
@@ -198,7 +217,7 @@ export default function Home() {
                 <div key={product.id} className="bg-white rounded-lg p-3 border border-gray-100">
                   <Link to={`/product/${product.slug}`} className="block">
                      <div className="aspect-square mb-2 overflow-hidden rounded-md">
-                       <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                       <img src={product.image} alt={product.name} loading="lazy" className="w-full h-full object-cover" />
                      </div>
                      <h3 className="font-medium text-sm text-gray-800 line-clamp-1">{product.name}</h3>
                   </Link>

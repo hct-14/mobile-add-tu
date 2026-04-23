@@ -10,6 +10,12 @@ import Layout from './components/Layout';
 import AuthProvider from './components/AuthProvider';
 import { useProductStore } from './store/useProductStore';
 import { useSettingsStore } from './store/useSettingsStore';
+import { useCampaignStore } from './store/useCampaignStore';
+import { useWarrantyStore } from './store/useWarrantyStore';
+import { useBannerStore } from './store/useBannerStore';
+import { usePromotionStore } from './store/usePromotionStore';
+import { useCategoryStore } from './store/useCategoryStore';
+import { useAnalyticsStore } from './store/useAnalyticsStore';
 
 const Home = lazy(() => import('./pages/Home'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
@@ -26,19 +32,41 @@ const TradeIn = lazy(() => import('./pages/TradeIn'));
 const Warranty = lazy(() => import('./pages/Warranty'));
 const About = lazy(() => import('./pages/About'));
 const Profile = lazy(() => import('./pages/Profile'));
+const Campaign = lazy(() => import('./pages/Campaign'));
 
 export default function App() {
   const subscribeProducts = useProductStore((state) => state.subscribeProducts);
   const subscribeSettings = useSettingsStore((state) => state.subscribeSettings);
+  const subscribeCampaigns = useCampaignStore((state) => state.subscribeCampaigns);
+  const subscribeWarranties = useWarrantyStore((state) => state.subscribeWarranties);
+  const subscribeBanners = useBannerStore((state) => state.subscribeBanners);
+  const subscribePromotions = usePromotionStore((state) => state.subscribePromotions);
+  const subscribeCategories = useCategoryStore((state) => state.subscribeCategories);
+  const subscribeAnalytics = useAnalyticsStore((state) => state.subscribeAnalytics);
 
   useEffect(() => {
     const unsubProducts = subscribeProducts();
     const unsubSettings = subscribeSettings();
+    const unsubCampaigns = subscribeCampaigns();
+    const unsubWarranties = subscribeWarranties();
+    const unsubBanners = subscribeBanners();
+    const unsubPromotions = subscribePromotions();
+    const unsubCategories = subscribeCategories();
+    const unsubAnalytics = subscribeAnalytics();
     return () => {
       unsubProducts();
       unsubSettings();
+      unsubCampaigns();
+      unsubWarranties();
+      unsubBanners();
+      unsubPromotions();
+      unsubCategories();
+      unsubAnalytics();
     };
-  }, [subscribeProducts, subscribeSettings]);
+  }, [
+    subscribeProducts, subscribeSettings, subscribeCampaigns, subscribeWarranties,
+    subscribeBanners, subscribePromotions, subscribeCategories, subscribeAnalytics
+  ]);
 
   return (
     <BrowserRouter>
@@ -54,6 +82,7 @@ export default function App() {
               <Route path="trade-in" element={<TradeIn />} />
               <Route path="warranty" element={<Warranty />} />
               <Route path="about" element={<About />} />
+              <Route path="campaign" element={<Campaign />} />
               <Route path="stores" element={<div className="p-20 text-center text-xl">Hệ thống cửa hàng đang cập nhật...</div>} />
               <Route path="news" element={<div className="p-20 text-center text-xl">Tin tức đang cập nhật...</div>} />
               <Route path="cart" element={<Cart />} />

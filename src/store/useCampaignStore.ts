@@ -1,65 +1,61 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { db } from '../lib/firebase';
+import { collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { Campaign } from '../types';
+import { toast } from 'react-hot-toast';
 
 interface CampaignStore {
   campaigns: Campaign[];
-  addCampaign: (campaign: Campaign) => void;
-  updateCampaign: (id: string, campaign: Partial<Campaign>) => void;
-  deleteCampaign: (id: string) => void;
+  addCampaign: (campaign: Campaign) => Promise<void>;
+  updateCampaign: (id: string, campaign: Partial<Campaign>) => Promise<void>;
+  deleteCampaign: (id: string) => Promise<void>;
   getActiveCampaign: () => Campaign | undefined;
+  subscribeCampaigns: () => () => void;
 }
 
-export const useCampaignStore = create<CampaignStore>()(
-  persist(
-    (set, get) => ({
-      campaigns: [
-        {
-          id: '1',
-          name: 'Flash Sale Cuối Tuần',
-          endDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-          isActive: true,
-          products: [
-            { productId: '1', flashSalePrice: 20000000 },
-            { productId: '2', flashSalePrice: 25000000 },
-            { productId: '3', flashSalePrice: 15000000 },
-          ]
-        }
-      ],
-      addCampaign: (campaign) => set((state) => ({ campaigns: [...state.campaigns, campaign] })),
-      updateCampaign: (id, campaign) => set((state) => ({
-        campaigns: state.campaigns.map((c) => (c.id === id ? { ...c, ...campaign } : c)),
-      })),
-      deleteCampaign: (id) => set((state) => ({
-        campaigns: state.campaigns.filter((c) => c.id !== id),
-      })),
-      getActiveCampaign: () => {
-        const { campaigns } = get();
-        return campaigns.find(c => c.isActive && new Date(c.endDate) > new Date());
+export const useCampaignStore = create<CampaignStore>()((set, get) => ({
+  campaigns: [],
+  addCampaign: async (campaign) => {
+    try {
+      if (!campaign.id) {
+        campaign.id = Date.now().toString();
       }
-    }),
-    {
-      name: 'campaign-storage',
-      version: 1,
-      migrate: (persistedState: any, version: number) => {
-        if (version === 0) {
-          // Force reset to show flash sale today
-          persistedState.campaigns = [
-            {
-              id: '1',
-              name: 'Giá Sốc Hôm Nay',
-              endDate: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
-              isActive: true,
-              products: [
-                { productId: '1', flashSalePrice: 19990000 },
-                { productId: '2', flashSalePrice: 23990000 },
-                { productId: '3', flashSalePrice: 13990000 },
-              ]
-            }
-          ];
-        }
-        return persistedState as CampaignStore;
-      }
+      await setDoc(doc(db, 'campaigns', campaign.id), campaign);
+      toast.success('Thêm chiến dịch thành công');
+    } catch (error) {
+      console.error(error);
+      toast.error('Lỗi khi thêm chiến dịch');
     }
-  )
-);
+  },
+  updateCampaign: async (id, campaign) => {
+    try {
+      await updateDoc(doc(db, 'campaigns', id), campaign as any);
+      toast.success('Cập nhật chiến dịch thành công');
+    } catch (error) {
+      console.error(error);
+      toast.error('Lỗi khi cập nhật chiến dịch');
+    }
+  },
+  deleteCampaign: async (id) => {
+    try {
+      await deleteDoc(doc(db, 'campaigns', id));
+      toast.success('Xóa chiến dịch thành công');
+    } catch (error) {
+      console.error(error);
+      toast.error('Lỗi khi xóa chiến dịch');
+    }
+  },
+  getActiveCampaign: () => {
+    const { campaigns } = get();
+    return campaigns.find(c => c.isActive && new Date(c.endDate) > new Date());
+  },
+  subscribeCampaigns: () => {
+    const unsub = onSnapshot(collection(db, 'campaigns'), (snapshot) => {
+      const campaignsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Campaign));
+      set({ campaigns: campaignsData });
+    }, (error) => {
+      console.error('Error fetching campaigns:', error);
+    });
+    return unsub;
+  }
+}));

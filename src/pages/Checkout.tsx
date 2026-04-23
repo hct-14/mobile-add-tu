@@ -136,7 +136,10 @@ export default function Checkout() {
       });
 
       if (appliedDiscount > 0 && couponCode) {
-        usePromotionStore.getState().incrementUsedCount(couponCode);
+        const promo = promotions.find(p => p.code === couponCode);
+        if (promo) {
+          usePromotionStore.getState().incrementUsedCount(promo.id);
+        }
       }
 
       toast.success('Đặt hàng thành công!');
