@@ -3,6 +3,12 @@ import { Banner } from '../types';
 import { db } from '../lib/firebase';
 import { collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
+import { firestoreCache } from '../lib/firestoreCache';
+
+// Initialize banners from cache synchronously for instant load
+const getInitialBanners = (): Banner[] => {
+  return firestoreCache.getSync<Banner[]>('banners') || [];
+};
 
 interface BannerStore {
   banners: Banner[];
@@ -13,11 +19,12 @@ interface BannerStore {
 }
 
 export const useBannerStore = create<BannerStore>()((set) => ({
-  banners: [],
+  banners: getInitialBanners(),
   updateBanner: async (id, updatedBanner) => {
     try {
       await updateDoc(doc(db, 'banners', id), updatedBanner as any);
       toast.success('Cập nhật banner thành công');
+      firestoreCache.clearCollection('banners');
     } catch (error) {
       console.error('Lỗi khi cập nhật banner:', error);
       toast.error('Có lỗi xảy ra khi cập nhật banner');
@@ -30,6 +37,7 @@ export const useBannerStore = create<BannerStore>()((set) => ({
       }
       await setDoc(doc(db, 'banners', banner.id), banner);
       toast.success('Thêm banner thành công');
+      firestoreCache.clearCollection('banners');
     } catch (error) {
       console.error('Lỗi khi thêm banner:', error);
       toast.error('Có lỗi xảy ra khi thêm banner');
@@ -39,6 +47,7 @@ export const useBannerStore = create<BannerStore>()((set) => ({
     try {
       await deleteDoc(doc(db, 'banners', id));
       toast.success('Xóa banner thành công');
+      firestoreCache.clearCollection('banners');
     } catch (error) {
       console.error('Lỗi khi xóa banner:', error);
       toast.error('Có lỗi xảy ra khi xóa banner');
@@ -48,6 +57,8 @@ export const useBannerStore = create<BannerStore>()((set) => ({
     const unsub = onSnapshot(collection(db, 'banners'), (snapshot) => {
       const bannersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Banner));
       set({ banners: bannersData });
+      // Update cache
+      firestoreCache.set('banners', bannersData, 60 * 60 * 1000); // 1 hour TTL
     }, (error) => {
       console.error('Error fetching banners:', error);
     });

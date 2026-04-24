@@ -3,6 +3,12 @@ import { db } from '../lib/firebase';
 import { collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { Campaign } from '../types';
 import { toast } from 'react-hot-toast';
+import { firestoreCache } from '../lib/firestoreCache';
+
+// Initialize campaigns from cache synchronously for instant load
+const getInitialCampaigns = (): Campaign[] => {
+  return firestoreCache.getSync<Campaign[]>('campaigns') || [];
+};
 
 interface CampaignStore {
   campaigns: Campaign[];
@@ -14,7 +20,7 @@ interface CampaignStore {
 }
 
 export const useCampaignStore = create<CampaignStore>()((set, get) => ({
-  campaigns: [],
+  campaigns: getInitialCampaigns(),
   addCampaign: async (campaign) => {
     try {
       if (!campaign.id) {
@@ -22,6 +28,7 @@ export const useCampaignStore = create<CampaignStore>()((set, get) => ({
       }
       await setDoc(doc(db, 'campaigns', campaign.id), campaign);
       toast.success('Thêm chiến dịch thành công');
+      firestoreCache.clearCollection('campaigns');
     } catch (error) {
       console.error(error);
       toast.error('Lỗi khi thêm chiến dịch');
@@ -31,6 +38,7 @@ export const useCampaignStore = create<CampaignStore>()((set, get) => ({
     try {
       await updateDoc(doc(db, 'campaigns', id), campaign as any);
       toast.success('Cập nhật chiến dịch thành công');
+      firestoreCache.clearCollection('campaigns');
     } catch (error) {
       console.error(error);
       toast.error('Lỗi khi cập nhật chiến dịch');
@@ -40,6 +48,7 @@ export const useCampaignStore = create<CampaignStore>()((set, get) => ({
     try {
       await deleteDoc(doc(db, 'campaigns', id));
       toast.success('Xóa chiến dịch thành công');
+      firestoreCache.clearCollection('campaigns');
     } catch (error) {
       console.error(error);
       toast.error('Lỗi khi xóa chiến dịch');
@@ -53,6 +62,8 @@ export const useCampaignStore = create<CampaignStore>()((set, get) => ({
     const unsub = onSnapshot(collection(db, 'campaigns'), (snapshot) => {
       const campaignsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Campaign));
       set({ campaigns: campaignsData });
+      // Update cache
+      firestoreCache.set('campaigns', campaignsData, 30 * 60 * 1000); // 30 min TTL
     }, (error) => {
       console.error('Error fetching campaigns:', error);
     });

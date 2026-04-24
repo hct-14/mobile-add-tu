@@ -7,8 +7,15 @@ import { useCategoryStore } from "../store/useCategoryStore";
 import { useCompareStore } from "../store/useCompareStore";
 import { Scale } from "lucide-react";
 import { getLowestPrice } from "../lib/utils";
-import { ImageWithFallback } from "../components/ImageWithFallback";
+import { ImageWithFallback, LazyImage } from "../components/ImageWithFallback";
 import { LazySection } from "../components/LazySection";
+import {
+  Skeleton,
+  SkeletonProductCard,
+  SkeletonBanner,
+  SkeletonCategories,
+  SkeletonProductGrid,
+} from "../components/SkeletonLoader";
 
 export default function Home() {
   const { products, isLoading: isProductsLoading } = useProductStore();
@@ -93,11 +100,32 @@ export default function Home() {
     });
   }, [categories]);
 
+  // Optimized initial items - only load what user sees first
+  const INITIAL_PRODUCTS_COUNT = 10;
+
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#00483d] mb-4"></div>
-        <div className="text-lg text-gray-600 font-medium tracking-wide">Đang tải xin chờ chút...</div>
+      <div className="space-y-8 px-4">
+        {/* Hero Banner Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <SkeletonBanner className="md:col-span-2 aspect-[2/1]" />
+          <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
+            <SkeletonBanner className="aspect-[2/1]" />
+            <SkeletonBanner className="aspect-[2/1] hidden md:block" />
+          </div>
+        </div>
+
+        {/* Categories Skeleton */}
+        <section>
+          <Skeleton className="h-6 w-40 mb-4" />
+          <SkeletonCategories count={6} />
+        </section>
+
+        {/* Products Skeleton */}
+        <section>
+          <Skeleton className="h-6 w-32 mb-4" />
+          <SkeletonProductGrid count={INITIAL_PRODUCTS_COUNT} />
+        </section>
       </div>
     );
   }
@@ -112,26 +140,40 @@ export default function Home() {
     <div className="space-y-8">
       {/* Preload High Priority Images */}
       {heroBanner && (
-        <link rel="preload" href={heroBanner.imageUrl} as="image" fetchPriority="high" />
+        <link
+          rel="preload"
+          href={heroBanner.imageUrl}
+          as="image"
+          fetchPriority="high"
+          key="preload-hero"
+        />
       )}
-      {subBanners.map(banner => (
-         <link key={`preload-${banner.id}`} rel="preload" href={banner.imageUrl} as="image" fetchPriority="high" />
+      {subBanners.slice(0, 1).map((banner) => (
+        <link
+          key={`preload-sub-${banner.id}`}
+          rel="preload"
+          href={banner.imageUrl}
+          as="image"
+          fetchPriority="high"
+        />
       ))}
-      
+
       {/* Hero Banner */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {heroBanner && (
           <Link
             to={heroBanner.link}
-            className="md:col-span-2 bg-gray-200 rounded-xl overflow-hidden aspect-[2/1] relative block"
+            className="md:col-span-2 rounded-xl overflow-hidden aspect-[2/1] relative block"
+            style={{ backgroundColor: 'rgb(188 179 180)' }}
           >
             <ImageWithFallback
               src={heroBanner.imageUrl}
               alt={heroBanner.title}
               loading="eager"
               fetchPriority="high"
-              decoding="async"
+              decoding="sync"
               className="w-full h-full object-cover"
+              useBlur={false}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-6 text-white">
               <h2 className="text-3xl font-bold mb-2">{heroBanner.title}</h2>
@@ -144,14 +186,15 @@ export default function Home() {
             <Link
               key={banner.id}
               to={banner.link}
-              className="bg-gray-200 rounded-xl overflow-hidden aspect-[2/1] relative block"
+              className="rounded-xl overflow-hidden aspect-[2/1] relative block"
+              style={{ backgroundColor: 'rgb(188 179 180)' }}
             >
               <ImageWithFallback
                 src={banner.imageUrl}
                 alt={banner.title}
                 loading="eager"
                 fetchPriority="high"
-                decoding="async"
+                decoding="sync"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-4 text-white">
@@ -246,7 +289,8 @@ export default function Home() {
                         alt={product.name}
                         loading="eager"
                         fetchPriority="high"
-                        decoding="async"
+                        decoding="sync"
+                        useBlur={false}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                       />
                     </div>
@@ -349,7 +393,7 @@ export default function Home() {
                           alt={product.name}
                           loading={index < 3 ? "eager" : "lazy"}
                           fetchPriority={index < 3 ? "high" : "auto"}
-                          decoding="async"
+                          decoding="sync"
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -409,7 +453,7 @@ export default function Home() {
                       alt={product.name}
                       loading={index < 10 ? "eager" : "lazy"}
                       fetchPriority={index < 10 ? "high" : "auto"}
-                      decoding="async"
+                      decoding="sync"
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     />
                   </div>

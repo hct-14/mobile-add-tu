@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Banner } from '../../types';
 import { Upload } from 'lucide-react';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../../lib/firebase';
+import { uploadFileToCloudinary } from '../../lib/cloudinaryUpload';
 import { toast } from 'react-hot-toast';
-import { compressImage } from '../../lib/imageUtils';
 
 interface BannerModalProps {
   isOpen: boolean;
@@ -48,13 +46,10 @@ export default function BannerModal({ isOpen, onClose, onSave, initialData }: Ba
     const file = e.target.files?.[0];
     if (file) {
       setIsUploading(true);
-      const toastId = toast.loading('Đang nén và tải ảnh banner lên...');
+      const toastId = toast.loading('Đang tải ảnh banner lên...');
       try {
-        const compressedFile = await compressImage(file, 1920, 1080); // Higher max-width for banners
-        const storageRef = ref(storage, `banners/${Date.now()}_${compressedFile.name}`);
-        await uploadBytes(storageRef, compressedFile);
-        const downloadUrl = await getDownloadURL(storageRef);
-        setFormData({ ...formData, imageUrl: downloadUrl });
+        const result = await uploadFileToCloudinary(file, 'banners');
+        setFormData({ ...formData, imageUrl: result.url });
         toast.success('Tải ảnh banner thành công', { id: toastId });
       } catch (error) {
         console.error("Lỗi upload: ", error);

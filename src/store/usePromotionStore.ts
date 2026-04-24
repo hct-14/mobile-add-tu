@@ -3,6 +3,7 @@ import { Promotion } from '../types';
 import { db } from '../lib/firebase';
 import { collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, increment } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
+import { firestoreCache } from '../lib/firestoreCache';
 
 interface PromotionStore {
   promotions: Promotion[];
@@ -13,8 +14,13 @@ interface PromotionStore {
   subscribePromotions: () => () => void;
 }
 
+// Initialize promotions from cache synchronously for instant load
+const getInitialPromotions = (): Promotion[] => {
+  return firestoreCache.getSync<Promotion[]>('promotions') || [];
+};
+
 export const usePromotionStore = create<PromotionStore>()((set) => ({
-  promotions: [],
+  promotions: getInitialPromotions(),
   addPromotion: async (promo) => {
     try {
       if (!promo.id) {
@@ -58,6 +64,7 @@ export const usePromotionStore = create<PromotionStore>()((set) => ({
     const unsub = onSnapshot(collection(db, 'promotions'), (snapshot) => {
       const promotionsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Promotion));
       set({ promotions: promotionsData });
+      firestoreCache.set('promotions', promotionsData, 30 * 60 * 1000); // 30 min TTL
     }, (error) => {
       console.error('Error fetching promotions:', error);
     });

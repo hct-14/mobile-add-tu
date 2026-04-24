@@ -2,10 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Product, ProductVariant } from '../../types';
 import { Plus, Trash2, Upload } from 'lucide-react';
 import { useCategoryStore } from '../../store/useCategoryStore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../../lib/firebase';
+import { uploadFileToCloudinary } from '../../lib/cloudinaryUpload';
 import { toast } from 'react-hot-toast';
-import { compressImage } from '../../lib/imageUtils';
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -103,11 +101,8 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
       setIsUploading(true);
       const toastId = toast.loading('Đang nén và tải ảnh lên...');
       try {
-        const compressedFile = await compressImage(file);
-        const storageRef = ref(storage, `products/variants/${Date.now()}_${compressedFile.name}`);
-        await uploadBytes(storageRef, compressedFile);
-        const downloadUrl = await getDownloadURL(storageRef);
-        handleVariantChange(index, 'image', downloadUrl);
+        const result = await uploadFileToCloudinary(file, 'products/variants');
+        handleVariantChange(index, 'image', result.url);
         toast.success('Tải ảnh biến thể thành công', { id: toastId });
       } catch (error) {
         console.error("Lỗi upload: ", error);
@@ -140,11 +135,8 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
       setIsUploading(true);
       const toastId = toast.loading('Đang nén và tải ảnh chính lên...');
       try {
-        const compressedFile = await compressImage(file);
-        const storageRef = ref(storage, `products/main/${Date.now()}_${compressedFile.name}`);
-        await uploadBytes(storageRef, compressedFile);
-        const downloadUrl = await getDownloadURL(storageRef);
-        setFormData({ ...formData, image: downloadUrl });
+        const result = await uploadFileToCloudinary(file, 'products/main');
+        setFormData({ ...formData, image: result.url });
         toast.success('Tải ảnh chính thành công', { id: toastId });
       } catch (error) {
         console.error("Lỗi upload: ", error);
@@ -164,10 +156,8 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
 
     try {
       const uploadPromises = files.map(async (file) => {
-        const compressedFile = await compressImage(file);
-        const storageRef = ref(storage, `products/gallery/${Date.now()}_${compressedFile.name}`);
-        await uploadBytes(storageRef, compressedFile);
-        return getDownloadURL(storageRef);
+        const result = await uploadFileToCloudinary(file, 'products/gallery');
+        return result.url;
       });
 
       const urls = await Promise.all(uploadPromises);

@@ -1,11 +1,9 @@
 rules_version = '2';
 service firebase.storage {
-  match /buckets/alostore-61726.firebasestorage.app {
-    
-    // Allow all read and write for setup
+  match /b/{bucket}/o {
     match /{allPaths=**} {
       allow read: if true;
-      allow write: if true;
+      allow write: if request.auth != null;
     }
   }
 }

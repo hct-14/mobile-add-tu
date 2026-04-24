@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { db } from '../lib/firebase';
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
+import { firestoreCache } from '../lib/firestoreCache';
 
 export interface ObjectColors {
   bg: string;
@@ -21,8 +22,8 @@ export interface StoreSettings {
   email: string;
   facebookUrl: string;
   zaloUrl: string;
-  instagramUrl?: string; // Added instagram
-  tiktokUrl?: string;    // Added tiktok
+  instagramUrl?: string;
+  tiktokUrl?: string;
   footerText: string;
   warrantyPolicy?: string;
   aboutUsContent?: string;
@@ -57,7 +58,7 @@ const defaultSettings: StoreSettings = {
 <p>AloStore hướng tới trở thành địa chỉ tin cậy về công nghệ tại Quảng Ninh, nơi khách hàng có thể an tâm lựa chọn sản phẩm với mức giá hợp lý và dịch vụ chuyên nghiệp.</p>
 <p class="font-medium text-[rgb(219,28,50)] italic">Chúng tôi không chỉ bán sản phẩm, mà còn mang đến trải nghiệm mua sắm đơn giản – nhanh chóng – đáng tin cậy.</p>`,
   warrantyPolicy: `<h2>I. Cam kết Lỗi Đổi Liền của AloStore</h2>
-<p>Trong <strong>30 ngày đầu tiên</strong> kể từ ngày mua hàng, nếu sản phẩm phát sinh lỗi phần cứng do nhà sản xuất, quý khách sẽ được <strong>đổi ngay 1 sản phẩm mới nguyên seal</strong> (cùng model, cùng màu sắc) mà không phát sinh thêm bất kỳ chi phí nào.</p>
+<p>Trong <strong>30 ngày đầu tiên</strong> kể từ ngày mua hàng, nếu sản phẩm phát sinh lỗi phần cứng do nhà sản xuất, quý khách sẽ được <strong>đổi ngay 1 sản phẩm mới nguyên seal</strong> (cùng model, cùng màu sắc) mà không phát sinh thêm bất kỳchi phí nào.</p>
 <ul>
   <li><strong>Điều kiện áp dụng:</strong> Sản phẩm giữ nguyên tình trạng ban đầu, vỏ máy không trầy xước, cấn móp, rơi vỡ, không bị vào nước.</li>
   <li>Yêu cầu có đầy đủ hộp, sách hướng dẫn, phụ kiện đi kèm, tem bảo hành (nếu có) và hóa đơn mua hàng hợp lệ.</li>
@@ -87,12 +88,19 @@ const defaultSettings: StoreSettings = {
 </ol>`,
 };
 
+// Initialize settings from cache synchronously for instant load
+const getInitialSettings = (): StoreSettings => {
+  const cached = firestoreCache.getSync<StoreSettings>('settings');
+  return cached ? { ...defaultSettings, ...cached } : defaultSettings;
+};
+
 export const useSettingsStore = create<SettingsState>()((set, get) => ({
-  settings: defaultSettings,
+  settings: getInitialSettings(),
   updateSettings: async (newSettings) => {
     try {
       const merged = { ...get().settings, ...newSettings };
       await setDoc(doc(db, 'settings', 'global'), merged);
+      firestoreCache.set('settings', merged, 60 * 60 * 1000);
     } catch (error) {
       console.error(error);
       toast.error('Lỗi khi lưu cài đặt');
@@ -106,6 +114,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
         theme: { ...(current.theme || defaultTheme), ...newTheme } 
       };
       await setDoc(doc(db, 'settings', 'global'), merged);
+      firestoreCache.set('settings', merged, 60 * 60 * 1000);
     } catch (error) {
       console.error(error);
     }
@@ -130,7 +139,9 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
             setDoc(doc(db, 'settings', 'global'), { ...defaultSettings, ...data });
         }
         
-        set({ settings: { ...defaultSettings, ...data } });
+        const mergedSettings = { ...defaultSettings, ...data };
+        set({ settings: mergedSettings });
+        firestoreCache.set('settings', mergedSettings, 10 * 60 * 1000);
       } else {
         setDoc(doc(db, 'settings', 'global'), defaultSettings).catch(console.error);
       }

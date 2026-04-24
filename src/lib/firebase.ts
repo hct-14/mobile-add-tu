@@ -1,13 +1,39 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, enableIndexedDbPersistence, connectDatabaseEmulator } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
+
+// Enable offline persistence for faster subsequent loads
+let dbInstance: ReturnType<typeof getFirestore> | null = null;
+
+async function getDb() {
+  if (!dbInstance) {
+    dbInstance = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+    
+    // Try to enable persistence, but don't fail if it doesn't work
+    try {
+      await enableIndexedDbPersistence(dbInstance);
+      console.log('Firestore persistence enabled');
+    } catch (err: any) {
+      if (err.code === 'failed-precondition') {
+        console.log('Persistence failed: multiple tabs open');
+      } else if (err.code === 'unimplemented') {
+        console.log('Persistence not available in this browser');
+      }
+    }
+  }
+  return dbInstance;
+}
+
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth();
 export const storage = getStorage(app);
+
+// Pre-warm the connection on app load
+getDb().catch(console.error);
 
 export enum OperationType {
   CREATE = 'create',

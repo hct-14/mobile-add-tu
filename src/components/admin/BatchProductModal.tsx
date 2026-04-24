@@ -1,58 +1,19 @@
 import { useState, useRef } from 'react';
 import { X, Upload, FileSpreadsheet, Plus, Trash2, Save, AlertCircle, Loader2 } from 'lucide-react';
-import { Product, ProductImage } from '../../types';
+import { Product } from '../../types';
 import { toast } from 'react-hot-toast';
+import { uploadFileToCloudinary } from '../../lib/cloudinaryUpload';
+
+interface ProductImage {
+  url: string;
+  path: string;
+}
 
 const MAX_IMAGE_SIZE_KB = 800;
 
-async function processImageFile(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-        
-        const maxDim = 1200;
-        if (width > maxDim || height > maxDim) {
-          const ratio = Math.min(maxDim / width, maxDim / height);
-          width = Math.floor(width * ratio);
-          height = Math.floor(height * ratio);
-        }
-        
-        canvas.width = width;
-        canvas.height = height;
-        
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          reject(new Error('Canvas error'));
-          return;
-        }
-        
-        ctx.drawImage(img, 0, 0, width, height);
-        
-        let quality = 0.85;
-        const tryCompress = () => {
-          const dataUrl = canvas.toDataURL('image/jpeg', quality);
-          const sizeKB = Math.round((dataUrl.split(',')[1]?.length || 0) * 0.75 / 1024);
-          
-          if (sizeKB <= MAX_IMAGE_SIZE_KB || quality <= 0.4) {
-            resolve(dataUrl);
-          } else {
-            quality -= 0.1;
-            tryCompress();
-          }
-        };
-        tryCompress();
-      };
-      img.onerror = () => reject(new Error('Image load error'));
-      img.src = e.target?.result as string;
-    };
-    reader.onerror = () => reject(new Error('File read error'));
-    reader.readAsDataURL(file);
-  });
+async function processImageFile(file: File): Promise<{ url: string; path: string }> {
+  const result = await uploadFileToCloudinary(file, 'products/batch');
+  return { url: result.url, path: result.publicId };
 }
 
 interface BatchProductModalProps {
@@ -82,6 +43,7 @@ export default function BatchProductModal({ isOpen, onClose, onSave, categories 
   const [errors, setErrors] = useState<string[]>([]);
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
+  const fileUploadRef = useRef<HTMLInputElement>(null);
 
   function createEmptyProduct(): ProductFormData {
     return {
@@ -122,8 +84,8 @@ export default function BatchProductModal({ isOpen, onClose, onSave, categories 
     try {
       const uploadedImages: ProductImage[] = [];
       for (const file of files) {
-        const dataUrl = await processImageFile(file);
-        uploadedImages.push({ url: dataUrl, path: 'base64' });
+        const result = await processImageFile(file);
+        uploadedImages.push({ url: result.url, path: result.path });
       }
 
       const updated = [...products];
@@ -132,7 +94,7 @@ export default function BatchProductModal({ isOpen, onClose, onSave, categories 
         ...updated[productIndex], 
         images: newImages,
         image: updated[productIndex].image || uploadedImages[0]?.url || '',
-        imagePath: 'base64'
+        imagePath: uploadedImages[0]?.path || ''
       };
       setProducts(updated);
       toast.success(`Đã tải lên ${files.length} ảnh!`);
@@ -150,7 +112,7 @@ export default function BatchProductModal({ isOpen, onClose, onSave, categories 
     updated[productIndex] = { 
       ...updated[productIndex], 
       images: newImages,
-      image: newImages[0] || ''
+      image: newImages[0]?.url || ''
     };
     setProducts(updated);
   };
@@ -216,7 +178,10 @@ export default function BatchProductModal({ isOpen, onClose, onSave, categories 
             category: categoryIdx !== -1 ? cols[categoryIdx] : categories[0] || 'Điện thoại',
             brand: brandIdx !== -1 ? cols[brandIdx] : '',
             description: descIdx !== -1 ? cols[descIdx] : '',
-            stock: stockIdx !== -1 ? parseInt(cols[stockIdx]) || 0 : 0
+            stock: stockIdx !== -1 ? parseInt(cols[stockIdx]) || 0 : 0,
+            image: '',
+            imagePath: '',
+            images: []
           });
         }
 
@@ -259,21 +224,19 @@ export default function BatchProductModal({ isOpen, onClose, onSave, categories 
       price: p.price,
       originalPrice: p.originalPrice || undefined,
       image: p.image || '',
-      imagePath: p.imagePath || '',
-      images: p.images,
+      images: p.images.map(img => img.url), // Convert ProductImage[] to string[]
       category: p.category,
       brand: p.brand,
       description: p.description,
       inStock: p.stock > 0,
-      stock: p.stock,
+      inventoryQuantity: p.stock,
       specs: {},
       variants: [
         {
           id: Date.now().toString() + index + '-v1',
           color: 'Mặc định',
           price: p.price,
-          inStock: p.stock > 0,
-          stock: p.stock
+          inStock: p.stock > 0
         }
       ]
     }));
@@ -336,7 +299,7 @@ Samsung Galaxy S24 Ultra,28990000,32990000,Điện thoại,Samsung,Điện tho�
                 <Upload size={18} />
                 Tải file lên
                 <input 
-                  ref={fileInputRef}
+                  ref={fileUploadRef}
                   type="file" 
                   accept=".csv,.xlsx,.xls"
                   onChange={handleFileUpload}
@@ -376,7 +339,7 @@ Samsung Galaxy S24 Ultra,28990000,32990000,Điện thoại,Samsung,Điện tho�
           </div>
 
           {/* Table Header */}
-          <div className="hidden md:grid grid-cols-12 gap-3 bg-gray-100 rounded-lg p-3 text-sm font-medium text-gray-600">
+          <div className="hidden md:grid grid-cols-12 gap-3 rounded-lg p-3 text-sm font-medium text-gray-600" style={{ backgroundColor: 'rgb(188 179 180)' }}>
             <div className="col-span-3">Tên sản phẩm</div>
             <div className="col-span-2">Giá bán</div>
             <div className="col-span-1">SL</div>
