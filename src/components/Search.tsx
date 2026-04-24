@@ -74,7 +74,7 @@ export default function SearchComponent({ isMobile = false }: { isMobile?: boole
                 setIsOpen(false);
               }}
             >
-              <img src={product.image} alt={product.name} className="w-10 h-10 object-cover rounded mr-3" />
+              <img src={product.image} alt={product.name} loading="lazy" className="w-10 h-10 object-cover rounded mr-3" />
               <span className="text-sm">{product.name}</span>
             </Link>
           ))}

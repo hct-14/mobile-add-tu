@@ -449,7 +449,7 @@ export default function Admin() {
                         <td className="p-4 text-sm text-gray-500">{product.id}</td>
                         <td className="p-4">
                           <div className="w-12 h-12 rounded border overflow-hidden">
-                            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                            <img src={product.image} alt={product.name} loading="lazy" className="w-full h-full object-cover" />
                           </div>
                         </td>
                         <td className="p-4 font-medium text-gray-900">{product.name}</td>
@@ -663,7 +663,7 @@ export default function Admin() {
                                 {order.items.map((item, idx) => (
                                   <div key={idx} className="flex items-center gap-3 bg-white p-2 rounded border">
                                     <div className="w-10 h-10 border rounded overflow-hidden flex-shrink-0">
-                                      <img src={item.variantImage || item.productImage} alt={item.productName} className="w-full h-full object-cover" />
+                                      <img src={item.variantImage || item.productImage} alt={item.productName} loading="lazy" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex-1">
                                       <div className="font-medium">{item.productName}</div>
@@ -778,7 +778,7 @@ export default function Admin() {
                     </div>
                   </div>
                   <div className="aspect-[21/9] w-full bg-gray-100 rounded-lg overflow-hidden relative">
-                    <img src={banner.imageUrl} alt={banner.title} className="w-full h-full object-cover" />
+                    <img src={banner.imageUrl} alt={banner.title} loading="lazy" className="w-full h-full object-cover" />
                   </div>
                   <div className="mt-4 text-sm text-gray-600">
                     <strong>Link:</strong> {banner.link}

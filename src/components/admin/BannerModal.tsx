@@ -4,6 +4,7 @@ import { Upload } from 'lucide-react';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../lib/firebase';
 import { toast } from 'react-hot-toast';
+import { compressImage } from '../../lib/imageUtils';
 
 interface BannerModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface BannerModalProps {
 
 export default function BannerModal({ isOpen, onClose, onSave, initialData }: BannerModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState<Partial<Banner>>({
     imageUrl: '',
     link: '',
@@ -42,18 +44,24 @@ export default function BannerModal({ isOpen, onClose, onSave, initialData }: Ba
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 800000) {
-          toast.error('Kích thước ảnh quá lớn (tối đa 800KB). Vui lòng chọn ảnh khác.');
-          return;
+      setIsUploading(true);
+      const toastId = toast.loading('Đang nén và tải ảnh banner lên...');
+      try {
+        const compressedFile = await compressImage(file, 1920, 1080); // Higher max-width for banners
+        const storageRef = ref(storage, `banners/${Date.now()}_${compressedFile.name}`);
+        await uploadBytes(storageRef, compressedFile);
+        const downloadUrl = await getDownloadURL(storageRef);
+        setFormData({ ...formData, imageUrl: downloadUrl });
+        toast.success('Tải ảnh banner thành công', { id: toastId });
+      } catch (error) {
+        console.error("Lỗi upload: ", error);
+        toast.error('Lỗi tải ảnh lên', { id: toastId });
+      } finally {
+        setIsUploading(false);
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, imageUrl: reader.result as string });
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -104,7 +112,7 @@ export default function BannerModal({ isOpen, onClose, onSave, initialData }: Ba
             </div>
             {formData.imageUrl && (
               <div className="mt-2 w-full h-32 border rounded overflow-hidden">
-                <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                <img src={formData.imageUrl} alt="Preview" loading="lazy" className="w-full h-full object-cover" />
               </div>
             )}
           </div>
@@ -120,8 +128,10 @@ export default function BannerModal({ isOpen, onClose, onSave, initialData }: Ba
             </select>
           </div>
           <div className="flex justify-end space-x-2 mt-6">
-            <button type="button" onClick={onClose} className="px-4 py-2 border rounded hover:bg-gray-50">Hủy</button>
-            <button type="submit" className="px-4 py-2 bg-[#00483d] text-white rounded hover:bg-[#00382f]">Lưu</button>
+            <button type="button" onClick={onClose} className="px-4 py-2 border rounded hover:bg-gray-50" disabled={isUploading}>Hủy</button>
+            <button type="submit" className={`px-4 py-2 text-white rounded ${isUploading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#00483d] hover:bg-[#00382f]'}`} disabled={isUploading}>
+              {isUploading ? 'Đang tải ảnh...' : 'Lưu'}
+            </button>
           </div>
         </form>
       </div>

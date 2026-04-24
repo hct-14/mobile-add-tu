@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 
 interface ProductStore {
   products: Product[];
+  isLoading: boolean;
   setProducts: (products: Product[]) => void;
   addProduct: (product: Product) => Promise<void>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
@@ -17,6 +18,7 @@ interface ProductStore {
 
 export const useProductStore = create<ProductStore>()((set, get) => ({
   products: [],
+  isLoading: true,
   setProducts: (products) => set({ products }),
   
   addProduct: async (product) => {
@@ -81,10 +83,10 @@ export const useProductStore = create<ProductStore>()((set, get) => ({
         prods.push({ id: doc.id, ...doc.data() } as Product);
       });
       
-      set({ products: prods });
+      set({ products: prods, isLoading: false });
     }, (error) => {
       console.error('Lỗi khi lắng nghe sản phẩm', error);
-      set({ products: [] });
+      set({ products: [], isLoading: false });
     });
     return unsubscribe;
   }

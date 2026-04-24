@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Check, Shield, Truck, RotateCcw, Star, PlusSquare, Facebook, MessageCircle, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -103,6 +103,18 @@ export default function ProductDetail() {
     ? Number((product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length).toFixed(1))
     : 0;
 
+  const similarProducts = useMemo(() => {
+    return products
+      .filter(p => p.id !== product.id && (p.category === product.category || p.brand === product.brand))
+      .slice(0, 4);
+  }, [products, product.id, product.category, product.brand]);
+
+  const accessoriesProducts = useMemo(() => {
+    return products
+      .filter(p => p.category === 'Phụ kiện')
+      .slice(0, 4);
+  }, [products]);
+
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
@@ -133,7 +145,7 @@ export default function ProductDetail() {
           {/* Images */}
           <div className="md:col-span-4">
             <div className="aspect-square rounded-xl overflow-hidden border mb-4">
-              <img src={activeImage} alt={product.name} className="w-full h-full object-cover" />
+              <img src={activeImage} alt={product.name} loading="lazy" className="w-full h-full object-cover" />
             </div>
             <div className="flex gap-2 overflow-x-auto">
               {[product.image, ...(product.images || [])].filter(Boolean).map((img, idx) => (
@@ -142,7 +154,7 @@ export default function ProductDetail() {
                   onClick={() => setActiveImage(img)}
                   className={`w-16 h-16 rounded-md border-2 overflow-hidden flex-shrink-0 ${activeImage === img ? 'border-[#00483d]' : 'border-transparent'}`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img src={img} alt="" loading="lazy" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -186,7 +198,7 @@ export default function ProductDetail() {
                   >
                     {variant.image && (
                       <div className="w-12 h-12 rounded border overflow-hidden flex-shrink-0 bg-white">
-                        <img src={variant.image} alt={variant.color} className="w-full h-full object-cover" />
+                        <img src={variant.image} alt={variant.color} loading="lazy" className="w-full h-full object-cover" />
                       </div>
                     )}
                     <div className="flex-1">
@@ -426,10 +438,7 @@ export default function ProductDetail() {
       <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm mb-6">
         <h2 className="text-xl font-bold mb-4">Gợi ý sản phẩm tương tự</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {products
-            .filter(p => p.id !== product.id && (p.category === product.category || p.brand === product.brand))
-            .slice(0, 4)
-            .map(p => (
+          {similarProducts.map(p => (
               <div 
                 key={p.id} 
                 className="border rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer flex flex-col"
@@ -451,17 +460,14 @@ export default function ProductDetail() {
         <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
           <h2 className="text-xl font-bold mb-4">Phụ kiện mua kèm giảm giá</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {products
-              .filter(p => p.category === 'Phụ kiện')
-              .slice(0, 4)
-              .map(p => (
+            {accessoriesProducts.map(p => (
                 <div 
                   key={p.id} 
                   className="border rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer flex flex-col"
                   onClick={() => navigate(`/product/${p.slug}`)}
                 >
                   <div className="aspect-square mb-3 relative">
-                    <img src={p.images[0]} alt={p.name} className="w-full h-full object-contain mix-blend-multiply" />
+                    <img src={p.images[0]} alt={p.name} loading="lazy" className="w-full h-full object-contain mix-blend-multiply" />
                     {p.discountPercentage && (
                       <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-bl-lg rounded-tr-lg">
                         Giảm {p.discountPercentage}%

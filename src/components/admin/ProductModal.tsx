@@ -5,6 +5,7 @@ import { useCategoryStore } from '../../store/useCategoryStore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../lib/firebase';
 import { toast } from 'react-hot-toast';
+import { compressImage } from '../../lib/imageUtils';
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface ProductModalProps {
 
 export default function ProductModal({ isOpen, onClose, onSave, initialData }: ProductModalProps) {
   const { categories } = useCategoryStore();
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
     slug: '',
@@ -95,18 +97,24 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
     setFormData({ ...formData, variants: newVariants });
   };
 
-  const handleVariantImageUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVariantImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 800000) {
-          toast.error('Kích thước ảnh quá lớn (tối đa 800KB). Vui lòng chọn ảnh khác.');
-          return;
+      setIsUploading(true);
+      const toastId = toast.loading('Đang nén và tải ảnh lên...');
+      try {
+        const compressedFile = await compressImage(file);
+        const storageRef = ref(storage, `products/variants/${Date.now()}_${compressedFile.name}`);
+        await uploadBytes(storageRef, compressedFile);
+        const downloadUrl = await getDownloadURL(storageRef);
+        handleVariantChange(index, 'image', downloadUrl);
+        toast.success('Tải ảnh biến thể thành công', { id: toastId });
+      } catch (error) {
+        console.error("Lỗi upload: ", error);
+        toast.error('Lỗi khi tải ảnh lên', { id: toastId });
+      } finally {
+        setIsUploading(false);
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        handleVariantChange(index, 'image', reader.result as string);
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -126,45 +134,54 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
     setFormData({ ...formData, variants: newVariants });
   };
 
-  const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMainImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 800000) {
-          toast.error('Kích thước ảnh quá lớn (tối đa 800KB). Vui lòng chọn ảnh khác.');
-          return;
+      setIsUploading(true);
+      const toastId = toast.loading('Đang nén và tải ảnh chính lên...');
+      try {
+        const compressedFile = await compressImage(file);
+        const storageRef = ref(storage, `products/main/${Date.now()}_${compressedFile.name}`);
+        await uploadBytes(storageRef, compressedFile);
+        const downloadUrl = await getDownloadURL(storageRef);
+        setFormData({ ...formData, image: downloadUrl });
+        toast.success('Tải ảnh chính thành công', { id: toastId });
+      } catch (error) {
+        console.error("Lỗi upload: ", error);
+        toast.error('Lỗi tải ảnh lên', { id: toastId });
+      } finally {
+        setIsUploading(false);
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result as string });
-      };
-      reader.readAsDataURL(file);
     }
   };
 
-  const handleGalleryImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files as FileList || []);
     if (!files.length) return;
 
-    // Filter large files
-    const validFiles = files.filter(f => f.size <= 800000);
-    if (validFiles.length < files.length) {
-      toast.error('Vài ảnh bị bỏ qua do kích thước quá lớn (tối đa 800KB/ảnh).');
-    }
+    setIsUploading(true);
+    const toastId = toast.loading(`Đang nén và tải ${files.length} ảnh lên...`);
 
-    Promise.all(
-      validFiles.map((file) => {
-        return new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
-        });
-      })
-    ).then((base64Images) => {
+    try {
+      const uploadPromises = files.map(async (file) => {
+        const compressedFile = await compressImage(file);
+        const storageRef = ref(storage, `products/gallery/${Date.now()}_${compressedFile.name}`);
+        await uploadBytes(storageRef, compressedFile);
+        return getDownloadURL(storageRef);
+      });
+
+      const urls = await Promise.all(uploadPromises);
       setFormData(prev => ({
         ...prev,
-        images: [...(prev.images || []), ...base64Images]
+        images: [...(prev.images || []), ...urls]
       }));
-    });
+      toast.success('Tải toàn bộ ảnh thành công', { id: toastId });
+    } catch (error) {
+      console.error("Lỗi upload bộ sưu tập: ", error);
+      toast.error('Có lỗi xảy ra khi tải ảnh lên', { id: toastId });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const removeGalleryImage = (index: number) => {
@@ -369,7 +386,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
               </div>
               {formData.image && (
                 <div className="mt-2 w-20 h-20 border rounded overflow-hidden">
-                  <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                  <img src={formData.image} alt="Preview" loading="lazy" className="w-full h-full object-cover" />
                 </div>
               )}
             </div>
@@ -379,7 +396,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
               <div className="flex flex-wrap gap-2 mb-2">
                 {(formData.images || []).map((img, idx) => (
                   <div key={idx} className="relative w-20 h-20 border rounded overflow-hidden group">
-                    <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                    <img src={img} alt={`Gallery ${idx}`} loading="lazy" className="w-full h-full object-cover" />
                     <button 
                       type="button" 
                       onClick={() => removeGalleryImage(idx)}
@@ -543,7 +560,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
                         </label>
                         {variant.image && (
                           <div className="w-10 h-10 border rounded overflow-hidden flex-shrink-0">
-                            <img src={variant.image} alt="Variant" className="w-full h-full object-cover" />
+                            <img src={variant.image} alt="Variant" loading="lazy" className="w-full h-full object-cover" />
                           </div>
                         )}
                       </div>
@@ -570,8 +587,10 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
           </div>
 
           <div className="flex justify-end space-x-2 mt-6 border-t pt-4">
-            <button type="button" onClick={onClose} className="px-4 py-2 border rounded hover:bg-gray-50">Hủy</button>
-            <button type="submit" className="px-4 py-2 bg-[#00483d] text-white rounded hover:bg-[#00382f]">Lưu sản phẩm</button>
+            <button type="button" onClick={onClose} className="px-4 py-2 border rounded hover:bg-gray-50" disabled={isUploading}>Hủy</button>
+            <button type="submit" className={`px-4 py-2 text-white rounded ${isUploading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#00483d] hover:bg-[#00382f]'}`} disabled={isUploading}>
+              {isUploading ? 'Đang tải ảnh...' : 'Lưu sản phẩm'}
+            </button>
           </div>
         </form>
       </div>

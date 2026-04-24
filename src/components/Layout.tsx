@@ -144,9 +144,7 @@ export default function Layout() {
             style={{ backgroundColor: settings.theme?.menu.bg, color: settings.theme?.menu.text }}
           >
             <Link to="/category/dien-thoai" className="block py-2 border-b border-white/10">ĐIỆN THOẠI</Link>
-            <Link to="/category/laptop" className="block py-2 border-b border-white/10">LAPTOP</Link>
             <Link to="/category/apple" className="block py-2 border-b border-white/10">APPLE</Link>
-            <Link to="/category/tablet" className="block py-2 border-b border-white/10">TABLET</Link>
             <Link to="/category/phu-kien" className="block py-2 border-b border-white/10">PHỤ KIỆN</Link>
             <Link to="/category/hang-cu" className="block py-2 border-b border-white/10">MÁY CŨ GIÁ RẺ</Link>
             <Link to="/trade-in" className="block py-2 border-b border-white/10">THU CŨ ĐỔI MỚI</Link>
@@ -166,9 +164,7 @@ export default function Layout() {
         >
           <div className="container mx-auto px-4 max-w-7xl flex space-x-6 overflow-x-auto py-2 text-sm font-medium">
             <Link to="/category/dien-thoai" className="hover:opacity-80 whitespace-nowrap">ĐIỆN THOẠI</Link>
-            <Link to="/category/laptop" className="hover:opacity-80 whitespace-nowrap">LAPTOP</Link>
             <Link to="/category/apple" className="hover:opacity-80 whitespace-nowrap">APPLE</Link>
-            <Link to="/category/tablet" className="hover:opacity-80 whitespace-nowrap">TABLET</Link>
             <Link to="/category/phu-kien" className="hover:opacity-80 whitespace-nowrap">PHỤ KIỆN</Link>
             <Link to="/category/hang-cu" className="hover:opacity-80 whitespace-nowrap">MÁY CŨ GIÁ RẺ</Link>
             <Link to="/trade-in" className="hover:opacity-80 whitespace-nowrap">THU CŨ ĐỔI MỚI</Link>

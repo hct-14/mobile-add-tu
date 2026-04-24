@@ -67,7 +67,7 @@ export default function Compare() {
                 </button>
                 <div className="flex flex-col items-center text-center">
                   <div className="w-32 h-32 mb-4">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                    <img src={item.image} alt={item.name} loading="lazy" className="w-full h-full object-contain" />
                   </div>
                   <Link to={`/product/${item.slug}`} className="font-bold text-gray-900 hover:text-[#00483d] mb-2">
                     {item.name}

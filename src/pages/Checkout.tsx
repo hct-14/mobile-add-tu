@@ -264,7 +264,7 @@ export default function Checkout() {
               {items.map((item) => (
                 <div key={`${item.product.id}-${item.variant.id}`} className="flex gap-3">
                   <div className="w-16 h-16 border rounded bg-white flex-shrink-0">
-                    <img src={item.variant.image || item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
+                    <img src={item.variant.image || item.product.image} alt={item.product.name} loading="lazy" className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 text-sm">
                     <div className="font-medium line-clamp-2">{item.product.name}</div>

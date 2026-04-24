@@ -49,7 +49,7 @@ export default function Cart() {
           {items.map((item) => (
             <div key={`${item.product.id}-${item.variant.id}`} className="flex flex-col md:flex-row py-4 border-b last:border-0 gap-4">
               <div className="w-24 h-24 flex-shrink-0 border rounded-md overflow-hidden bg-white">
-                <img src={item.variant.image || item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
+                <img src={item.variant.image || item.product.image} alt={item.product.name} loading="lazy" className="w-full h-full object-cover" />
               </div>
               
               <div className="flex-1 flex flex-col justify-between">

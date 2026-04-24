@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 
 interface CategoryStore {
   categories: Category[];
+  isLoading: boolean;
   addCategory: (category: Category) => Promise<void>;
   updateCategory: (id: string, category: Category) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
@@ -14,6 +15,7 @@ interface CategoryStore {
 
 export const useCategoryStore = create<CategoryStore>()((set) => ({
   categories: [],
+  isLoading: true,
   addCategory: async (category) => {
     try {
       if (!category.id) {
@@ -47,9 +49,10 @@ export const useCategoryStore = create<CategoryStore>()((set) => ({
   subscribeCategories: () => {
     const unsub = onSnapshot(collection(db, 'categories'), (snapshot) => {
       const categoriesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
-      set({ categories: categoriesData });
+      set({ categories: categoriesData, isLoading: false });
     }, (error) => {
       console.error('Error fetching categories:', error);
+      set({ isLoading: false });
     });
     return unsub;
   }

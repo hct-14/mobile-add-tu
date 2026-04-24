@@ -62,7 +62,7 @@ export default function Orders() {
                 {order.items.map((item, idx) => (
                   <div key={idx} className="flex gap-3 text-sm">
                     <div className="w-12 h-12 border rounded">
-                      <img src={item.variantImage || item.productImage} alt={item.productName} className="w-full h-full object-cover" />
+                      <img src={item.variantImage || item.productImage} alt={item.productName} loading="lazy" className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <div className="font-medium">{item.productName}</div>

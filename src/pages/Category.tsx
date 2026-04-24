@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useProductStore } from '../store/useProductStore';
 import { useCompareStore } from '../store/useCompareStore';
@@ -26,79 +26,94 @@ export default function Category() {
   
   useEffect(() => {
     setLoading(true);
+    // Reset filters on category change
+    setBrandFilter('all');
+    setPriceFilter('all');
+    setSortFilter('default');
+    setConditionFilter('all');
+    setRamFilter('all');
+    setStorageFilter('all');
+    
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 500);
+    }, 400);
     return () => clearTimeout(timer);
-  }, [slug, brandFilter, priceFilter, sortFilter, conditionFilter, ramFilter, storageFilter]);
+  }, [slug]);
 
   // Use dynamic category name
   const allCategories = useCategoryStore(state => state.categories);
-  const currentCategory = allCategories.find(c => c.slug === slug);
-  const categoryName = currentCategory ? currentCategory.name : (slug === 'hang-cu' ? 'Hàng cũ' : 'Sản phẩm');
   
-  let products = allProducts.filter(p => {
-    if (slug === 'hang-cu') return p.isUsed;
-    if (slug === 'apple') return p.brand === 'Apple';
-    return p.category.toLowerCase() === categoryName.toLowerCase();
-  });
-
-  // Apply Brand Filter
-  if (brandFilter !== 'all') {
-    products = products.filter(p => p.brand === brandFilter);
-  }
-
-  // Apply Condition Filter
-  if (conditionFilter !== 'all') {
-    const isUsed = conditionFilter === 'used';
-    products = products.filter(p => !!p.isUsed === isUsed);
-  }
-
-  // Apply RAM Filter
-  if (ramFilter !== 'all') {
-    products = products.filter(p => {
-      // Check specs or variants for RAM
-      if (p.specs?.ram === ramFilter) return true;
-      if (p.variants?.some(v => v.ram === ramFilter)) return true;
-      return false;
-    });
-  }
-
-  // Apply Storage Filter
-  if (storageFilter !== 'all') {
-    products = products.filter(p => {
-      if (p.specs?.storage === storageFilter) return true;
-      if (p.variants?.some(v => v.storage === storageFilter)) return true;
-      return false;
-    });
-  }
-
-  // Apply Price Filter
-  if (priceFilter !== 'all') {
-    products = products.filter(p => {
-      if (priceFilter === 'under-5') return p.price < 5000000;
-      if (priceFilter === '5-10') return p.price >= 5000000 && p.price <= 10000000;
-      if (priceFilter === '10-20') return p.price > 10000000 && p.price <= 20000000;
-      if (priceFilter === 'over-20') return p.price > 20000000;
-      return true;
-    });
-  }
-
-  // Apply Sorting
-  if (sortFilter === 'price-asc') {
-    products.sort((a, b) => a.price - b.price);
-  } else if (sortFilter === 'price-desc') {
-    products.sort((a, b) => b.price - a.price);
-  }
-
-  // Extract unique brands for filter dropdown
-  const uniqueBrands = Array.from(new Set(allProducts.filter(p => p.category.toLowerCase() === categoryName.toLowerCase()).map(p => p.brand)));
+  const categoryName = useMemo(() => {
+    const currentCategory = allCategories.find(c => c.slug === slug);
+    return currentCategory ? currentCategory.name : (slug === 'hang-cu' ? 'Hàng cũ' : 'Sản phẩm');
+  }, [allCategories, slug]);
   
-  // Extract unique RAMs
-  const uniqueRams = Array.from(new Set(allProducts.flatMap(p => [p.specs?.ram, ...(p.variants?.map(v => v.ram) || [])]).filter(Boolean)));
-  
-  // Extract unique Storages
-  const uniqueStorages = Array.from(new Set(allProducts.flatMap(p => [p.specs?.storage, ...(p.variants?.map(v => v.storage) || [])]).filter(Boolean)));
+  const { filteredProducts, uniqueBrands, uniqueRams, uniqueStorages } = useMemo(() => {
+    // 1. Filter base products by category/slug
+    let baseProducts = allProducts.filter(p => {
+      if (slug === 'hang-cu') return p.isUsed;
+      if (slug === 'apple') return p.brand === 'Apple';
+      return p.category.toLowerCase() === categoryName.toLowerCase();
+    });
+
+    // 2. Extract unique attributes before applying filters
+    const uBrands = Array.from(new Set(baseProducts.map(p => p.brand)));
+    const uRams = Array.from(new Set(baseProducts.flatMap(p => [p.specs?.ram, ...(p.variants?.map(v => v.ram) || [])]).filter(Boolean)));
+    const uStorages = Array.from(new Set(baseProducts.flatMap(p => [p.specs?.storage, ...(p.variants?.map(v => v.storage) || [])]).filter(Boolean)));
+
+    // 3. Apply active filters
+    let result = [...baseProducts];
+
+    if (brandFilter !== 'all') {
+      result = result.filter(p => p.brand === brandFilter);
+    }
+
+    if (conditionFilter !== 'all') {
+      const isUsed = conditionFilter === 'used';
+      result = result.filter(p => !!p.isUsed === isUsed);
+    }
+
+    if (ramFilter !== 'all') {
+      result = result.filter(p => {
+        if (p.specs?.ram === ramFilter) return true;
+        if (p.variants?.some(v => v.ram === ramFilter)) return true;
+        return false;
+      });
+    }
+
+    if (storageFilter !== 'all') {
+      result = result.filter(p => {
+        if (p.specs?.storage === storageFilter) return true;
+        if (p.variants?.some(v => v.storage === storageFilter)) return true;
+        return false;
+      });
+    }
+
+    if (priceFilter !== 'all') {
+      result = result.filter(p => {
+        if (priceFilter === 'under-5') return p.price < 5000000;
+        if (priceFilter === '5-10') return p.price >= 5000000 && p.price <= 10000000;
+        if (priceFilter === '10-20') return p.price > 10000000 && p.price <= 20000000;
+        if (priceFilter === 'over-20') return p.price > 20000000;
+        return true;
+      });
+    }
+
+    if (sortFilter === 'price-asc') {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sortFilter === 'price-desc') {
+      result.sort((a, b) => b.price - a.price);
+    }
+
+    return { 
+      filteredProducts: result, 
+      uniqueBrands: uBrands, 
+      uniqueRams: uRams, 
+      uniqueStorages: uStorages 
+    };
+  }, [allProducts, categoryName, slug, brandFilter, conditionFilter, ramFilter, storageFilter, priceFilter, sortFilter]);
+
+  const products = filteredProducts;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);

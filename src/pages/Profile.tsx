@@ -128,7 +128,7 @@ export default function Profile() {
                     <div className="space-y-3">
                       {order.items.map((item, idx) => (
                         <div key={idx} className="flex gap-4">
-                          <img src={item.variantImage || item.productImage} alt={item.productName} className="w-16 h-16 object-cover rounded border" />
+                          <img src={item.variantImage || item.productImage} alt={item.productName} loading="lazy" className="w-16 h-16 object-cover rounded border" />
                           <div className="flex-1">
                             <div className="font-medium text-sm">{item.productName}</div>
                             <div className="text-xs text-gray-500 mt-1">

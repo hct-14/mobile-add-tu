@@ -25,7 +25,7 @@ export default function About() {
           />
         </div>
         <div className="hidden md:block rounded-xl overflow-hidden shadow-xl">
-          <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=80" alt="AloStore Store" className="w-full h-[400px] object-cover" />
+          <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=80" alt="AloStore Store" loading="lazy" className="w-full h-[400px] object-cover" />
         </div>
       </div>
 
