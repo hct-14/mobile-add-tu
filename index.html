@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AloStore - Điện thoại chính hãng</title>
     
+    <!-- Critical CSS inline to prevent white flash -->
+    <style>
+      /* Critical styles for instant render */
+      body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #f9fafb; }
+      #root { min-height: 100vh; }
+      .skeleton-header { background: #00483d; }
+      .skeleton-bg { background: #e5e7eb; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+      /* Prevent FOUC */
+      html { visibility: visible; opacity: 1; transition: opacity 0.2s; }
+    </style>
+
     <!-- Preconnect to external resources for faster connections -->
     <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
     <link rel="preconnect" href="https://firestore.googleapis.com" />
@@ -20,10 +32,72 @@
     <!-- Preload critical fonts -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Preload critical JS chunks -->
+    <link rel="modulepreload" href="/src/main.tsx" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <!-- Theme color -->
+    <meta name="theme-color" content="#00483d" />
+    <meta name="color-scheme" content="light" />
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Initial skeleton HTML - renders before JS -->
+    <div id="root">
+      <div class="min-h-screen bg-gray-50">
+        <header class="bg-[#00483d] text-white sticky top-0 z-50 shadow-md">
+          <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+              <div class="w-24 h-8 skeleton-bg rounded"></div>
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 skeleton-bg rounded-full"></div>
+                <div class="w-10 h-10 skeleton-bg rounded-full"></div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <div class="w-full h-10 skeleton-bg rounded-lg"></div>
+            </div>
+          </div>
+        </header>
+        <div class="container mx-auto px-4 pt-4">
+          <div class="w-full h-48 skeleton-bg rounded-xl"></div>
+        </div>
+        <div class="container mx-auto px-4 pt-6">
+          <div class="flex gap-3 overflow-hidden pb-4">
+            <div class="flex flex-col items-center"><div class="w-16 h-16 skeleton-bg rounded-full"></div><div class="w-14 h-3 mt-2 skeleton-bg rounded"></div></div>
+            <div class="flex flex-col items-center"><div class="w-16 h-16 skeleton-bg rounded-full"></div><div class="w-14 h-3 mt-2 skeleton-bg rounded"></div></div>
+            <div class="flex flex-col items-center"><div class="w-16 h-16 skeleton-bg rounded-full"></div><div class="w-14 h-3 mt-2 skeleton-bg rounded"></div></div>
+            <div class="flex flex-col items-center"><div class="w-16 h-16 skeleton-bg rounded-full"></div><div class="w-14 h-3 mt-2 skeleton-bg rounded"></div></div>
+            <div class="flex flex-col items-center"><div class="w-16 h-16 skeleton-bg rounded-full"></div><div class="w-14 h-3 mt-2 skeleton-bg rounded"></div></div>
+            <div class="flex flex-col items-center"><div class="w-16 h-16 skeleton-bg rounded-full"></div><div class="w-14 h-3 mt-2 skeleton-bg rounded"></div></div>
+          </div>
+        </div>
+        <div class="container mx-auto px-4 pt-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-32 h-6 skeleton-bg rounded"></div>
+            <div class="w-20 h-5 skeleton-bg rounded"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white rounded-xl p-3 shadow-sm"><div class="w-full h-32 skeleton-bg rounded-lg"></div><div class="w-full h-4 mt-3 skeleton-bg rounded"></div><div class="w-2/3 h-3 mt-2 skeleton-bg rounded"></div><div class="w-1/2 h-5 mt-2 skeleton-bg rounded"></div></div>
+            <div class="bg-white rounded-xl p-3 shadow-sm"><div class="w-full h-32 skeleton-bg rounded-lg"></div><div class="w-full h-4 mt-3 skeleton-bg rounded"></div><div class="w-2/3 h-3 mt-2 skeleton-bg rounded"></div><div class="w-1/2 h-5 mt-2 skeleton-bg rounded"></div></div>
+            <div class="bg-white rounded-xl p-3 shadow-sm"><div class="w-full h-32 skeleton-bg rounded-lg"></div><div class="w-full h-4 mt-3 skeleton-bg rounded"></div><div class="w-2/3 h-3 mt-2 skeleton-bg rounded"></div><div class="w-1/2 h-5 mt-2 skeleton-bg rounded"></div></div>
+            <div class="bg-white rounded-xl p-3 shadow-sm"><div class="w-full h-32 skeleton-bg rounded-lg"></div><div class="w-full h-4 mt-3 skeleton-bg rounded"></div><div class="w-2/3 h-3 mt-2 skeleton-bg rounded"></div><div class="w-1/2 h-5 mt-2 skeleton-bg rounded"></div></div>
+          </div>
+        </div>
+        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+          <div class="flex justify-around py-2">
+            <div class="flex flex-col items-center"><div class="w-6 h-6 skeleton-bg rounded"></div><div class="w-12 h-2 mt-1 skeleton-bg rounded"></div></div>
+            <div class="flex flex-col items-center"><div class="w-6 h-6 skeleton-bg rounded"></div><div class="w-12 h-2 mt-1 skeleton-bg rounded"></div></div>
+            <div class="flex flex-col items-center"><div class="w-6 h-6 skeleton-bg rounded"></div><div class="w-12 h-2 mt-1 skeleton-bg rounded"></div></div>
+            <div class="flex flex-col items-center"><div class="w-6 h-6 skeleton-bg rounded"></div><div class="w-12 h-2 mt-1 skeleton-bg rounded"></div></div>
+            <div class="flex flex-col items-center"><div class="w-6 h-6 skeleton-bg rounded"></div><div class="w-12 h-2 mt-1 skeleton-bg rounded"></div></div>
+          </div>
+        </nav>
+        <div class="h-20"></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

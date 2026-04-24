@@ -1,0 +1,17 @@
+{
+  "name": "AloStore - Điện thoại chính hãng",
+  "short_name": "AloStore",
+  "description": "Cửa hàng điện thoại chính hãng",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#00483d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

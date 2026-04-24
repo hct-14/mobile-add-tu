@@ -1,6 +1,6 @@
 /**
  * Image utilities - uploads images to Cloudinary
- * Fast, free, and reliable CDN
+ * Automatically converts images to WebP for optimal performance
  */
 
 import { uploadBase64ToCloudinary, uploadFileToCloudinary, type CloudinaryUploadResult } from './cloudinaryUpload';
@@ -19,10 +19,10 @@ export interface UploadProgress {
 type ProgressCallback = (progress: UploadProgress) => void;
 
 /**
- * Compress image file before uploading
- * Returns a compressed File object
+ * Convert image file to WebP format (optimal for web)
+ * Returns a compressed WebP File object
  */
-export async function compressImageFile(
+export async function convertToWebP(
   file: File,
   maxWidth: number = 1200,
   maxHeight: number = 1200,
@@ -66,44 +66,45 @@ export async function compressImageFile(
 
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Convert to blob with quality adjustment
-        const tryConvert = (q: number) => {
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) {
-                resolve(file);
-                return;
-              }
+        // Convert to WebP
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
 
-              // If compressed is larger or quality too low, use original
-              if (blob.size > file.size || q <= 0.3) {
-                resolve(file);
-                return;
-              }
-
-              // If compressed is significantly smaller, use it
-              if (blob.size < file.size * 0.95) {
-                const compressedFile = new File([blob], file.name, {
-                  type: file.type || 'image/jpeg',
-                  lastModified: Date.now(),
-                });
-                resolve(compressedFile);
-              } else {
-                // Try lower quality
-                tryConvert(q - 0.1);
-              }
-            },
-            file.type || 'image/jpeg',
-            q
-          );
-        };
-
-        tryConvert(quality);
+            // Use WebP if it's smaller
+            if (blob.size < file.size * 0.95) {
+              const webpFile = new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), {
+                type: 'image/webp',
+                lastModified: Date.now(),
+              });
+              resolve(webpFile);
+            } else {
+              resolve(file);
+            }
+          },
+          'image/webp',
+          quality
+        );
       };
       img.onerror = () => reject(new Error('Failed to load image'));
     };
     reader.onerror = () => reject(new Error('Failed to read file'));
   });
+}
+
+/**
+ * Compress image file (alias for convertToWebP)
+ */
+export async function compressImageFile(
+  file: File,
+  maxWidth: number = 1200,
+  maxHeight: number = 1200,
+  quality: number = 0.85
+): Promise<File> {
+  return convertToWebP(file, maxWidth, maxHeight, quality);
 }
 
 /**

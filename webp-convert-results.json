@@ -1,0 +1,446 @@
+{
+  "results": [],
+  "errors": [
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036623/products/image/xqzpeotqhlrd2x3vkgia.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036633/products/image/q7cwbbtvoiw0flig6k0g.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036633/products/images/ognriqlv5yfshtstxoxy.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036634/products/image/g86lcaxfp3psdf8ndtzl.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036635/products/images/kpirsp7qzzw6fufhhujw.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036640/products/image/nbxhdpqauwdwupe5fuip.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036640/products/images/dph9roueoqbxciea5nx9.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036647/products/image/zotyytiwysctpvosikuh.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036647/products/images/sjhd3ltz3s3fsxzoolsr.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036649/products/image/mejq0odzvd18hsftwjw3.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036650/products/image/th593mib5gjrei04xyto.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036651/products/images/irjp9k2alcjjswx4vkul.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036652/products/image/lspzjdnwzsusrwyye0wx.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036653/products/images/cxvx2pbyrtatqnforlby.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036654/products/image/yesheh9q0yo1yrwbjzxh.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036655/products/images/a9dosjgzix5hvcmlbdvq.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036659/products/image/tqfcwpnxop0vzz0ujmhr.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036660/products/images/t1cef9nxmtsxoa99xsbm.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036661/products/images/a4d4pmpecgzvlnxrwsvh.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036662/products/image/hqa2krlhkn6vhm7nvx1r.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036664/products/image/erohpy8rvqscgf8teiek.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036664/products/images/e6egqcc02bv2le9fwore.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036667/products/image/huwd4rpblcm9volg7f2f.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036668/products/images/dy91jgkuwsft8thm7epo.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036672/products/image/ajtdppapipvuyudo2iee.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036672/products/images/y2c5wmv0cvbuxa5njs05.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036673/products/image/kkvoyr75bkdzjwstaspc.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036674/products/images/sh0fongq9mqkncn2jxst.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036675/products/image/aouzqnyv1vve7tzyitoc.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036676/products/images/xyjv3jombnrzv9kb2jxd.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036677/products/image/naiunrnnovpoiqeq6mw6.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036678/products/images/udwdmc0rll3cvimubao6.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036678/products/image/effxemxnndqbv6aydfro.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036679/products/images/lqzri2iiwuxaxhclhf40.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036680/products/images/vzxawkurlhwnwxxzb7z6.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036681/products/images/gmxegvporqysleppc6wb.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036681/products/images/akewwfg3qfamk9j9evz1.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036682/products/image/io3cktmbzwbl8jhr067g.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036683/products/images/u0v43xxwssnc4sfhrpec.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036684/products/image/kqemkdhs2muir0onsnqs.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036685/products/images/mipzwowgm0ntlymkuw0d.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036686/products/image/huo6msnnuj0fjy5z5qes.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036687/products/images/iaipfwp3fihpvnstr0wf.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036688/products/image/xvl4qreztponzkexke5i.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036688/products/images/yxekmzcolbpjuhccfmzu.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036690/products/image/jqrcry1pxuapeztspbpw.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036691/products/images/wmx9gbrp5qcpdgrg3wzz.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036692/products/image/lwn0afiyciyosyz1tkkv.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036692/products/images/ebo532toyszay7ymegpc.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036693/products/image/upsdmuleulzd05xnithq.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036694/products/images/vru1qdahzneahxa340nq.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036695/products/images/obiawv78kjeo4ddhhoyz.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036696/products/image/ood2gncaxvrksbtljd4h.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036697/products/images/jta7541wvpnwdxq24l4h.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036698/products/image/nnix2bsagtnuyh2xveh7.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036698/products/images/tsr8srzuytbwga63jakq.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036699/products/images/bv4nnfleguwo2fzbvudi.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036700/products/image/fnkoey72kdllvvtsrx02.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036701/products/images/mfvczenffgbzunwg3g4d.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036701/products/images/gnjm4q5rjeprsdbuhfcu.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036702/products/image/xhyvhqewm2c451mlcadz.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036703/products/images/k7bzqqigrtky7ypbekwn.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036704/products/images/sbwfe7purakj5lgfch8n.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036705/products/images/ayx08k6wxz497znsvyaz.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036706/products/image/n5ba9a2kxafijsea5u7c.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036706/products/images/kriwpnxzcsqeweqiyr5p.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036707/products/image/zmeophehhfv0oqouvxcg.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036708/products/images/qyzh7h3bpeu7np0r6wjd.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036709/products/image/fk2sxbcmg0cwuybsv8uq.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036710/products/images/pmaqxgxaaghiy39ogwwv.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036711/products/images/i8ecn0w7fk58hjcg9qbc.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036712/products/image/duvxkkizwnwqr7waf9i3.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036713/products/images/olr0rudfafmthh4sixqe.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036714/products/images/sed8nfpsm7xnydwsblta.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036715/products/image/ayddm7eodbgcp7jbseaj.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036716/products/images/hvqsixpjnedqgee0q0aj.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036717/products/images/fqmwgcpzzwv26iv0dyrp.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036717/products/images/v4cvbk4odfmrofzfpt9c.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036718/products/image/o7gf0kpmij2ubwjxsvue.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036719/products/images/ykvem8wzkj76p1eq9oke.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036720/products/images/uhif1d37fpnzctyu9rhl.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036721/products/images/jyjsyxcxee1zhhptcooh.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036722/products/image/caftlaqqldwlb5p0hwtg.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036722/products/images/ila2oo832p7gvmmqtyk5.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036723/products/images/n5fpbfzncgvy15n6jpkv.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036724/products/images/h6exs9xovucccezpq1rf.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036725/products/image/lelodwisg9lazsp0km0d.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036726/products/images/ft8zzyjnccsux6iy6ehf.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036727/products/images/ozctdvgsd87fxjfsvxvb.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036728/products/images/szhaqmwjp719akxhqedn.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036729/products/images/zujbfpuxvpcydwylfqvq.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036729/products/images/n5ckvgklccqttroekrgh.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036730/products/image/i2zpj9563idulgqws77f.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036731/products/images/jz4orxrszik8fpepclom.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036732/products/images/irzecjn3meka3sbsqght.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036732/products/image/tseiknggh9ncodutkpad.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036733/products/images/bhemdbmkvaldufr2rbf4.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036734/products/images/alqyyziumlmujygm0kfx.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036735/products/image/nqqs3njyvcrrwqp0f3bh.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036735/products/images/wu63fvgvsskvorujfy4z.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036736/products/images/k8693vscpgp8wvcsc7ly.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036737/products/image/uqmvzc7k8xsl7ufobcqq.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036738/products/images/yxm9mewcwp2zsiu3h5ct.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036739/products/image/vwlukjh0w4htwj8pgnnr.png",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036740/products/images/j04bxqpy72vpvnfweqyc.png",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036741/products/image/farbkujcizpougxyzcv3.png",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036742/products/images/upogqbnunvyjpubhlole.png",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036746/products/image/jqm4ma0fnkndh5irz1ku.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036747/products/images/vywm7ijz5rcplgndyukd.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    },
+    {
+      "url": "https://res.cloudinary.com/dsicmrk7z/image/upload/v1777036749/banners/imageUrl/hsrpklxilrqomcqjzljw.jpg",
+      "error": "Error: Upload failed: 401 - {\"error\":{\"message\":\"Invalid api_key bfcu_z8dUkVhhWfp4Mq6VpsaA8Q\"}}"
+    }
+  ],
+  "timestamp": "2026-04-24T14:09:28.787Z"
+}

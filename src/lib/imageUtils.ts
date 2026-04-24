@@ -1,13 +1,13 @@
 /**
  * Image compression utilities
- * Used before uploading to Firebase Storage
+ * Converts images to WebP format for optimal web performance
  */
 
 /**
- * Compress image file before uploading
- * Returns a compressed File object
+ * Convert image file to WebP format
+ * Returns a compressed WebP File object
  */
-export async function compressImage(
+export async function convertToWebP(
   file: File,
   maxWidth: number = 1200,
   maxHeight: number = 1200,
@@ -15,7 +15,7 @@ export async function compressImage(
 ): Promise<File> {
   // Skip compression for small images
   if (file.size < 100 * 1024) {
-    return file;
+    return createWebPFile(file, file.size);
   }
 
   return new Promise((resolve, reject) => {
@@ -50,44 +50,67 @@ export async function compressImage(
 
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Convert to blob with quality adjustment
-        const tryConvert = (q: number) => {
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) {
-                resolve(file);
-                return;
-              }
+        // Try WebP first, fallback to JPEG
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
 
-              // If compressed is larger or quality too low, use original
-              if (blob.size > file.size || q <= 0.3) {
-                resolve(file);
-                return;
-              }
-
-              // If compressed is significantly smaller, use it
-              if (blob.size < file.size * 0.95) {
-                const compressedFile = new File([blob], file.name, {
-                  type: file.type || 'image/jpeg',
-                  lastModified: Date.now(),
-                });
-                resolve(compressedFile);
-              } else {
-                // Try lower quality
-                tryConvert(q - 0.1);
-              }
-            },
-            file.type || 'image/jpeg',
-            q
-          );
-        };
-
-        tryConvert(quality);
+            // Use WebP if it's smaller, otherwise keep original
+            if (blob.size < file.size * 0.95) {
+              resolve(createWebPFile(blob, blob.size));
+            } else {
+              // Try lower quality WebP
+              canvas.toBlob(
+                (lowQualityBlob) => {
+                  if (lowQualityBlob && lowQualityBlob.size < file.size * 0.9) {
+                    resolve(createWebPFile(lowQualityBlob, lowQualityBlob.size));
+                  } else {
+                    resolve(createWebPFile(blob, blob.size));
+                  }
+                },
+                'image/webp',
+                quality - 0.15
+              );
+            }
+          },
+          'image/webp',
+          quality
+        );
       };
       img.onerror = () => reject(new Error('Failed to load image'));
     };
     reader.onerror = () => reject(new Error('Failed to read file'));
   });
+}
+
+/**
+ * Create a File object with WebP extension
+ */
+function createWebPFile(blob: Blob, size: number): File {
+  const originalName = blob instanceof File ? blob.name : 'image';
+  const baseName = originalName.replace(/\.[^.]+$/, '');
+  const webpName = `${baseName}.webp`;
+
+  return new File([blob], webpName, {
+    type: 'image/webp',
+    lastModified: Date.now(),
+  });
+}
+
+/**
+ * Compress image file (alias for convertToWebP)
+ * Returns a compressed WebP File object
+ */
+export async function compressImage(
+  file: File,
+  maxWidth: number = 1200,
+  maxHeight: number = 1200,
+  quality: number = 0.85
+): Promise<File> {
+  return convertToWebP(file, maxWidth, maxHeight, quality);
 }
 
 /**

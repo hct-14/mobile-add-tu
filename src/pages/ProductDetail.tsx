@@ -10,6 +10,7 @@ import { useAnalyticsStore } from '../store/useAnalyticsStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useCampaignStore } from '../store/useCampaignStore';
 import { getLowestPrice } from '../lib/utils';
+import { ImageWithFallback } from '../components/ImageWithFallback';
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -145,16 +146,29 @@ export default function ProductDetail() {
           {/* Images */}
           <div className="md:col-span-4">
             <div className="aspect-square rounded-xl overflow-hidden border mb-4">
-              <img src={activeImage} alt={product.name} loading="lazy" className="w-full h-full object-cover" />
+              <ImageWithFallback
+                src={activeImage}
+                alt={product.name}
+                className="w-full h-full object-cover"
+                loading="eager"
+                fetchPriority="high"
+                useBlur={false}
+              />
             </div>
             <div className="flex gap-2 overflow-x-auto">
               {[product.image, ...(product.images || [])].filter(Boolean).map((img, idx) => (
-                <button 
-                  key={idx} 
+                <button
+                  key={idx}
                   onClick={() => setActiveImage(img)}
                   className={`w-16 h-16 rounded-md border-2 overflow-hidden flex-shrink-0 ${activeImage === img ? 'border-[#00483d]' : 'border-transparent'}`}
                 >
-                  <img src={img} alt="" loading="lazy" className="w-full h-full object-cover" />
+                  <ImageWithFallback
+                    src={img}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    useBlur={false}
+                  />
                 </button>
               ))}
             </div>
@@ -198,7 +212,13 @@ export default function ProductDetail() {
                   >
                     {variant.image && (
                       <div className="w-12 h-12 rounded border overflow-hidden flex-shrink-0 bg-white">
-                        <img src={variant.image} alt={variant.color} loading="lazy" className="w-full h-full object-cover" />
+                        <ImageWithFallback
+                          src={variant.image}
+                          alt={variant.color}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          useBlur={false}
+                        />
                       </div>
                     )}
                     <div className="flex-1">
@@ -439,13 +459,19 @@ export default function ProductDetail() {
         <h2 className="text-xl font-bold mb-4">Gợi ý sản phẩm tương tự</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {similarProducts.map(p => (
-              <div 
-                key={p.id} 
+              <div
+                key={p.id}
                 className="border rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer flex flex-col"
                 onClick={() => navigate(`/product/${p.slug}`)}
               >
                 <div className="aspect-square mb-3">
-                  <img src={p.images[0]} alt={p.name} loading="lazy" className="w-full h-full object-contain mix-blend-multiply" />
+                  <ImageWithFallback
+                    src={p.images[0]}
+                    alt={p.name}
+                    className="w-full h-full object-contain mix-blend-multiply"
+                    loading="lazy"
+                    useBlur={false}
+                  />
                 </div>
                 <h3 className="font-medium text-sm line-clamp-2 mb-1">{p.name}</h3>
                 <div className="text-red-600 font-bold mb-2">
@@ -461,13 +487,19 @@ export default function ProductDetail() {
           <h2 className="text-xl font-bold mb-4">Phụ kiện mua kèm giảm giá</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {accessoriesProducts.map(p => (
-                <div 
-                  key={p.id} 
+                <div
+                  key={p.id}
                   className="border rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer flex flex-col"
                   onClick={() => navigate(`/product/${p.slug}`)}
                 >
                   <div className="aspect-square mb-3 relative">
-                    <img src={p.images[0]} alt={p.name} loading="lazy" className="w-full h-full object-contain mix-blend-multiply" />
+                    <ImageWithFallback
+                      src={p.images[0]}
+                      alt={p.name}
+                      className="w-full h-full object-contain mix-blend-multiply"
+                      loading="lazy"
+                      useBlur={false}
+                    />
                     {p.discountPercentage && (
                       <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-bl-lg rounded-tr-lg">
                         Giảm {p.discountPercentage}%

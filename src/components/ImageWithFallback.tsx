@@ -13,7 +13,7 @@ export const ImageWithFallback: React.FC<ImageProps> = ({
   src,
   alt,
   className,
-  fallbackSrc = "https://placehold.co/400x400/png?text=Loading",
+  fallbackSrc = "https://placehold.co/400x400/webp?text=Loading",
   placeholderColor = "bg-gray-100",
   useBlur = true,
   loading,
@@ -33,18 +33,18 @@ export const ImageWithFallback: React.FC<ImageProps> = ({
     return getTransformedUrl(src, {
       width: 20,
       quality: 10,
-      format: 'auto'
+      format: 'webp'
     });
   }, [src]);
 
-  // Optimize main image URL with quality and size
+  // Optimize main image URL with WebP format for best performance
   const optimizedSrc = useMemo(() => {
     if (!src) return src;
     if (isCloudinaryUrl(src)) {
       return getTransformedUrl(src, {
         quality: quality,
         ...(size ? { width: size } : {}),
-        format: 'auto'
+        format: 'webp'
       });
     }
     return src;
@@ -144,11 +144,11 @@ export const LazyImage: React.FC<{
   const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Optimize Cloudinary URLs with quality
+  // Optimize Cloudinary URLs with WebP format
   const optimizedSrc = useMemo(() => {
     if (!src) return src;
     if (isCloudinaryUrl(src)) {
-      return getTransformedUrl(src, { quality: 'auto', format: 'auto' });
+      return getTransformedUrl(src, { quality: 'auto', format: 'webp' });
     }
     return src;
   }, [src]);
