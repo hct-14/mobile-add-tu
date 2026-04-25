@@ -8,34 +8,18 @@ import { getLowestPrice } from '../lib/utils';
 
 export default function Campaign() {
   const products = useProductStore(state => state.products);
-  const campaigns = useCampaignStore(state => state.campaigns);
   const getActiveCampaign = useCampaignStore(state => state.getActiveCampaign);
   const addToCompare = useCompareStore(state => state.addToCompare);
   
-  // Lấy tất cả chiến dịch đang active
-  const activeCampaigns = campaigns.filter(c => c.isActive && new Date(c.endDate) > new Date());
-  
-  // Gộp tất cả sản phẩm từ các chiến dịch đang active
-  const allCampaignProducts = activeCampaigns.flatMap(campaign => 
-    campaign.products.map(cp => ({
-      ...cp,
-      campaignName: campaign.name
-    }))
-  );
+  const activeCampaign = getActiveCampaign();
   
   const [timeLeft, setTimeLeft] = useState('');
 
   useEffect(() => {
-    if (activeCampaigns.length === 0) return;
+    if (!activeCampaign) return;
 
     const calculateTimeLeft = () => {
-      // Lấy thời gian kết thúc sớm nhất trong các chiến dịch
-      const earliestEnd = activeCampaigns.reduce((earliest, campaign) => {
-        const endDate = new Date(campaign.endDate);
-        return endDate < earliest ? endDate : earliest;
-      }, new Date(activeCampaigns[0].endDate));
-      
-      const difference = earliestEnd.getTime() - new Date().getTime();
+      const difference = new Date(activeCampaign.endDate).getTime() - new Date().getTime();
       
       if (difference > 0) {
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
@@ -57,16 +41,16 @@ export default function Campaign() {
     const timer = setInterval(calculateTimeLeft, 1000);
 
     return () => clearInterval(timer);
-  }, [activeCampaigns]);
+  }, [activeCampaign]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
 
-  if (activeCampaigns.length === 0) {
+  if (!activeCampaign) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-bold mb-4">Chưa có chương trình khuyến mãi nào đang diễn ra</h2>
+        <h2 className="text-2xl font-bold mb-4">Chỉnh sửa lúc này chưa có chương trình khuyến mãi nào đang diễn ra</h2>
         <Link to="/" className="text-[#db1c32] hover:underline">Về trang chủ</Link>
       </div>
     );
@@ -75,43 +59,30 @@ export default function Campaign() {
   return (
     <div className="space-y-8">
       <div className="bg-red-600 rounded-xl p-6 text-center text-white">
-        <h1 className="text-3xl md:text-4xl font-bold mb-4 flex items-center justify-center flex-wrap gap-2">
-          <span className="mr-3">⚡</span> Flash Sale Cực Sốc
+        <h1 className="text-3xl md:text-4xl font-bold mb-4 flex items-center justify-center">
+          <span className="mr-3">⚡</span> {activeCampaign.name}
         </h1>
-        {activeCampaigns.length > 1 && (
-          <div className="text-sm opacity-90 mb-2">
-            Đang có {activeCampaigns.length} chương trình khuyến mãi
-          </div>
-        )}
         <div className="inline-block bg-black/20 px-6 py-2 rounded-full md:text-lg font-medium">
           Thời gian còn lại: {timeLeft}
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {allCampaignProducts.map((campaignProduct, index) => {
+        {activeCampaign.products.map((campaignProduct) => {
           const product = products.find(p => p.id === campaignProduct.productId);
           if (!product) return null;
-
-          const basePrice = product.originalPrice && product.originalPrice > 0 
-            ? product.originalPrice 
-            : product.price;
-          const discountPercent = basePrice > campaignProduct.flashSalePrice
-            ? Math.round((basePrice - campaignProduct.flashSalePrice) / basePrice * 100)
-            : 0;
-          const savings = basePrice - campaignProduct.flashSalePrice;
+          
+          const basePrice = product.originalPrice || product.price;
+          const discountPercent = Math.round((1 - campaignProduct.flashSalePrice / basePrice) * 100);
 
           return (
-            <div key={`${product.id}-${index}`} className="bg-white rounded-lg p-3 hover:shadow-lg transition-shadow border border-gray-100 relative group">
+            <div key={product.id} className="bg-white rounded-lg p-3 hover:shadow-lg transition-shadow border border-gray-100 relative group">
               {discountPercent > 0 && (
                 <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
-                  -{discountPercent}%
+                  Giảm {discountPercent}%
                 </div>
               )}
-              <div className="absolute top-2 right-10 bg-[#00483d] text-white text-[10px] px-1.5 py-0.5 rounded z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                {campaignProduct.campaignName}
-              </div>
-              <button
+              <button 
                 onClick={(e) => {
                   e.preventDefault();
                   addToCompare(product);
@@ -128,15 +99,7 @@ export default function Campaign() {
                 <h3 className="font-medium text-sm text-gray-800 line-clamp-2 mb-2 h-10">{product.name}</h3>
                 <div className="flex flex-col">
                   <span className="text-red-600 font-bold text-lg">{formatPrice(campaignProduct.flashSalePrice)}</span>
-                  {discountPercent > 0 && (
-                    <>
-                      <span className="text-gray-400 text-sm line-through">{formatPrice(basePrice)}</span>
-                      <span className="text-red-500 text-xs font-medium">Giá thị trường</span>
-                    </>
-                  )}
-                  {discountPercent > 0 && (
-                    <span className="text-green-600 text-xs font-medium">Tiết kiệm {formatPrice(savings)}</span>
-                  )}
+                  <span className="text-gray-400 text-sm line-through">{formatPrice(basePrice)}</span>
                 </div>
               </Link>
             </div>
