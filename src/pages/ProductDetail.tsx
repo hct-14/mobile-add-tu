@@ -59,6 +59,12 @@ export default function ProductDetail() {
 
   const currentPrice = campaignProduct ? campaignProduct.flashSalePrice : selectedVariant.price;
   const displayOriginalPrice = campaignProduct ? selectedVariant.price : product.originalPrice;
+  const discountPercent = campaignProduct && displayOriginalPrice > currentPrice
+    ? Math.round((displayOriginalPrice - currentPrice) / displayOriginalPrice * 100)
+    : (product.discountPercentage || 0);
+  const savings = displayOriginalPrice && displayOriginalPrice > currentPrice
+    ? displayOriginalPrice - currentPrice
+    : 0;
 
   const handleAddToCart = () => {
     addItem(product, { ...selectedVariant, price: currentPrice });
@@ -189,12 +195,23 @@ export default function ProductDetail() {
                 ⚡ ĐANG TRONG CHƯƠNG TRÌNH FLASH SALE
               </div>
             )}
-            <div className="flex items-end gap-4 mb-6">
+            <div className="flex items-baseline gap-3 mb-2">
               <span className="text-3xl font-bold text-red-600">{formatPrice(currentPrice)}</span>
-              {displayOriginalPrice && (
-                <span className="text-lg text-gray-400 line-through mb-1">{formatPrice(displayOriginalPrice)}</span>
+              {discountPercent > 0 && (
+                <span className="text-lg text-gray-400 line-through">{formatPrice(displayOriginalPrice)}</span>
               )}
             </div>
+            {discountPercent > 0 && (
+              <div className="flex items-center gap-2 mb-4">
+                <span className="bg-red-100 text-red-600 text-sm font-bold px-2 py-1 rounded">
+                  -{discountPercent}%
+                </span>
+                <span className="text-red-600 text-sm font-medium">
+                  Tiết kiệm {formatPrice(savings)}
+                </span>
+                <span className="text-gray-500 text-sm">so với giá thị trường {formatPrice(displayOriginalPrice)}</span>
+              </div>
+            )}
 
             {/* Variants */}
             <div className="mb-6">
@@ -230,8 +247,15 @@ export default function ProductDetail() {
                       {variant.condition && (
                         <div className="text-xs text-gray-500 mt-0.5">Tình trạng: {variant.condition}</div>
                       )}
-                      <div className="text-red-600 font-bold mt-1">
-                        {formatPrice(campaignProduct ? campaignProduct.flashSalePrice : variant.price)}
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-red-600 font-bold">
+                          {formatPrice(campaignProduct ? campaignProduct.flashSalePrice : variant.price)}
+                        </span>
+                        {campaignProduct && variant.price > campaignProduct.flashSalePrice && (
+                          <span className="text-gray-400 text-xs line-through">
+                            {formatPrice(variant.price)}
+                          </span>
+                        )}
                       </div>
                     </div>
                     {selectedVariant.id === variant.id && (

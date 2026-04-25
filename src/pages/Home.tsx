@@ -258,9 +258,10 @@ export default function Home() {
               if (!product) return null;
 
               const basePrice = product.originalPrice || product.price;
-              const discountPercent = Math.round(
-                (1 - campaignProduct.flashSalePrice / basePrice) * 100,
-              );
+              const discountPercent = basePrice > campaignProduct.flashSalePrice
+                ? Math.round((basePrice - campaignProduct.flashSalePrice) / basePrice * 100)
+                : 0;
+              const savings = basePrice - campaignProduct.flashSalePrice;
 
               return (
                 <div
@@ -269,7 +270,7 @@ export default function Home() {
                 >
                   {discountPercent > 0 && (
                     <div className="absolute top-1 left-1 md:top-2 md:left-2 bg-red-500 text-white text-[10px] md:text-xs font-bold px-1.5 py-0.5 md:px-2 md:py-1 rounded z-10">
-                      Giảm {discountPercent}%
+                      -{discountPercent}%
                     </div>
                   )}
                   <button
@@ -301,9 +302,19 @@ export default function Home() {
                       <span className="text-red-600 font-bold text-sm md:text-lg">
                         {formatPrice(campaignProduct.flashSalePrice)}
                       </span>
-                      <span className="text-gray-400 text-[10px] md:text-sm line-through">
-                        {formatPrice(product.originalPrice || product.price)}
-                      </span>
+                      {discountPercent > 0 && (
+                        <>
+                          <span className="text-gray-400 text-[10px] md:text-sm line-through">
+                            {formatPrice(basePrice)}
+                          </span>
+                          <span className="text-gray-300 text-[9px] md:text-[10px] font-medium">
+                            Giá thị trường
+                          </span>
+                          <span className="text-green-400 text-[10px] md:text-xs font-medium">
+                            Tiết kiệm {formatPrice(savings)}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </Link>
                 </div>
@@ -372,7 +383,11 @@ export default function Home() {
                 const flashSalePrice = campaignProduct?.flashSalePrice;
                 const lowestPrice = getLowestPrice(product);
                 const actualPrice = flashSalePrice || lowestPrice;
-                const originalPrice = product.originalPrice || product.price;
+                const basePrice = product.originalPrice || product.price;
+                const discountPercent = flashSalePrice && basePrice > actualPrice
+                  ? Math.round((basePrice - actualPrice) / basePrice * 100)
+                  : (product.discountPercentage || 0);
+                const savings = basePrice - actualPrice;
 
                 return (
                   <div
@@ -381,11 +396,9 @@ export default function Home() {
                   >
                     <Link to={`/product/${product.slug}`} className="block">
                       <div className="aspect-square mb-2 overflow-hidden rounded-md relative">
-                        {(product.discountPercentage || flashSalePrice) && (
+                        {discountPercent > 0 && (
                           <div className="absolute top-1 left-1 bg-red-500 text-white text-[10px] font-bold px-1 py-0.5 rounded z-10">
-                            {flashSalePrice
-                              ? "Flash Sale"
-                              : `Giảm ${product.discountPercentage}%`}
+                            -{discountPercent}%
                           </div>
                         )}
                         <ImageWithFallback
@@ -404,10 +417,15 @@ export default function Home() {
                         <span className="text-red-600 font-bold text-sm">
                           {formatPrice(actualPrice)}
                         </span>
-                        {originalPrice && originalPrice > actualPrice && (
-                          <span className="text-gray-400 text-[10px] line-through">
-                            {formatPrice(originalPrice)}
-                          </span>
+                        {discountPercent > 0 && (
+                          <>
+                            <span className="text-gray-400 text-[10px] line-through">
+                              {formatPrice(basePrice)}
+                            </span>
+                            <span className="text-red-500 text-[9px] font-medium">
+                              Giá thị trường
+                            </span>
+                          </>
                         )}
                       </div>
                     </Link>
@@ -432,18 +450,19 @@ export default function Home() {
             const flashSalePrice = campaignProduct?.flashSalePrice;
             const lowestPrice = getLowestPrice(product);
             const actualPrice = flashSalePrice || lowestPrice;
-            const originalPrice = product.originalPrice || product.price;
+            const basePrice = product.originalPrice || product.price;
+            const discountPercent = flashSalePrice && basePrice > actualPrice
+              ? Math.round((basePrice - actualPrice) / basePrice * 100)
+              : (product.discountPercentage || 0);
 
             return (
               <div
                 key={product.id}
                 className="bg-white rounded-lg p-3 hover:shadow-lg transition-shadow border border-gray-100 relative group"
               >
-                {(product.discountPercentage || flashSalePrice) && (
+                {discountPercent > 0 && (
                   <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
-                    {flashSalePrice
-                      ? "Flash Sale"
-                      : `Giảm ${product.discountPercentage}%`}
+                    -{discountPercent}%
                   </div>
                 )}
                 <Link to={`/product/${product.slug}`} className="block">
@@ -464,10 +483,15 @@ export default function Home() {
                     <span className="text-red-600 font-bold text-lg">
                       {formatPrice(actualPrice)}
                     </span>
-                    {originalPrice && originalPrice > actualPrice && (
-                      <span className="text-gray-400 text-sm line-through">
-                        {formatPrice(originalPrice)}
-                      </span>
+                    {discountPercent > 0 && (
+                      <>
+                        <span className="text-gray-400 text-sm line-through">
+                          {formatPrice(basePrice)}
+                        </span>
+                        <span className="text-red-500 text-xs font-medium">
+                          Giá thị trường
+                        </span>
+                      </>
                     )}
                   </div>
                 </Link>

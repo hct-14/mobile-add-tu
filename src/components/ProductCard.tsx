@@ -37,7 +37,10 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
   const flashSalePrice = campaignProduct?.flashSalePrice;
   const lowestPrice = useMemo(() => getLowestPrice(product), [product]);
   const actualPrice = flashSalePrice || lowestPrice;
-  const originalPrice = product.originalPrice || product.price;
+  const basePrice = product.originalPrice || product.price;
+  const discountPercent = flashSalePrice && basePrice > actualPrice
+    ? Math.round((basePrice - actualPrice) / basePrice * 100)
+    : (product.discountPercentage || 0);
   
   const shouldOptimize = index < 3;
 
@@ -52,7 +55,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
     >
       {(product.discountPercentage || flashSalePrice) && (
         <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
-          {flashSalePrice ? "Flash Sale" : `Giảm ${product.discountPercentage}%`}
+          -{discountPercent}%
         </div>
       )}
       
@@ -84,10 +87,15 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
           <span className="text-red-600 font-bold text-base">
             {formatPrice(actualPrice)}
           </span>
-          {originalPrice > actualPrice && (
-            <span className="text-gray-400 text-xs line-through">
-              {formatPrice(originalPrice)}
-            </span>
+          {discountPercent > 0 && (
+            <>
+              <span className="text-gray-400 text-xs line-through">
+                {formatPrice(basePrice)}
+              </span>
+              <span className="text-red-500 text-[10px] font-medium">
+                Giá thị trường
+              </span>
+            </>
           )}
         </div>
       </Link>

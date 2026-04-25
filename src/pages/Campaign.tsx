@@ -71,17 +71,21 @@ export default function Campaign() {
         {activeCampaign.products.map((campaignProduct) => {
           const product = products.find(p => p.id === campaignProduct.productId);
           if (!product) return null;
-          
-          const discountPercent = Math.round((1 - campaignProduct.flashSalePrice / product.price) * 100);
+
+          const basePrice = product.originalPrice || product.price;
+          const discountPercent = basePrice > campaignProduct.flashSalePrice
+            ? Math.round((basePrice - campaignProduct.flashSalePrice) / basePrice * 100)
+            : 0;
+          const savings = basePrice - campaignProduct.flashSalePrice;
 
           return (
             <div key={product.id} className="bg-white rounded-lg p-3 hover:shadow-lg transition-shadow border border-gray-100 relative group">
               {discountPercent > 0 && (
                 <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
-                  Giảm {discountPercent}%
+                  -{discountPercent}%
                 </div>
               )}
-              <button 
+              <button
                 onClick={(e) => {
                   e.preventDefault();
                   addToCompare(product);
@@ -98,7 +102,15 @@ export default function Campaign() {
                 <h3 className="font-medium text-sm text-gray-800 line-clamp-2 mb-2 h-10">{product.name}</h3>
                 <div className="flex flex-col">
                   <span className="text-red-600 font-bold text-lg">{formatPrice(campaignProduct.flashSalePrice)}</span>
-                  <span className="text-gray-400 text-sm line-through">{formatPrice(getLowestPrice(product))}</span>
+                  {discountPercent > 0 && (
+                    <>
+                      <span className="text-gray-400 text-sm line-through">{formatPrice(basePrice)}</span>
+                      <span className="text-red-500 text-xs font-medium">Giá thị trường</span>
+                    </>
+                  )}
+                  {discountPercent > 0 && (
+                    <span className="text-green-600 text-xs font-medium">Tiết kiệm {formatPrice(savings)}</span>
+                  )}
                 </div>
               </Link>
             </div>
