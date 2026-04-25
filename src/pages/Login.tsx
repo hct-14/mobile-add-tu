@@ -146,10 +146,9 @@ export default function Login() {
         Đăng nhập với Google
       </button>
       
-      {/* <div className="mt-6 text-center text-sm text-gray-600">
+      <div className="mt-6 text-center text-sm text-gray-600">
         Bạn chưa có tài khoản? <Link to="/register" className="text-[#00483d] font-medium hover:underline">Đăng ký ngay</Link>
       </div>
-  */}
     </div>
   );
 }
