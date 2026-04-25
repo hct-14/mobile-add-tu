@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useProductStore } from '../store/useProductStore';
 import { useCampaignStore } from '../store/useCampaignStore';
 import { useCompareStore } from '../store/useCompareStore';
@@ -14,12 +14,13 @@ export default function Campaign() {
   const activeCampaigns = campaigns.filter(c => c.isActive && new Date(c.endDate) > new Date());
   
   // Gộp tất cả sản phẩm từ các chiến dịch đang active
-  const allCampaignProducts = activeCampaigns.flatMap(campaign => 
-    campaign.products.map(cp => ({
-      ...cp,
-      campaignName: campaign.name
-    }))
-  );
+  const allCampaignProducts = useMemo(() => 
+    activeCampaigns.flatMap(campaign => 
+      campaign.products.map(cp => ({
+        ...cp,
+        campaignName: campaign.name
+      }))
+    ), [activeCampaigns]);
   
   const [timeLeft, setTimeLeft] = useState('');
 
@@ -81,8 +82,8 @@ export default function Campaign() {
             Đang có {activeCampaigns.length} chương trình khuyến mãi
           </div>
         )}
-        <div className="inline-block bg-black/20 px-6 py-2 rounded-full md:text-lg font-medium">
-          Thời gian còn lại: {timeLeft}
+        <div className="inline-block bg-black/20 px-4 py-2 rounded-full md:text-lg font-medium text-sm md:text-base">
+          Kết thúc sau: <span className="font-bold">{timeLeft}</span>
         </div>
       </div>
 
