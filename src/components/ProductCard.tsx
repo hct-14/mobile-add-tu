@@ -37,10 +37,12 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
   const flashSalePrice = campaignProduct?.flashSalePrice;
   const lowestPrice = useMemo(() => getLowestPrice(product), [product]);
   const actualPrice = flashSalePrice || lowestPrice;
-  const basePrice = product.originalPrice || product.price;
+  const basePrice = product.originalPrice && product.originalPrice > 0 
+                  ? product.originalPrice 
+                  : product.price;
   const discountPercent = flashSalePrice && basePrice > actualPrice
     ? Math.round((basePrice - actualPrice) / basePrice * 100)
-    : (product.discountPercentage || 0);
+    : 0;
   
   const shouldOptimize = index < 3;
 
@@ -53,7 +55,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
     <div
       className={`bg-white rounded-lg p-3 hover:shadow-lg transition-shadow border border-gray-100 relative group ${className}`}
     >
-      {(product.discountPercentage || flashSalePrice) && (
+      {discountPercent > 0 && (
         <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
           -{discountPercent}%
         </div>

@@ -72,7 +72,9 @@ export default function Campaign() {
           const product = products.find(p => p.id === campaignProduct.productId);
           if (!product) return null;
 
-          const basePrice = product.originalPrice || product.price;
+          const basePrice = product.originalPrice && product.originalPrice > 0 
+            ? product.originalPrice 
+            : product.price;
           const discountPercent = basePrice > campaignProduct.flashSalePrice
             ? Math.round((basePrice - campaignProduct.flashSalePrice) / basePrice * 100)
             : 0;

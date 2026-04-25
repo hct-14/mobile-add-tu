@@ -257,11 +257,13 @@ export default function Home() {
               );
               if (!product) return null;
 
-              const basePrice = product.originalPrice || product.price;
-              const discountPercent = basePrice > campaignProduct.flashSalePrice
-                ? Math.round((basePrice - campaignProduct.flashSalePrice) / basePrice * 100)
-                : 0;
+              const basePrice = product.originalPrice && product.originalPrice > 0 
+                ? product.originalPrice 
+                : product.price;
               const savings = basePrice - campaignProduct.flashSalePrice;
+              const discountPercent = basePrice > campaignProduct.flashSalePrice
+                ? Math.round(savings / basePrice * 100)
+                : 0;
 
               return (
                 <div
@@ -383,10 +385,12 @@ export default function Home() {
                 const flashSalePrice = campaignProduct?.flashSalePrice;
                 const lowestPrice = getLowestPrice(product);
                 const actualPrice = flashSalePrice || lowestPrice;
-                const basePrice = product.originalPrice || product.price;
+                const basePrice = product.originalPrice && product.originalPrice > 0 
+                  ? product.originalPrice 
+                  : product.price;
                 const discountPercent = flashSalePrice && basePrice > actualPrice
                   ? Math.round((basePrice - actualPrice) / basePrice * 100)
-                  : (product.discountPercentage || 0);
+                  : 0;
                 const savings = basePrice - actualPrice;
 
                 return (
@@ -450,10 +454,12 @@ export default function Home() {
             const flashSalePrice = campaignProduct?.flashSalePrice;
             const lowestPrice = getLowestPrice(product);
             const actualPrice = flashSalePrice || lowestPrice;
-            const basePrice = product.originalPrice || product.price;
+            const basePrice = product.originalPrice && product.originalPrice > 0 
+                  ? product.originalPrice 
+                  : product.price;
             const discountPercent = flashSalePrice && basePrice > actualPrice
               ? Math.round((basePrice - actualPrice) / basePrice * 100)
-              : (product.discountPercentage || 0);
+              : 0;
 
             return (
               <div

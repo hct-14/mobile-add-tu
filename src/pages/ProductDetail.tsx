@@ -58,10 +58,12 @@ export default function ProductDetail() {
   };
 
   const currentPrice = campaignProduct ? campaignProduct.flashSalePrice : selectedVariant.price;
-  const displayOriginalPrice = campaignProduct ? selectedVariant.price : product.originalPrice;
+  const displayOriginalPrice = product.originalPrice && product.originalPrice > 0 
+                ? product.originalPrice 
+                : selectedVariant.price;
   const discountPercent = campaignProduct && displayOriginalPrice > currentPrice
     ? Math.round((displayOriginalPrice - currentPrice) / displayOriginalPrice * 100)
-    : (product.discountPercentage || 0);
+    : 0;
   const savings = displayOriginalPrice && displayOriginalPrice > currentPrice
     ? displayOriginalPrice - currentPrice
     : 0;
