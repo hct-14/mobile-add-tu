@@ -146,14 +146,10 @@ export default function Login() {
         Đăng nhập với Google
       </button>
       
-      <div className="mt-6 text-center text-sm text-gray-600">
+      {/* <div className="mt-6 text-center text-sm text-gray-600">
         Bạn chưa có tài khoản? <Link to="/register" className="text-[#00483d] font-medium hover:underline">Đăng ký ngay</Link>
       </div>
-      {/* <div className="mt-4 p-3 bg-blue-50 text-blue-800 text-xs rounded-md">
-        <p className="font-bold mb-1">Cảnh báo:</p>
-        <p>Vui lòng kích hoạt Email/Password trong Firebase Console để đăng ký bằng email.</p>
-        <p>Để trở thành admin, bạn cần dùng tài khoản email "hoangthanhgolle@gmail.com" hoặc "alostore6688@gmail.com".</p>
-      </div> */}
+  */}
     </div>
   );
 }
