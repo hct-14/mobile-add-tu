@@ -73,7 +73,7 @@ export default function Campaign() {
 
   return (
     <div className="space-y-8">
-      <div className="bg-[#AFABAC] rounded-xl p-6 text-center text-white">
+      <div className="bg-[#bdb3b4] rounded-xl p-6 text-center text-white">
         <h1 className="text-3xl md:text-4xl font-bold mb-4 flex items-center justify-center flex-wrap gap-2">
           <span className="mr-3">⚡</span> Flash Sale Cực Sốc
         </h1>

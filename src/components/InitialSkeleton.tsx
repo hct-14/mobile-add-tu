@@ -7,7 +7,7 @@ export function InitialSkeleton() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Skeleton */}
-      <header className="bg-[#00483d] text-white sticky top-0 z-50 shadow-md">
+      <header className="bg-[#bdb3b4] text-white sticky top-0 z-50 shadow-md">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="w-24 h-8 bg-white/20 rounded animate-pulse" />
