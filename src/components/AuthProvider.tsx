@@ -63,7 +63,12 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   }, [login, logout]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Đang tải...</div>;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#bdb3b4]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white mb-4"></div>
+        <div className="text-lg text-white font-medium">Đang tải...</div>
+      </div>
+    );
   }
 
   return <>{children}</>;

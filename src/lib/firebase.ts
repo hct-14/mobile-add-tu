@@ -1,39 +1,37 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore, enableIndexedDbPersistence, connectDatabaseEmulator } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
-import firebaseConfig from '../../firebase-applet-config.json';
+import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
+import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, enableIndexedDbPersistence, Firestore } from 'firebase/firestore';
 
-const app = initializeApp(firebaseConfig);
+const firebaseConfig = {
+  apiKey: "AIzaSyDJLuFyemwkhXkzq4p0KX11oqo-OMQn8KA",
+  authDomain: "alostore-61726.firebaseapp.com",
+  projectId: "alostore-61726",
+  storageBucket: "alostore-61726.firebasestorage.app",
+  messagingSenderId: "437301679293",
+  appId: "1:437301679293:web:08259aa4143624facad3d4",
+  measurementId: "G-NN3NR86MDW"
+};
 
-// Enable offline persistence for faster subsequent loads
-let dbInstance: ReturnType<typeof getFirestore> | null = null;
+// Initialize Firebase only once
+const app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
 
-async function getDb() {
-  if (!dbInstance) {
-    dbInstance = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-    
-    // Try to enable persistence, but don't fail if it doesn't work
-    try {
-      await enableIndexedDbPersistence(dbInstance);
-      console.log('Firestore persistence enabled');
-    } catch (err: any) {
-      if (err.code === 'failed-precondition') {
-        console.log('Persistence failed: multiple tabs open');
-      } else if (err.code === 'unimplemented') {
-        console.log('Persistence not available in this browser');
-      }
-    }
+// Initialize services
+export const auth: Auth = getAuth(app);
+export const db: Firestore = getFirestore(app);
+
+// Enable offline persistence
+enableIndexedDbPersistence(db).catch((err: any) => {
+  if (err.code === 'failed-precondition') {
+    console.log('Persistence failed: multiple tabs open');
+  } else if (err.code === 'unimplemented') {
+    console.log('Persistence not available in this browser');
   }
-  return dbInstance;
-}
+});
 
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = getAuth();
-export const storage = getStorage(app);
+console.log('Firebase initialized');
 
-// Pre-warm the connection on app load
-getDb().catch(console.error);
+// Re-export app for potential future use
+export { app };
 
 export enum OperationType {
   CREATE = 'create',

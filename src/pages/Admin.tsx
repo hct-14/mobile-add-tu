@@ -75,12 +75,36 @@ export default function Admin() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productPage, setProductPage] = useState(1);
   const productsPerPage = 10;
+  const [productSearch, setProductSearch] = useState('');
+  const [productCategoryFilter, setProductCategoryFilter] = useState('all');
+  
+  const filteredProducts = useMemo(() => {
+    let result = products;
+    
+    // Filter by category
+    if (productCategoryFilter !== 'all') {
+      result = result.filter(p => p.category === productCategoryFilter);
+    }
+    
+    // Filter by search term
+    if (productSearch.trim()) {
+      const searchLower = productSearch.toLowerCase().trim();
+      result = result.filter(p => 
+        p.name.toLowerCase().includes(searchLower) ||
+        p.id.toLowerCase().includes(searchLower) ||
+        (p.brand && p.brand.toLowerCase().includes(searchLower)) ||
+        (p.category && p.category.toLowerCase().includes(searchLower))
+      );
+    }
+    
+    return result;
+  }, [products, productSearch, productCategoryFilter]);
   
   const paginatedProducts = useMemo(() => {
-    return products.slice((productPage - 1) * productsPerPage, productPage * productsPerPage);
-  }, [products, productPage]);
+    return filteredProducts.slice((productPage - 1) * productsPerPage, productPage * productsPerPage);
+  }, [filteredProducts, productPage]);
 
-  const totalProductPages = Math.ceil(products.length / productsPerPage);
+  const totalProductPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -429,6 +453,68 @@ export default function Admin() {
                 + Thêm sản phẩm
               </button>
             </div>
+            
+            {/* Search and Filter Bar */}
+            <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* Search Input */}
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    placeholder="Tìm kiếm sản phẩm (tên, ID, thương hiệu...)"
+                    value={productSearch}
+                    onChange={(e) => {
+                      setProductSearch(e.target.value);
+                      setProductPage(1);
+                    }}
+                    className="w-full border rounded-lg px-4 py-2.5 pl-10 focus:ring-2 focus:ring-[#00483d] outline-none"
+                  />
+                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                
+                {/* Category Filter */}
+                <div className="w-full md:w-64">
+                  <select
+                    value={productCategoryFilter}
+                    onChange={(e) => {
+                      setProductCategoryFilter(e.target.value);
+                      setProductPage(1);
+                    }}
+                    className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-[#00483d] outline-none"
+                  >
+                    <option value="all">Tất cả danh mục</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.name}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                {/* Clear Filters */}
+                {(productSearch || productCategoryFilter !== 'all') && (
+                  <button
+                    onClick={() => {
+                      setProductSearch('');
+                      setProductCategoryFilter('all');
+                      setProductPage(1);
+                    }}
+                    className="px-4 py-2.5 text-gray-600 hover:text-[#db1c32] hover:bg-gray-100 rounded-lg transition-colors whitespace-nowrap"
+                  >
+                    Xóa bộ lọc
+                  </button>
+                )}
+              </div>
+              
+              {/* Results count */}
+              <div className="mt-3 text-sm text-gray-500">
+                {filteredProducts.length > 0 
+                  ? `Hiển thị ${Math.min((productPage - 1) * productsPerPage + 1, filteredProducts.length)} - ${Math.min(productPage * productsPerPage, filteredProducts.length)} của ${filteredProducts.length} sản phẩm`
+                  : 'Không tìm thấy sản phẩm nào'
+                }
+              </div>
+            </div>
+            
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
@@ -444,47 +530,60 @@ export default function Admin() {
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedProducts.map((product) => (
-                      <tr key={product.id} className="border-b hover:bg-gray-50">
-                        <td className="p-4 text-sm text-gray-500">{product.id}</td>
-                        <td className="p-4">
-                          <div className="w-12 h-12 rounded border overflow-hidden">
-                            <img src={product.image} alt={product.name} loading="lazy" className="w-full h-full object-cover" />
-                          </div>
-                        </td>
-                        <td className="p-4 font-medium text-gray-900">{product.name}</td>
-                        <td className="p-4 text-sm text-gray-500">{product.category}</td>
-                        <td className="p-4 font-medium text-red-600">{formatPrice(product.price)}</td>
-                        <td className="p-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.inStock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {product.inStock ? 'Còn hàng' : 'Hết hàng'} ({product.inventoryQuantity || 0})
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex space-x-2">
-                            <button 
-                              onClick={() => { setEditingProduct(product); setIsProductModalOpen(true); }}
-                              className="text-blue-600 hover:text-blue-800 p-1"
-                            >
-                              <Edit size={18} />
-                            </button>
-                            <button 
-                              onClick={() => {
-                                if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
-                                  deleteProduct(product.id);
-                                }
-                              }} 
-                              className="text-red-600 hover:text-red-800 p-1"
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
+                    {paginatedProducts.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="p-8 text-center text-gray-500">
+                          {productSearch || productCategoryFilter !== 'all' 
+                            ? 'Không tìm thấy sản phẩm phù hợp với bộ lọc'
+                            : 'Chưa có sản phẩm nào'
+                          }
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      paginatedProducts.map((product) => (
+                        <tr key={product.id} className="border-b hover:bg-gray-50">
+                          <td className="p-4 text-sm text-gray-500">{product.id}</td>
+                          <td className="p-4">
+                            <div className="w-12 h-12 rounded border overflow-hidden">
+                              <img src={product.image} alt={product.name} loading="lazy" className="w-full h-full object-cover" />
+                            </div>
+                          </td>
+                          <td className="p-4 font-medium text-gray-900">{product.name}</td>
+                          <td className="p-4 text-sm text-gray-500">{product.category}</td>
+                          <td className="p-4 font-medium text-red-600">{formatPrice(product.price)}</td>
+                          <td className="p-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.inStock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                              {product.inStock ? 'Còn hàng' : 'Hết hàng'} ({product.inventoryQuantity || 0})
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex space-x-2">
+                              <button 
+                                onClick={() => { setEditingProduct(product); setIsProductModalOpen(true); }}
+                                className="text-blue-600 hover:text-blue-800 p-1"
+                              >
+                                <Edit size={18} />
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+                                    deleteProduct(product.id);
+                                  }
+                                }} 
+                                className="text-red-600 hover:text-red-800 p-1"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
-                <PaginationControls currentPage={productPage} totalPages={totalProductPages} onPageChange={setProductPage} />
+                {filteredProducts.length > productsPerPage && (
+                  <PaginationControls currentPage={productPage} totalPages={totalProductPages} onPageChange={setProductPage} />
+                )}
               </div>
             </div>
           </div>

@@ -67,8 +67,11 @@ export default function SearchResults() {
                   <h3 className="font-medium text-sm text-gray-800 line-clamp-2 mb-2 h-10">{product.name}</h3>
                   <div className="flex flex-col">
                     <span className="text-red-600 font-bold text-lg">{formatPrice(getLowestPrice(product))}</span>
-                    {product.originalPrice && (
-                      <span className="text-gray-400 text-sm line-through">{formatPrice(product.originalPrice)}</span>
+                    {product.originalPrice && product.originalPrice > getLowestPrice(product) && (
+                      <div className="flex flex-col">
+                        <span className="text-gray-400 text-sm line-through">{formatPrice(product.originalPrice)}</span>
+                        <span className="text-green-500 text-sm mt-0.5">Tiết kiệm {formatPrice(product.originalPrice - getLowestPrice(product))}</span>
+                      </div>
                     )}
                   </div>
                 </Link>

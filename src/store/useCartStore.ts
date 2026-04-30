@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { CartItem, Product, ProductVariant } from '../types';
+import { safeStorage } from '../lib/safeStorage';
 
 interface CartStore {
   items: CartItem[];
@@ -57,6 +58,7 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: 'cart-storage',
+      storage: createJSONStorage(() => safeStorage)
     }
   )
 );

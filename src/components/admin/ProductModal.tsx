@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Product, ProductVariant } from '../../types';
 import { Plus, Trash2, Upload } from 'lucide-react';
 import { useCategoryStore } from '../../store/useCategoryStore';
-import { uploadFileToCloudinary } from '../../lib/cloudinaryUpload';
 import { toast } from 'react-hot-toast';
+import { compressImage } from '../../lib/imageUtils';
+import { uploadFileToCloudinary } from '../../lib/cloudinaryUpload';
+import { useProductStore } from '../../store/useProductStore';
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -14,7 +16,9 @@ interface ProductModalProps {
 
 export default function ProductModal({ isOpen, onClose, onSave, initialData }: ProductModalProps) {
   const { categories } = useCategoryStore();
+  const { products } = useProductStore();
   const [isUploading, setIsUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'basic' | 'images' | 'specs'>('basic');
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
     slug: '',
@@ -31,11 +35,14 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [specEntries, setSpecEntries] = useState<{key: string, value: string}[]>([]);
 
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
+      setSpecEntries(initialData.specs ? Object.entries(initialData.specs).map(([key, value]) => ({ key, value })) : []);
     } else {
+      setSpecEntries([]);
       setFormData({
         name: '',
         slug: '',
@@ -101,7 +108,8 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
       setIsUploading(true);
       const toastId = toast.loading('Đang nén và tải ảnh lên...');
       try {
-        const result = await uploadFileToCloudinary(file, 'products/variants');
+        const compressedFile = await compressImage(file);
+        const result = await uploadFileToCloudinary(compressedFile, 'alo_store/products');
         handleVariantChange(index, 'image', result.url);
         toast.success('Tải ảnh biến thể thành công', { id: toastId });
       } catch (error) {
@@ -135,7 +143,8 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
       setIsUploading(true);
       const toastId = toast.loading('Đang nén và tải ảnh chính lên...');
       try {
-        const result = await uploadFileToCloudinary(file, 'products/main');
+        const compressedFile = await compressImage(file);
+        const result = await uploadFileToCloudinary(compressedFile, 'alo_store/products');
         setFormData({ ...formData, image: result.url });
         toast.success('Tải ảnh chính thành công', { id: toastId });
       } catch (error) {
@@ -156,7 +165,8 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
 
     try {
       const uploadPromises = files.map(async (file) => {
-        const result = await uploadFileToCloudinary(file, 'products/gallery');
+        const compressedFile = await compressImage(file);
+        const result = await uploadFileToCloudinary(compressedFile, 'alo_store/products');
         return result.url;
       });
 
@@ -201,11 +211,68 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
     setFormData({ ...formData, offers: newOffers });
   };
 
+  const updateSpec = (index: number, field: 'key' | 'value', value: string) => {
+    const newSpecs = [...specEntries];
+    newSpecs[index][field] = value;
+    setSpecEntries(newSpecs);
+  };
+
+  const addSpec = () => {
+    setSpecEntries([...specEntries, { key: '', value: '' }]);
+  };
+
+  const removeSpec = (index: number) => {
+    const newSpecs = [...specEntries];
+    newSpecs.splice(index, 1);
+    setSpecEntries(newSpecs);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.name?.trim()) {
+      toast.error('Vui lòng nhập tên sản phẩm', { id: 'validation' });
+      setActiveTab('basic');
+      return;
+    }
+    if (!formData.price || formData.price <= 0) {
+      toast.error('Vui lòng nhập giá bán hợp lệ', { id: 'validation' });
+      setActiveTab('basic');
+      return;
+    }
+    if (!formData.brand?.trim()) {
+      toast.error('Vui lòng nhập thương hiệu', { id: 'validation' });
+      setActiveTab('basic');
+      return;
+    }
+    if (!formData.image?.trim()) {
+      toast.error('Vui lòng thêm hình ảnh chính', { id: 'validation' });
+      setActiveTab('images');
+      return;
+    }
+    if (!formData.variants || formData.variants.length === 0) {
+      toast.error('Vui lòng thêm ít nhất 1 phiên bản', { id: 'validation' });
+      setActiveTab('specs');
+      return;
+    }
+    const hasInvalidVariant = formData.variants.some(v => !v.color?.trim() || v.price <= 0);
+    if (hasInvalidVariant) {
+      toast.error('Mỗi phiên bản cần có màu sắc và giá hợp lệ', { id: 'validation' });
+      setActiveTab('specs');
+      return;
+    }
     
     // Auto generate slug if empty
-    const slug = formData.slug || (formData.name || '').toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+    let baseSlug = formData.slug ? formData.slug.trim() : (formData.name || '').toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+    if (!baseSlug) baseSlug = 'sản-phẩm';
+    
+    let slug = baseSlug;
+    let counter = 1;
+    // Check if slug exists in other products
+    while (products.some(p => p.slug === slug && p.id !== initialData?.id)) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
     
     // Filter empty offers
     const cleanOffers = (formData.offers || []).filter(o => o.trim() !== '');
@@ -214,6 +281,13 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
     if (formData.originalPrice && formData.price && formData.originalPrice > formData.price) {
       finalDiscount = Math.round(((formData.originalPrice - formData.price) / formData.originalPrice) * 100);
     }
+
+    const finalSpecs: Record<string, string> = {};
+    specEntries.forEach(entry => {
+      if (entry.key.trim() && entry.value.trim()) {
+        finalSpecs[entry.key.trim()] = entry.value.trim();
+      }
+    });
 
     onSave({
       id: initialData?.id || Date.now().toString(),
@@ -230,7 +304,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
       inventoryQuantity: formData.inventoryQuantity,
       description: formData.description || '',
       inStock: formData.inStock ?? true,
-      specs: formData.specs || {},
+      specs: finalSpecs,
       variants: formData.variants && formData.variants.length > 0 ? formData.variants : [{ id: Date.now().toString(), color: 'Mặc định', price: formData.price || 0, inStock: true }],
       ...(cleanOffers.length > 0 ? { offers: cleanOffers } : {})
     });
@@ -247,45 +321,83 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-xl font-bold mb-4">{initialData ? 'Sửa Sản phẩm' : 'Thêm Sản phẩm'}</h2>
+        
+        <div className="flex border-b mb-6 overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => setActiveTab('basic')}
+            className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${activeTab === 'basic' ? 'border-b-2 border-[#00483d] text-[#00483d]' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Thông tin cơ bản
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('images')}
+            className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${activeTab === 'images' ? 'border-b-2 border-[#00483d] text-[#00483d]' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Hình ảnh & Trạng thái
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('specs')}
+            className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${activeTab === 'specs' ? 'border-b-2 border-[#00483d] text-[#00483d]' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Cấu hình & Phiên bản
+          </button>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Tên sản phẩm</label>
-              <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full border rounded p-2" required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Slug (URL)</label>
-              <input type="text" name="slug" value={formData.slug} onChange={handleChange} className="w-full border rounded p-2" placeholder="De-trong-de-tu-tao" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Giá bán cơ bản (Giá KM)</label>
-              <input 
-                type="text" 
-                name="price" 
-                value={formData.price ? formData.price.toLocaleString('vi-VN') : ''} 
-                onChange={(e) => {
-                  const rawValue = e.target.value.replace(/[^0-9]/g, '');
-                  const numValue = rawValue ? Number(rawValue) : 0;
-                  setFormData(prev => {
-                    const newData = { ...prev, price: numValue };
-                    if (newData.originalPrice && newData.price && newData.originalPrice > newData.price) {
-                      newData.discountPercentage = Math.round(((newData.originalPrice - newData.price) / newData.originalPrice) * 100);
-                    } else {
-                       newData.discountPercentage = undefined;
-                    }
-                    newData.variants = prev.variants?.map(v => {
-                      if (prev.variants?.length === 1 || v.price === prev.price || v.price === 0) {
-                        return { ...v, price: numValue };
+          <div className={activeTab === 'basic' ? 'block' : 'hidden'}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Tên sản phẩm *</label>
+                <input type="text" name="name" value={formData.name || ''} onChange={handleChange} className="w-full border rounded p-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Slug (URL)</label>
+                <input type="text" name="slug" value={formData.slug || ''} onChange={handleChange} className="w-full border rounded p-2" placeholder="De-trong-de-tu-tao" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Giá bán cơ bản (Giá KM) *</label>
+                <input 
+                  type="text" 
+                  name="price" 
+                  value={formData.price ? formData.price.toLocaleString('vi-VN') : ''} 
+                  onChange={(e) => {
+                    const input = e.target;
+                    const cursorPos = input.selectionStart || 0;
+                    const oldLength = input.value.length;
+                    
+                    const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                    const numValue = rawValue ? Number(rawValue) : 0;
+                    setFormData(prev => {
+                      const newData = { ...prev, price: numValue };
+                      if (newData.originalPrice && newData.price && newData.originalPrice > newData.price) {
+                        newData.discountPercentage = Math.round(((newData.originalPrice - newData.price) / newData.originalPrice) * 100);
+                      } else {
+                         newData.discountPercentage = undefined;
                       }
-                      return v;
+                      newData.variants = prev.variants?.map(v => {
+                        if (prev.variants?.length === 1 || v.price === prev.price || v.price === 0) {
+                          return { ...v, price: numValue };
+                        }
+                        return v;
+                      });
+                      return newData;
                     });
-                    return newData;
-                  });
-                }}
-                className="w-full border rounded p-2" 
-                required 
-              />
-            </div>
+                    
+                    // Restore cursor position after state update
+                    requestAnimationFrame(() => {
+                      const newLength = input.value.length;
+                      const diff = newLength - oldLength;
+                      const newPos = Math.max(0, cursorPos + diff);
+                      input.setSelectionRange(newPos, newPos);
+                    });
+                  }}
+                  className="w-full border rounded p-2" 
+                  placeholder="VD: 1.000.000"
+                />
+              </div>
             <div>
               <label className="block text-sm font-medium mb-1">Giá gốc (Bỏ trống nếu không giảm)</label>
               <input 
@@ -293,6 +405,10 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
                 name="originalPrice" 
                 value={formData.originalPrice ? formData.originalPrice.toLocaleString('vi-VN') : ''} 
                 onChange={(e) => {
+                  const input = e.target;
+                  const cursorPos = input.selectionStart || 0;
+                  const oldLength = input.value.length;
+                  
                   const rawValue = e.target.value.replace(/[^0-9]/g, '');
                   const numValue = rawValue ? Number(rawValue) : 0;
                   setFormData(prev => {
@@ -304,8 +420,16 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
                     }
                     return newData;
                   });
+                  
+                  requestAnimationFrame(() => {
+                    const newLength = input.value.length;
+                    const diff = newLength - oldLength;
+                    const newPos = Math.max(0, cursorPos + diff);
+                    input.setSelectionRange(newPos, newPos);
+                  });
                 }}
                 className="w-full border rounded p-2" 
+                placeholder="VD: 1.500.000"
               />
             </div>
             <div>
@@ -318,7 +442,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Thương hiệu</label>
-              <input type="text" name="brand" value={formData.brand} onChange={handleChange} className="w-full border rounded p-2" required />
+              <input type="text" name="brand" value={formData.brand} onChange={handleChange} className="w-full border rounded p-2" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Tình trạng máy</label>
@@ -355,10 +479,15 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
                 placeholder="Nhập mô tả chi tiết về sản phẩm, tính năng, ưu điểm..."
               />
             </div>
+          </div>
+        </div>
+
+        <div className={activeTab === 'images' ? 'block space-y-6' : 'hidden'}>
+          <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium mb-1">Hình ảnh chính</label>
               <div className="flex gap-2">
-                <input type="text" name="image" value={formData.image} onChange={handleChange} className="flex-1 border rounded p-2" placeholder="URL hoặc tải ảnh lên" required />
+                <input type="text" name="image" value={formData.image} onChange={handleChange} className="flex-1 border rounded p-2" placeholder="URL hoặc tải ảnh lên" />
                 <button 
                   type="button" 
                   onClick={() => fileInputRef.current?.click()}
@@ -456,6 +585,54 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
               )}
             </div>
           </div>
+        </div>
+
+        <div className={activeTab === 'specs' ? 'block space-y-6' : 'hidden'}>
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">Thông số kỹ thuật</h3>
+              <button 
+                type="button" 
+                onClick={addSpec}
+                className="flex items-center text-sm bg-purple-50 text-purple-600 px-3 py-1.5 rounded hover:bg-purple-100"
+              >
+                <Plus size={16} className="mr-1" /> Thêm thông số
+              </button>
+            </div>
+            
+            <div className="space-y-3">
+              {specEntries.map((spec, index) => (
+                <div key={index} className="flex gap-2 items-start">
+                  <input 
+                    type="text" 
+                    value={spec.key} 
+                    onChange={(e) => updateSpec(index, 'key', e.target.value)} 
+                    className="w-1/3 border rounded p-2 text-sm" 
+                    placeholder="VD: Độ phân giải camera"
+                  />
+                  <input 
+                    type="text" 
+                    value={spec.value} 
+                    onChange={(e) => updateSpec(index, 'value', e.target.value)} 
+                    className="flex-1 border rounded p-2 text-sm" 
+                    placeholder="VD: 48MP"
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => removeSpec(index)}
+                    className="text-red-500 hover:text-red-700 p-2 border rounded border-red-200 bg-red-50"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ))}
+              {specEntries.length === 0 && (
+                <div className="text-center py-4 text-gray-500 text-sm border border-dashed rounded">
+                  Chưa có thông số kỹ thuật nào.
+                </div>
+              )}
+            </div>
+          </div>
 
           <div className="border-t pt-4">
             <div className="flex justify-between items-center mb-4">
@@ -488,7 +665,6 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
                         value={variant.color} 
                         onChange={(e) => handleVariantChange(index, 'color', e.target.value)} 
                         className="w-full border rounded p-2 text-sm" 
-                        required 
                         placeholder="VD: Đen, Trắng..."
                       />
                     </div>
@@ -533,7 +709,6 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
                           handleVariantChange(index, 'price', numValue);
                         }} 
                         className="w-full border rounded p-2 text-sm" 
-                        required 
                       />
                     </div>
                     <div>
@@ -575,6 +750,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }: P
               )}
             </div>
           </div>
+        </div>
 
           <div className="flex justify-end space-x-2 mt-6 border-t pt-4">
             <button type="button" onClick={onClose} className="px-4 py-2 border rounded hover:bg-gray-50" disabled={isUploading}>Hủy</button>

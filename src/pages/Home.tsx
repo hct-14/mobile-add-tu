@@ -7,15 +7,9 @@ import { useCategoryStore } from "../store/useCategoryStore";
 import { useCompareStore } from "../store/useCompareStore";
 import { Scale } from "lucide-react";
 import { getLowestPrice } from "../lib/utils";
-import { ImageWithFallback, LazyImage } from "../components/ImageWithFallback";
+import { ImageWithFallback } from "../components/ImageWithFallback";
 import { LazySection } from "../components/LazySection";
-import {
-  Skeleton,
-  SkeletonProductCard,
-  SkeletonBanner,
-  SkeletonCategories,
-  SkeletonProductGrid,
-} from "../components/SkeletonLoader";
+import LoadingSkeleton from "../components/LoadingSkeleton";
 
 export default function Home() {
   const { products, isLoading: isProductsLoading } = useProductStore();
@@ -100,34 +94,8 @@ export default function Home() {
     });
   }, [categories]);
 
-  // Optimized initial items - only load what user sees first
-  const INITIAL_PRODUCTS_COUNT = 10;
-
   if (isLoading) {
-    return (
-      <div className="space-y-8 px-4">
-        {/* Hero Banner Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <SkeletonBanner className="md:col-span-2 aspect-[2/1]" />
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
-            <SkeletonBanner className="aspect-[2/1]" />
-            <SkeletonBanner className="aspect-[2/1] hidden md:block" />
-          </div>
-        </div>
-
-        {/* Categories Skeleton */}
-        <section>
-          <Skeleton className="h-6 w-40 mb-4" />
-          <SkeletonCategories count={6} />
-        </section>
-
-        {/* Products Skeleton */}
-        <section>
-          <Skeleton className="h-6 w-32 mb-4" />
-          <SkeletonProductGrid count={INITIAL_PRODUCTS_COUNT} />
-        </section>
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
   const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
@@ -140,40 +108,26 @@ export default function Home() {
     <div className="space-y-8">
       {/* Preload High Priority Images */}
       {heroBanner && (
-        <link
-          rel="preload"
-          href={heroBanner.imageUrl}
-          as="image"
-          fetchPriority="high"
-          key="preload-hero"
-        />
+        <link rel="preload" href={heroBanner.imageUrl} as="image" fetchPriority="high" />
       )}
-      {subBanners.slice(0, 1).map((banner) => (
-        <link
-          key={`preload-sub-${banner.id}`}
-          rel="preload"
-          href={banner.imageUrl}
-          as="image"
-          fetchPriority="high"
-        />
+      {subBanners.map(banner => (
+         <link key={`preload-${banner.id}`} rel="preload" href={banner.imageUrl} as="image" fetchPriority="high" />
       ))}
-
+      
       {/* Hero Banner */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {heroBanner && (
           <Link
             to={heroBanner.link}
-            className="md:col-span-2 rounded-xl overflow-hidden aspect-[2/1] relative block"
-            style={{ backgroundColor: 'rgb(188 179 180)' }}
+            className="md:col-span-2 bg-gray-200 rounded-xl overflow-hidden aspect-[2/1] relative block"
           >
             <ImageWithFallback
               src={heroBanner.imageUrl}
               alt={heroBanner.title}
               loading="eager"
               fetchPriority="high"
-              decoding="sync"
+              decoding="async"
               className="w-full h-full object-cover"
-              useBlur={false}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-6 text-white">
               <h2 className="text-3xl font-bold mb-2">{heroBanner.title}</h2>
@@ -186,15 +140,14 @@ export default function Home() {
             <Link
               key={banner.id}
               to={banner.link}
-              className="rounded-xl overflow-hidden aspect-[2/1] relative block"
-              style={{ backgroundColor: 'rgb(188 179 180)' }}
+              className="bg-gray-200 rounded-xl overflow-hidden aspect-[2/1] relative block"
             >
               <ImageWithFallback
                 src={banner.imageUrl}
                 alt={banner.title}
                 loading="eager"
                 fetchPriority="high"
-                decoding="sync"
+                decoding="async"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-4 text-white">
@@ -257,13 +210,10 @@ export default function Home() {
               );
               if (!product) return null;
 
-              const basePrice = product.originalPrice && product.originalPrice > 0 
-                ? product.originalPrice 
-                : product.price;
-              const savings = basePrice - campaignProduct.flashSalePrice;
-              const discountPercent = basePrice > campaignProduct.flashSalePrice
-                ? Math.round(savings / basePrice * 100)
-                : 0;
+              const basePrice = product.originalPrice || product.price;
+              const discountPercent = Math.round(
+                (1 - campaignProduct.flashSalePrice / basePrice) * 100,
+              );
 
               return (
                 <div
@@ -272,7 +222,7 @@ export default function Home() {
                 >
                   {discountPercent > 0 && (
                     <div className="absolute top-1 left-1 md:top-2 md:left-2 bg-red-500 text-white text-[10px] md:text-xs font-bold px-1.5 py-0.5 md:px-2 md:py-1 rounded z-10">
-                      -{discountPercent}%
+                      Giảm {discountPercent}%
                     </div>
                   )}
                   <button
@@ -292,8 +242,7 @@ export default function Home() {
                         alt={product.name}
                         loading="eager"
                         fetchPriority="high"
-                        decoding="sync"
-                        useBlur={false}
+                        decoding="async"
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                       />
                     </div>
@@ -304,18 +253,13 @@ export default function Home() {
                       <span className="text-red-600 font-bold text-sm md:text-lg">
                         {formatPrice(campaignProduct.flashSalePrice)}
                       </span>
-                      {discountPercent > 0 && (
-                        <>
-                          <span className="text-gray-400 text-[10px] md:text-sm line-through">
-                            {formatPrice(basePrice)}
-                          </span>
-                          <span className="text-gray-300 text-[9px] md:text-[10px] font-medium">
-                            Giá thị trường
-                          </span>
-                          <span className="text-green-400 text-[10px] md:text-xs font-medium">
-                            Tiết kiệm {formatPrice(savings)}
-                          </span>
-                        </>
+                      <span className="text-gray-400 text-[10px] md:text-sm line-through">
+                        {formatPrice(product.originalPrice || product.price)}
+                      </span>
+                      {((product.originalPrice || product.price) - campaignProduct.flashSalePrice) > 0 && (
+                        <span className="text-green-500 text-[10px] md:text-xs mt-0.5">
+                          Tiết kiệm {formatPrice((product.originalPrice || product.price) - campaignProduct.flashSalePrice)}
+                        </span>
                       )}
                     </div>
                   </Link>
@@ -385,13 +329,7 @@ export default function Home() {
                 const flashSalePrice = campaignProduct?.flashSalePrice;
                 const lowestPrice = getLowestPrice(product);
                 const actualPrice = flashSalePrice || lowestPrice;
-                const basePrice = product.originalPrice && product.originalPrice > 0 
-                  ? product.originalPrice 
-                  : product.price;
-                const discountPercent = flashSalePrice && basePrice > actualPrice
-                  ? Math.round((basePrice - actualPrice) / basePrice * 100)
-                  : 0;
-                const savings = basePrice - actualPrice;
+                const originalPrice = product.originalPrice || product.price;
 
                 return (
                   <div
@@ -400,9 +338,11 @@ export default function Home() {
                   >
                     <Link to={`/product/${product.slug}`} className="block">
                       <div className="aspect-square mb-2 overflow-hidden rounded-md relative">
-                        {discountPercent > 0 && (
+                        {(product.discountPercentage || flashSalePrice) && (
                           <div className="absolute top-1 left-1 bg-red-500 text-white text-[10px] font-bold px-1 py-0.5 rounded z-10">
-                            -{discountPercent}%
+                            {flashSalePrice
+                              ? "Flash Sale"
+                              : `Giảm ${product.discountPercentage}%`}
                           </div>
                         )}
                         <ImageWithFallback
@@ -410,7 +350,7 @@ export default function Home() {
                           alt={product.name}
                           loading={index < 3 ? "eager" : "lazy"}
                           fetchPriority={index < 3 ? "high" : "auto"}
-                          decoding="sync"
+                          decoding="async"
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -421,13 +361,13 @@ export default function Home() {
                         <span className="text-red-600 font-bold text-sm">
                           {formatPrice(actualPrice)}
                         </span>
-                        {discountPercent > 0 && (
+                        {originalPrice && originalPrice > actualPrice && (
                           <>
                             <span className="text-gray-400 text-[10px] line-through">
-                              {formatPrice(basePrice)}
+                              {formatPrice(originalPrice)}
                             </span>
-                            <span className="text-red-500 text-[9px] font-medium">
-                              Giá thị trường
+                            <span className="text-green-500 text-[10px] mt-0.5">
+                              Tiết kiệm {formatPrice(originalPrice - actualPrice)}
                             </span>
                           </>
                         )}
@@ -454,21 +394,18 @@ export default function Home() {
             const flashSalePrice = campaignProduct?.flashSalePrice;
             const lowestPrice = getLowestPrice(product);
             const actualPrice = flashSalePrice || lowestPrice;
-            const basePrice = product.originalPrice && product.originalPrice > 0 
-                  ? product.originalPrice 
-                  : product.price;
-            const discountPercent = flashSalePrice && basePrice > actualPrice
-              ? Math.round((basePrice - actualPrice) / basePrice * 100)
-              : 0;
+            const originalPrice = product.originalPrice || product.price;
 
             return (
               <div
                 key={product.id}
                 className="bg-white rounded-lg p-3 hover:shadow-lg transition-shadow border border-gray-100 relative group"
               >
-                {discountPercent > 0 && (
+                {(product.discountPercentage || flashSalePrice) && (
                   <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
-                    -{discountPercent}%
+                    {flashSalePrice
+                      ? "Flash Sale"
+                      : `Giảm ${product.discountPercentage}%`}
                   </div>
                 )}
                 <Link to={`/product/${product.slug}`} className="block">
@@ -478,7 +415,7 @@ export default function Home() {
                       alt={product.name}
                       loading={index < 10 ? "eager" : "lazy"}
                       fetchPriority={index < 10 ? "high" : "auto"}
-                      decoding="sync"
+                      decoding="async"
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     />
                   </div>
@@ -489,15 +426,15 @@ export default function Home() {
                     <span className="text-red-600 font-bold text-lg">
                       {formatPrice(actualPrice)}
                     </span>
-                    {discountPercent > 0 && (
-                      <>
+                    {originalPrice && originalPrice > actualPrice && (
+                      <div className="flex flex-col">
                         <span className="text-gray-400 text-sm line-through">
-                          {formatPrice(basePrice)}
+                          {formatPrice(originalPrice)}
                         </span>
-                        <span className="text-red-500 text-xs font-medium">
-                          Giá thị trường
+                        <span className="text-green-500 text-sm mt-0.5">
+                          Tiết kiệm {formatPrice(originalPrice - actualPrice)}
                         </span>
-                      </>
+                      </div>
                     )}
                   </div>
                 </Link>
